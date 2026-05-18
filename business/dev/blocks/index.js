@@ -1,3 +1,83 @@
+const baseBridgeData = {
+  bridgeUrl: 'http://127.0.0.1:8765/run',
+  assignVariable: true,
+  variableName: '',
+  saveData: false,
+  dataColumn: '',
+  returnPath: 'result',
+  timeout: 30000,
+};
+
 export default function () {
-  return {};
+  return {
+    'python-bridge': {
+      name: 'Python Bridge',
+      description: 'Call the local Visual Coding Python bridge action',
+      icon: 'riTerminalBoxLine',
+      component: 'BlockBasicWithFallback',
+      editComponent: 'EditPythonBridge',
+      category: 'general',
+      inputs: 1,
+      outputs: 2,
+      allowedInputs: true,
+      maxConnection: 1,
+      refDataKeys: ['bridgeUrl', 'action', 'payload', 'variableName'],
+      autocomplete: ['variableName'],
+      data: {
+        disableBlock: false,
+        description: '',
+        action: 'echo',
+        payload: '{\n  "message": "from Automa"\n}',
+        ...baseBridgeData,
+      },
+    },
+    'parallel-runner': {
+      name: 'Parallel Runner',
+      description: 'Run bridge actions with Python threads or processes',
+      icon: 'riCpuLine',
+      component: 'BlockBasicWithFallback',
+      editComponent: 'EditParallelRunner',
+      category: 'conditions',
+      inputs: 1,
+      outputs: 2,
+      allowedInputs: true,
+      maxConnection: 1,
+      refDataKeys: ['bridgeUrl', 'tasksJson', 'variableName'],
+      autocomplete: ['variableName'],
+      data: {
+        disableBlock: false,
+        description: '',
+        mode: 'thread',
+        workers: 4,
+        repeats: 1,
+        tasksJson:
+          '[\n  {"action":"uppercase","payload":{"text":"one"}},\n  {"action":"uppercase","payload":{"text":"two"}}\n]',
+        ...baseBridgeData,
+        returnPath: 'summary',
+      },
+    },
+    'build-app': {
+      name: 'Build App',
+      description: 'Generate a simple standalone Python app from bridge actions',
+      icon: 'riArchiveLine',
+      component: 'BlockBasicWithFallback',
+      editComponent: 'EditBuildApp',
+      category: 'general',
+      inputs: 1,
+      outputs: 2,
+      allowedInputs: true,
+      maxConnection: 1,
+      refDataKeys: ['bridgeUrl', 'appName', 'actionsJson', 'variableName'],
+      autocomplete: ['variableName'],
+      data: {
+        disableBlock: false,
+        description: '',
+        appName: 'visual-coding-demo',
+        actionsJson:
+          '[\n  {"action":"echo","payload":{"message":"built app"}},\n  {"action":"uppercase","payload":{"text":"demo"}}\n]',
+        ...baseBridgeData,
+        returnPath: 'result.dir',
+      },
+    },
+  };
 }
