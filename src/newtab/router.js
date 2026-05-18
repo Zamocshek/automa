@@ -18,6 +18,7 @@ import SettingsProfile from './pages/settings/SettingsProfile.vue';
 import SettingsShortcuts from './pages/settings/SettingsShortcuts.vue';
 import SettingsBackup from './pages/settings/SettingsBackup.vue';
 import SettingsEditor from './pages/settings/SettingsEditor.vue';
+import VisualCodingStudio from './pages/VisualCodingStudio.vue';
 
 const routes = [
   {
@@ -35,6 +36,11 @@ const routes = [
     name: 'packages',
     path: '/packages',
     component: Packages,
+  },
+  {
+    name: 'visual-coding',
+    path: '/visual-coding',
+    component: VisualCodingStudio,
   },
   {
     name: 'recording',

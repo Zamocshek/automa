@@ -25,11 +25,7 @@
         custom
       >
         <a
-          v-tooltip:right.group="
-            `${t(`common.${tab.id}`, 2)} ${
-              tab.shortcut && `(${tab.shortcut.readable})`
-            }`
-          "
+          v-tooltip:right.group="getTabTooltip(tab)"
           :class="{ 'is-active': isActive }"
           :href="tab.id === 'log' ? '#' : href"
           class="tab relative z-10 flex w-full items-center justify-center"
@@ -133,6 +129,13 @@ const tabs = [
     shortcut: '',
   },
   {
+    id: 'visual-coding',
+    label: 'Visual Coding',
+    icon: 'riTerminalBoxLine',
+    path: '/visual-coding',
+    shortcut: '',
+  },
+  {
     id: 'schedule',
     icon: 'riTimeLine',
     path: '/schedule',
@@ -160,6 +163,11 @@ const tabs = [
 const hoverIndicator = ref(null);
 const showHoverIndicator = ref(false);
 const runningWorkflowsLen = computed(() => workflowStore.getAllStates.length);
+
+function getTabTooltip(tab) {
+  const label = tab.label || t(`common.${tab.id}`, 2);
+  return `${label} ${tab.shortcut ? `(${tab.shortcut.readable})` : ''}`;
+}
 
 useShortcut(
   tabs.reduce((acc, { shortcut }) => {
