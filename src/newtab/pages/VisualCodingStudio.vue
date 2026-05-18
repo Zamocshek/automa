@@ -209,6 +209,30 @@
           <ui-button @click="safeRun(loadPatchTemplate)">AI patch template</ui-button>
         </div>
       </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>AI Workflow Composer</h2>
+          <span>prompt -> patch</span>
+        </div>
+        <label>
+          Intent
+          <ui-textarea
+            :model-value="composerPrompt"
+            spellcheck="false"
+            class="vc-code-input vc-small-code"
+            @change="composerPrompt = $event"
+          />
+        </label>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(composeWorkflow)">
+            Compose workflow patch
+          </ui-button>
+          <ui-button @click="composerPrompt = sampleComposerPrompt">
+            BAS-style sample
+          </ui-button>
+        </div>
+      </article>
     </section>
 
     <section class="vc-panel vc-output-panel">
@@ -254,6 +278,8 @@ const appActions = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
+const sampleComposerPrompt = 'Build an Automa workflow that runs a Python step, processes tasks in parallel with multiprocessing, then builds a small app.';
+const composerPrompt = ref(sampleComposerPrompt);
 
 const examples = {
   echo: { message: 'from Automa Visual Coding' },
@@ -290,6 +316,7 @@ const mcpExamples = {
   'project.read_file': { path: 'memory.md' },
   'skill.status': {},
   'workflow.patch_template': { kind: 'python_bridge' },
+  'workflow.compose_from_prompt': { prompt: sampleComposerPrompt },
   'demo.run': {},
 };
 
@@ -438,6 +465,11 @@ async function runMcpTool() {
 async function loadPatchTemplate() {
   selectMcpTool('workflow.patch_template');
   await runMcpTool();
+}
+
+async function composeWorkflow() {
+  const data = await callMcp('workflow.compose_from_prompt', { prompt: composerPrompt.value });
+  print('AI Workflow Composer', data);
 }
 
 async function runFullDemo() {
