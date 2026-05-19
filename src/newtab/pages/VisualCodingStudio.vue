@@ -381,6 +381,7 @@
           <ui-button variant="accent" @click="safeRun(runMcpTool)">Call tool</ui-button>
           <ui-button @click="selectMcpTool('bridge.health')">Bridge health</ui-button>
           <ui-button @click="selectMcpTool('skill.status')">Skill status</ui-button>
+          <ui-button @click="selectMcpTool('mcp.server.status')">MCP server</ui-button>
           <ui-button @click="selectMcpTool('files.tool')">Files</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Wait</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
@@ -853,6 +854,8 @@ const mcpExamples = {
   'bridge.health': {},
   'bridge.actions': {},
   'bridge.run_action': { action: 'uppercase', payload: { text: 'mcp call from Automa' } },
+  'mcp.server.status': {},
+  'mcp.server.config': {},
   'project.status': {},
   'project.read_file': { path: 'memory.md' },
   'skill.status': {},
