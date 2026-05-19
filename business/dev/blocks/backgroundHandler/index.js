@@ -141,12 +141,19 @@ export async function browserScanner({ id, data }, { refData }) {
       refData,
       this.engine.isPopup
     );
+    const profileName = await render(
+      data.profileName || '',
+      refData,
+      this.engine.isPopup
+    );
     const payload = {
       browserEngine,
+      autoCreateProfile: data.autoCreateProfile !== false,
       headless: data.headless !== false,
       maxElements: Number(data.maxElements || 80),
       captureNetwork: Boolean(data.captureNetwork),
     };
+    if (profileName) payload.profileName = profileName;
 
     if (source === 'url') {
       payload.url = await render(data.url || '', refData, this.engine.isPopup);

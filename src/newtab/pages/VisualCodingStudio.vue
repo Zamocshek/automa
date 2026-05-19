@@ -401,6 +401,11 @@
               <option value="camoufox">camoufox</option>
             </ui-select>
             <ui-input
+              :model-value="browserProfileName"
+              label="Browser profile"
+              @change="browserProfileName = $event"
+            />
+            <ui-input
               :model-value="browserUrl"
               label="URL"
               @change="browserUrl = $event"
@@ -434,6 +439,8 @@
           <ui-button @click="safeRun(queryBrowserSelector)">Query selector</ui-button>
           <ui-button @click="safeRun(suggestBrowserSelectors)">Suggest selectors</ui-button>
           <ui-button @click="safeRun(checkBrowserEngines)">Engine status</ui-button>
+          <ui-button @click="safeRun(createBrowserProfile)">Create profile</ui-button>
+          <ui-button @click="safeRun(listBrowserProfiles)">List profiles</ui-button>
         </div>
       </article>
     </section>
@@ -499,6 +506,7 @@ const mcpArgs = ref('{}');
 const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
+const browserProfileName = ref('demo-browser-profile');
 const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
@@ -569,19 +577,34 @@ const examples = {
   },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
   browser_engine_status: { browserEngine: 'chromium' },
+  browser_profile_create: {
+    name: 'demo-browser-profile',
+    browserEngine: 'chromium',
+    description: 'Persistent profile for cookies and user-data',
+  },
+  browser_profile_list: {},
+  browser_profile_delete: { name: 'demo-browser-profile', force: true },
+  browser_profile_lock: { name: 'demo-browser-profile', browserEngine: 'chromium', owner: 'studio', ttlSeconds: 300 },
+  browser_profile_release: { name: 'demo-browser-profile', token: '<lock-token>' },
   browser_scan_page: {
     browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    autoCreateProfile: true,
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   browser_query_selector: {
     browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    autoCreateProfile: true,
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
   browser_suggest_selectors: {
     browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    autoCreateProfile: true,
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
@@ -626,19 +649,34 @@ const mcpExamples = {
   'workflow.patch_template': { kind: 'python_bridge' },
   'workflow.compose_from_prompt': { prompt: sampleComposerPrompt },
   'browser.engine_status': { browserEngine: 'chromium' },
+  'browser.profiles.list': {},
+  'browser.profiles.create': {
+    name: 'demo-browser-profile',
+    browserEngine: 'chromium',
+    description: 'Persistent profile for cookies and user-data',
+  },
+  'browser.profiles.delete': { name: 'demo-browser-profile', force: true },
+  'browser.profiles.lock': { name: 'demo-browser-profile', browserEngine: 'chromium', owner: 'studio', ttlSeconds: 300 },
+  'browser.profiles.release': { name: 'demo-browser-profile', token: '<lock-token>' },
   'browser.scan_page': {
     browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    autoCreateProfile: true,
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   'browser.query_selector': {
     browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    autoCreateProfile: true,
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
   'browser.suggest_selectors': {
     browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    autoCreateProfile: true,
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
@@ -890,6 +928,8 @@ function browserPayload(useHtml = false) {
   const html = browserHtml.value.trim();
   const base = {
     browserEngine: browserEngine.value,
+    profileName: browserProfileName.value.trim(),
+    autoCreateProfile: true,
     headless: true,
     maxElements: 80,
   };
@@ -933,6 +973,20 @@ async function suggestBrowserSelectors() {
 async function checkBrowserEngines() {
   const data = await callMcp('browser.engine_status', { browserEngine: browserEngine.value });
   print('Browser Engine Status', data);
+}
+
+async function createBrowserProfile() {
+  const data = await callMcp('browser.profiles.create', {
+    name: browserProfileName.value.trim() || 'demo-browser-profile',
+    browserEngine: browserEngine.value,
+    description: 'Created from Automa Visual Coding Studio',
+  });
+  print('Browser Profile Created', data);
+}
+
+async function listBrowserProfiles() {
+  const data = await callMcp('browser.profiles.list');
+  print('Browser Profiles', data);
 }
 
 async function saveWorkflowToAutoma(workflow) {

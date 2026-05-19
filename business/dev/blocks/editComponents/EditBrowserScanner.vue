@@ -34,6 +34,19 @@
       <option value="webkit">webkit</option>
       <option value="camoufox">camoufox</option>
     </ui-select>
+    <ui-input
+      :model-value="data.profileName"
+      label="Browser profile"
+      class="w-full"
+      placeholder="account-01"
+      @change="updateData({ profileName: $event })"
+    />
+    <ui-checkbox
+      :model-value="data.autoCreateProfile !== false"
+      @change="updateData({ autoCreateProfile: $event })"
+    >
+      Auto-create profile
+    </ui-checkbox>
     <ui-checkbox
       :model-value="data.headless !== false"
       @change="updateData({ headless: $event })"
