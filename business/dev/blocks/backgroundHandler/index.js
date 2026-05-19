@@ -23,6 +23,14 @@ function parseJsonArray(value, label) {
   return parsed;
 }
 
+function parseJsonValue(value, label) {
+  try {
+    return JSON.parse(value || 'null');
+  } catch (error) {
+    throw new Error(`${label} must be valid JSON: ${error.message}`);
+  }
+}
+
 async function callBridge(data, refData, isPopup, body) {
   const bridgeUrl = await render(data.bridgeUrl || DEFAULT_BRIDGE_URL, refData, isPopup);
   const timeout = Number(data.timeout || 30000);
@@ -210,6 +218,241 @@ export async function resourceStore({ id, data }, { refData }) {
   }
 }
 
+export async function jsonTools({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'get';
+    const modeToAction = {
+      create: 'json_create',
+      get: 'json_get',
+      keys: 'json_keys',
+      values: 'json_values',
+      count: 'json_count',
+      set: 'json_set',
+      delete: 'json_delete',
+      parse: 'json_parse',
+      stringify: 'json_stringify',
+      valid: 'json_is_valid',
+    };
+    const action = modeToAction[mode] || 'json_get';
+    const payload = {};
+
+    if (['parse', 'valid'].includes(mode)) {
+      payload.text = await render(data.text || '', refData, this.engine.isPopup);
+    } else {
+      const dataJson = await render(data.dataJson || '{}', refData, this.engine.isPopup);
+      payload.data = parseJsonValue(dataJson, 'dataJson');
+      payload.path = await render(data.path || '', refData, this.engine.isPopup);
+    }
+
+    if (mode === 'set') {
+      const valueJson = await render(data.valueJson || 'null', refData, this.engine.isPopup);
+      payload.value = parseJsonValue(valueJson, 'valueJson');
+    } else if (mode === 'stringify') {
+      payload.indent = Number(data.indent || 2);
+    } else if (mode === 'create') {
+      payload.shape = data.shape || 'object';
+      payload.items = Array.isArray(payload.data) ? payload.data : [];
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function listTools({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'length';
+    const modeToAction = {
+      create: 'list_create',
+      length: 'list_length',
+      append: 'list_append',
+      get: 'list_get',
+      first: 'list_first',
+      last: 'list_last',
+      random: 'list_random',
+      insert: 'list_insert',
+      set: 'list_set',
+      remove: 'list_remove',
+      contains: 'list_contains',
+      slice: 'list_slice',
+      removeRange: 'list_remove_range',
+      join: 'list_join',
+      parse: 'list_parse',
+      index: 'list_index',
+      copy: 'list_copy',
+      sort: 'list_sort',
+      dedupe: 'list_dedupe',
+      shuffle: 'list_shuffle',
+      merge: 'list_merge',
+      compare: 'list_compare',
+      filterContains: 'list_filter_contains',
+    };
+    const action = modeToAction[mode] || 'list_length';
+    const payload = {};
+
+    const itemsText = await render(data.itemsJson || '[]', refData, this.engine.isPopup);
+    payload.items = parseJsonArray(itemsText, 'itemsJson');
+
+    if (['append', 'insert', 'set', 'remove', 'contains', 'index'].includes(mode)) {
+      const itemText = await render(data.itemJson || 'null', refData, this.engine.isPopup);
+      payload.item = parseJsonValue(itemText, 'itemJson');
+    }
+    if (['get', 'insert', 'set', 'remove'].includes(mode)) payload.index = Number(data.index || 0);
+    if (['slice', 'removeRange'].includes(mode)) {
+      payload.start = Number(data.start || 0);
+      if (mode === 'slice' && data.end !== '') payload.end = Number(data.end);
+      if (mode === 'removeRange') payload.count = Number(data.count || 1);
+    }
+    if (['join', 'parse'].includes(mode)) {
+      payload.separator = await render(data.separator || ',', refData, this.engine.isPopup);
+    }
+    if (mode === 'parse') {
+      payload.text = await render(data.text || '', refData, this.engine.isPopup);
+    }
+    if (mode === 'sort') {
+      payload.key = await render(data.key || '', refData, this.engine.isPopup);
+      payload.reverse = Boolean(data.reverse);
+    }
+    if (mode === 'merge') {
+      payload.lists = parseJsonArray(await render(data.listsJson || '[]', refData, this.engine.isPopup), 'listsJson');
+    }
+    if (mode === 'compare') {
+      payload.right = parseJsonArray(await render(data.rightJson || '[]', refData, this.engine.isPopup), 'rightJson');
+      payload.mode = data.compareMode || 'equals';
+    }
+    if (mode === 'filterContains') {
+      payload.text = await render(data.text || '', refData, this.engine.isPopup);
+      payload.key = await render(data.key || '', refData, this.engine.isPopup);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function logicTools({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'compare';
+    const modeToAction = {
+      compare: 'logic_compare',
+      truthy: 'logic_truthy',
+      boolean: 'logic_boolean',
+      choose: 'logic_choose',
+    };
+    const action = modeToAction[mode] || 'logic_compare';
+    const leftJson = await render(data.leftJson || 'null', refData, this.engine.isPopup);
+    const payload = {
+      left: parseJsonValue(leftJson, 'leftJson'),
+      operator: data.operator || 'eq',
+    };
+
+    if (mode === 'truthy') {
+      payload.value = payload.left;
+      delete payload.left;
+      delete payload.operator;
+    } else if (mode === 'boolean') {
+      payload.operator = ['and', 'or', 'not'].includes(data.operator) ? data.operator : 'and';
+      payload.values = parseJsonArray(await render(data.valuesJson || '[]', refData, this.engine.isPopup), 'valuesJson');
+    } else {
+      payload.right = parseJsonValue(await render(data.rightJson || 'null', refData, this.engine.isPopup), 'rightJson');
+    }
+
+    if (mode === 'choose') {
+      payload.whenTrue = parseJsonValue(await render(data.whenTrueJson || 'true', refData, this.engine.isPopup), 'whenTrueJson');
+      payload.whenFalse = parseJsonValue(await render(data.whenFalseJson || 'false', refData, this.engine.isPopup), 'whenFalseJson');
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function variableStore({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'get';
+    const name = await render(data.variableStoreName || '', refData, this.engine.isPopup);
+    let action = 'variable_get';
+    const payload = { name };
+
+    if (mode === 'set') {
+      action = 'variable_set';
+      payload.type = data.variableType || 'any';
+      payload.scope = data.variableScope || 'project';
+      payload.description = await render(data.variableDescription || '', refData, this.engine.isPopup);
+      payload.value = parseJsonValue(await render(data.valueJson || 'null', refData, this.engine.isPopup), 'valueJson');
+    } else if (mode === 'list') {
+      action = 'variable_list';
+      delete payload.name;
+      payload.scope = await render(data.variableScope || '', refData, this.engine.isPopup);
+    } else if (mode === 'delete') {
+      action = 'variable_delete';
+    } else if (mode === 'increment') {
+      action = 'variable_increment';
+      payload.delta = Number(data.delta || 1);
+      payload.scope = data.variableScope || 'project';
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function loopHelper({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'range';
+    const modeToAction = {
+      range: 'loop_range',
+      repeat: 'loop_repeat',
+      chunk: 'loop_chunk',
+      enumerate: 'loop_enumerate',
+    };
+    const action = modeToAction[mode] || 'loop_range';
+    const payload = {};
+
+    if (mode === 'range') {
+      payload.start = Number(data.start || 0);
+      payload.end = Number(data.end || 0);
+      payload.step = Number(data.step || 1);
+      payload.inclusive = Boolean(data.inclusive);
+    } else if (mode === 'repeat') {
+      payload.item = parseJsonValue(await render(data.itemJson || 'null', refData, this.engine.isPopup), 'itemJson');
+      payload.times = Number(data.times || 1);
+    } else {
+      payload.items = parseJsonArray(await render(data.itemsJson || '[]', refData, this.engine.isPopup), 'itemsJson');
+      if (mode === 'chunk') payload.size = Number(data.size || 1);
+      if (mode === 'enumerate') payload.start = Number(data.start || 0);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function httpClient({ id, data }, { refData }) {
   try {
     const url = await render(data.url || '', refData, this.engine.isPopup);
@@ -290,6 +533,11 @@ export default function () {
     buildApp,
     browserScanner,
     resourceStore,
+    jsonTools,
+    listTools,
+    logicTools,
+    variableStore,
+    loopHelper,
     httpClient,
     libraryRunner,
     telegramBotBuilder,

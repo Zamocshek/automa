@@ -339,7 +339,7 @@ watch(
       return;
     }
 
-    if (tabs.length > 1) {
+    if (tabs.length > 1 && !isVisualCodingRoute) {
       const firstTab = tabs.shift();
       await browser.windows.update(firstTab.windowId, { focused: true });
       await browser.tabs.update(firstTab.id, { active: true });

@@ -80,10 +80,29 @@
           <ui-button variant="accent" @click="safeRun(runAction)">Run action</ui-button>
           <ui-button @click="selectAction('echo')">Echo</ui-button>
           <ui-button @click="selectAction('json_get')">JSON get</ui-button>
+          <ui-button @click="selectAction('logic_compare')">Logic</ui-button>
+          <ui-button @click="selectAction('variable_set')">Variable</ui-button>
+          <ui-button @click="selectAction('loop_range')">Loop range</ui-button>
+          <ui-button @click="selectAction('list_shuffle')">List shuffle</ui-button>
           <ui-button @click="selectAction('build_app')">Build app payload</ui-button>
           <ui-button @click="selectAction('python_script_exec')">Python library</ui-button>
           <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
           <ui-button @click="selectAction('telegram_bot_build')">Telegram bot</ui-button>
+        </div>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Data / Logic Toolkit</h2>
+          <span>JSON + lists + variables + loops</span>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(runJsonToolkit)">JSON keys</ui-button>
+          <ui-button @click="safeRun(runListToolkit)">List dedupe</ui-button>
+          <ui-button @click="safeRun(runLogicToolkit)">Logic compare</ui-button>
+          <ui-button @click="safeRun(runVariableToolkit)">Variable set</ui-button>
+          <ui-button @click="safeRun(runLoopToolkit)">Loop range</ui-button>
+          <ui-button @click="safeRun(composeDataWorkflow)">Compose data workflow</ui-button>
         </div>
       </article>
 
@@ -488,7 +507,9 @@ const batchTasks = ref(`[
 const appName = ref('visual-coding-automa-demo');
 const appActions = ref(`[
   {"action":"echo","payload":{"message":"built from Automa UI"}},
-  {"action":"uppercase","payload":{"text":"automa"}}
+  {"action":"uppercase","payload":{"text":"automa"}},
+  {"action":"logic_compare","payload":{"left":"visual coding","operator":"contains","right":"coding"}},
+  {"action":"list_dedupe","payload":{"items":["alpha","beta","alpha"]}}
 ]`);
 const libraryRuntime = ref('python');
 const libraryPackages = ref('[]');
@@ -503,7 +524,7 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
@@ -512,7 +533,7 @@ const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('visual-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, run an HTTP request, save a resource, run Python and Node libraries, build a Telegram bot, process tasks in parallel, then build an app.');
+const utilityPrompt = ref('Scan page with Playwright selectors, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot, process tasks in parallel, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -529,9 +550,52 @@ const examples = {
   string_split: { text: 'one,two,three', separator: ',' },
   string_join: { items: ['one', 'two', 'three'], separator: ', ' },
   string_regex_match: { text: 'user42 order77', pattern: '\\d+' },
+  logic_compare: { left: 'visual coding', operator: 'contains', right: 'coding' },
+  logic_truthy: { value: 'yes' },
+  logic_boolean: { operator: 'and', values: [true, 1, 'yes'] },
+  logic_choose: { condition: true, whenTrue: 'continue', whenFalse: 'stop' },
+  variable_set: { name: 'counter', type: 'number', scope: 'project', value: 1 },
+  variable_get: { name: 'counter', default: 0 },
+  variable_list: {},
+  variable_increment: { name: 'counter', delta: 1 },
+  variable_delete: { name: 'counter' },
+  loop_range: { start: 0, end: 5, step: 1, inclusive: true },
+  loop_repeat: { item: { ok: true }, times: 3 },
+  loop_chunk: { items: ['alpha', 'beta', 'gamma'], size: 2 },
+  loop_enumerate: { items: ['alpha', 'beta'], start: 1 },
+  json_create: { shape: 'object', data: { ok: true } },
   json_get: { data: { user: { name: 'Automa' } }, path: 'user.name' },
+  json_set: { data: { user: { name: 'Automa' } }, path: 'user.name', value: 'Visual Coding' },
+  json_delete: { data: { user: { name: 'Automa' }, ok: true }, path: 'ok' },
+  json_parse: { text: '{"ok":true}' },
+  json_stringify: { data: { ok: true }, indent: 2 },
+  json_keys: { data: { user: { name: 'Automa' }, ok: true } },
+  json_values: { data: { user: { name: 'Automa' }, ok: true } },
+  json_count: { data: { user: { name: 'Automa' }, ok: true } },
+  json_is_valid: { text: '{"ok":true}' },
   list_length: { items: ['one', 'two', 'three'] },
+  list_create: { items: ['one', 'two'] },
   list_append: { items: ['one', 'two'], item: 'three' },
+  list_get: { items: ['one', 'two', 'three'], index: 1 },
+  list_first: { items: ['one', 'two', 'three'] },
+  list_last: { items: ['one', 'two', 'three'] },
+  list_random: { items: ['one', 'two', 'three'] },
+  list_insert: { items: ['one', 'three'], index: 1, item: 'two' },
+  list_set: { items: ['one', 'old'], index: 1, item: 'two' },
+  list_remove: { items: ['one', 'two', 'three'], index: 1 },
+  list_contains: { items: ['one', 'two'], item: 'two' },
+  list_slice: { items: ['one', 'two', 'three'], start: 1, end: 3 },
+  list_remove_range: { items: ['one', 'two', 'three'], start: 1, count: 1 },
+  list_join: { items: ['one', 'two', 'three'], separator: ',' },
+  list_parse: { text: 'one,two,three', separator: ',' },
+  list_index: { items: ['one', 'two'], item: 'two' },
+  list_copy: { items: ['one', 'two'] },
+  list_sort: { items: ['gamma', 'alpha', 'beta'] },
+  list_dedupe: { items: ['alpha', 'beta', 'alpha'] },
+  list_shuffle: { items: ['one', 'two', 'three'] },
+  list_merge: { lists: [['one'], ['two', 'three']] },
+  list_compare: { left: ['one', 'two'], right: ['two', 'one'], mode: 'same_items' },
+  list_filter_contains: { items: ['alpha', 'beta', 'gamma'], text: 'a' },
   file_write: { path: 'automa-ui/demo.txt', text: 'created from Automa Visual Coding' },
   file_read: { path: 'automa-ui/demo.txt' },
   file_delete: { path: 'automa-ui/demo.txt' },
@@ -693,6 +757,21 @@ const mcpExamples = {
   'resources.set': { name: 'api_url', type: 'url', value: 'https://example.com' },
   'resources.get': { name: 'api_url' },
   'resources.list': {},
+  'resources.delete': { name: 'api_url' },
+  'json.tool': { operation: 'keys', data: { user: { name: 'Automa' }, ok: true } },
+  'lists.tool': { operation: 'dedupe', items: ['alpha', 'beta', 'alpha'] },
+  'logic.compare': { left: 'visual coding', operator: 'contains', right: 'coding' },
+  'logic.boolean': { operator: 'and', values: [true, 1, 'yes'] },
+  'logic.choose': { condition: true, whenTrue: 'continue', whenFalse: 'stop' },
+  'variables.set': { name: 'counter', type: 'number', scope: 'project', value: 1 },
+  'variables.get': { name: 'counter', default: 0 },
+  'variables.list': {},
+  'variables.delete': { name: 'counter' },
+  'variables.increment': { name: 'counter', delta: 1 },
+  'loops.range': { start: 0, end: 5, step: 1, inclusive: true },
+  'loops.repeat': { item: { ok: true }, times: 3 },
+  'loops.chunk': { items: ['alpha', 'beta', 'gamma'], size: 2 },
+  'loops.enumerate': { items: ['alpha', 'beta'], start: 1 },
   'python.install_packages': { packages: ['requests'], timeout: 180 },
   'python.run_script': {
     packages: [],
@@ -827,6 +906,58 @@ async function runAction() {
     payload: parseJson(actionPayload.value),
   });
   print(`Action: ${selectedAction.value}`, data);
+}
+
+async function runJsonToolkit() {
+  const data = await callMcp('json.tool', {
+    operation: 'keys',
+    data: { user: { name: 'Automa' }, ok: true },
+  });
+  print('JSON Toolkit', data);
+}
+
+async function runListToolkit() {
+  const data = await callMcp('lists.tool', {
+    operation: 'dedupe',
+    items: ['alpha', 'beta', 'alpha'],
+  });
+  print('List Toolkit', data);
+}
+
+async function runLogicToolkit() {
+  const data = await callMcp('logic.compare', {
+    left: 'visual coding',
+    operator: 'contains',
+    right: 'coding',
+  });
+  print('Logic Toolkit', data);
+}
+
+async function runVariableToolkit() {
+  const data = await callMcp('variables.set', {
+    name: 'counter',
+    type: 'number',
+    scope: 'project',
+    value: 1,
+  });
+  print('Variable Toolkit', data);
+}
+
+async function runLoopToolkit() {
+  const data = await callMcp('loops.range', {
+    start: 0,
+    end: 5,
+    step: 1,
+    inclusive: true,
+  });
+  print('Loop Toolkit', data);
+}
+
+async function composeDataWorkflow() {
+  const data = await callMcp('workflow.compose_from_prompt', {
+    prompt: 'Use variables, JSON, list dedupe, logic if condition and loop range, then run Python and build app.',
+  });
+  print('Data Workflow Composer', data);
 }
 
 async function runPython() {
