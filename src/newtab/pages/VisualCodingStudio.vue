@@ -91,6 +91,7 @@
           <ui-button @click="selectAction('python_script_exec')">Python library</ui-button>
           <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
           <ui-button @click="selectAction('telegram_bot_build')">Telegram bot</ui-button>
+          <ui-button @click="selectAction('private_vpn_project_build')">Private VPN</ui-button>
         </div>
       </article>
 
@@ -216,6 +217,56 @@
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
+          <h2>Benchmark Builder</h2>
+          <span>private-vpn-lab</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-input
+              :model-value="benchmarkProjectName"
+              label="Project name"
+              @change="benchmarkProjectName = $event"
+            />
+            <ui-input
+              :model-value="benchmarkBrandName"
+              label="Brand"
+              @change="benchmarkBrandName = $event"
+            />
+            <ui-input
+              :model-value="benchmarkDomain"
+              label="Domain"
+              @change="benchmarkDomain = $event"
+            />
+          </div>
+          <div class="vc-stack">
+            <ui-input
+              :model-value="benchmarkBotUsername"
+              label="Bot username"
+              @change="benchmarkBotUsername = $event"
+            />
+            <ui-input
+              :model-value="benchmarkSupportUsername"
+              label="Support"
+              @change="benchmarkSupportUsername = $event"
+            />
+            <ui-input
+              :model-value="benchmarkDeviceLimit"
+              label="Device limit"
+              type="number"
+              @change="benchmarkDeviceLimit = Number($event)"
+            />
+          </div>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(buildPrivateVpnBenchmark)">Build benchmark project</ui-button>
+          <ui-button @click="safeRun(verifyPrivateVpnBenchmark)">Verify generated</ui-button>
+          <ui-button @click="safeRun(composePrivateVpnWorkflow)">Compose VPN workflow</ui-button>
+          <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">MCP args</ui-button>
+        </div>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
           <h2>Library Runtime Builder</h2>
           <span>pip/npm + Telegram</span>
         </div>
@@ -333,6 +384,7 @@
           <ui-button @click="selectMcpTool('files.tool')">Files</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Wait</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
+          <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">VPN benchmark</ui-button>
           <ui-button @click="safeRun(loadPatchTemplate)">AI patch template</ui-button>
         </div>
       </article>
@@ -534,6 +586,12 @@ const appActions = ref(`[
   {"action":"logic_compare","payload":{"left":"visual coding","operator":"contains","right":"coding"}},
   {"action":"list_dedupe","payload":{"items":["alpha","beta","alpha"]}}
 ]`);
+const benchmarkProjectName = ref('visual-coding-private-vpn-benchmark');
+const benchmarkBrandName = ref('GOY VPN');
+const benchmarkBotUsername = ref('goy_vpn_robot');
+const benchmarkSupportUsername = ref('@support');
+const benchmarkDomain = ref('vpn.example.com');
+const benchmarkDeviceLimit = ref(10);
 const libraryRuntime = ref('python');
 const libraryPackages = ref('[]');
 const libraryCode = ref('result = {"triple": input_data["x"] * 3}');
@@ -547,7 +605,7 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, generate a private VPN Marzban project, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
@@ -556,7 +614,7 @@ const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('visual-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot, process tasks in parallel, then build an app.');
+const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot, generate a private VPN Marzban project, process tasks in parallel, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -690,6 +748,19 @@ const examples = {
     tokenResource: 'telegram_bot_token',
     startText: 'Hello from Visual Coding bot',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
+  },
+  private_vpn_project_build: {
+    name: 'visual-coding-private-vpn-benchmark',
+    brandName: 'GOY VPN',
+    botUsername: 'goy_vpn_robot',
+    supportUsername: '@support',
+    domain: 'vpn.example.com',
+    deviceLimit: 10,
+    overwrite: true,
+    verify: true,
+  },
+  private_vpn_project_verify: {
+    name: 'visual-coding-private-vpn-benchmark',
   },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
   browser_engine_status: { browserEngine: 'chromium' },
@@ -913,6 +984,20 @@ const mcpExamples = {
     startText: 'Hello from Visual Coding bot',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
+  'benchmark.private_vpn.build': {
+    name: 'visual-coding-private-vpn-benchmark',
+    brandName: 'GOY VPN',
+    botUsername: 'goy_vpn_robot',
+    supportUsername: '@support',
+    domain: 'vpn.example.com',
+    deviceLimit: 10,
+    overwrite: true,
+    verify: true,
+  },
+  'benchmark.private_vpn.verify': {
+    name: 'visual-coding-private-vpn-benchmark',
+  },
+  'benchmark.private_vpn.capabilities': {},
   'demo.run': {},
 };
 
@@ -1198,6 +1283,38 @@ async function buildApp() {
     },
   });
   print('Build App', data);
+}
+
+function privateVpnPayload() {
+  return {
+    name: benchmarkProjectName.value,
+    brandName: benchmarkBrandName.value,
+    botUsername: benchmarkBotUsername.value,
+    supportUsername: benchmarkSupportUsername.value,
+    domain: benchmarkDomain.value,
+    deviceLimit: Number(benchmarkDeviceLimit.value || 10),
+    overwrite: true,
+    verify: true,
+  };
+}
+
+async function buildPrivateVpnBenchmark() {
+  const data = await callMcp('benchmark.private_vpn.build', privateVpnPayload());
+  print('Private VPN Benchmark Build', data);
+}
+
+async function verifyPrivateVpnBenchmark() {
+  const data = await callMcp('benchmark.private_vpn.verify', {
+    name: benchmarkProjectName.value,
+  });
+  print('Private VPN Benchmark Verify', data);
+}
+
+async function composePrivateVpnWorkflow() {
+  const data = await callMcp('workflow.compose_from_prompt', {
+    prompt: 'Generate a private VPN Marzban VLESS REALITY Telegram bot project like private-vpn-lab with SQLite, payments, webhooks, activation codes, Docker, systemd and ops verification.',
+  });
+  print('Private VPN Workflow Composer', data);
 }
 
 function switchLibraryRuntime(runtime) {

@@ -10,6 +10,7 @@ import EditLoopHelper from './EditLoopHelper.vue';
 import EditNetworkRecorderImport from './EditNetworkRecorderImport.vue';
 import EditParallelRunner from './EditParallelRunner.vue';
 import EditProfileAction from './EditProfileAction.vue';
+import EditProjectTemplateBuilder from './EditProjectTemplateBuilder.vue';
 import EditPythonBridge from './EditPythonBridge.vue';
 import EditResourceStore from './EditResourceStore.vue';
 import EditResultTools from './EditResultTools.vue';
@@ -31,6 +32,7 @@ export default function () {
     EditNetworkRecorderImport,
     EditParallelRunner,
     EditProfileAction,
+    EditProjectTemplateBuilder,
     EditPythonBridge,
     EditResourceStore,
     EditResultTools,

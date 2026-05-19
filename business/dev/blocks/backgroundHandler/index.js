@@ -140,6 +140,40 @@ export async function buildApp({ id, data }, { refData }) {
   }
 }
 
+export async function projectTemplateBuilder({ id, data }, { refData }) {
+  try {
+    const projectName = await render(
+      data.projectName || 'private-vpn-lab-generated',
+      refData,
+      this.engine.isPopup
+    );
+    const brandName = await render(data.brandName || 'GOY VPN', refData, this.engine.isPopup);
+    const botUsername = await render(data.botUsername || 'goy_vpn_robot', refData, this.engine.isPopup);
+    const supportUsername = await render(data.supportUsername || '@support', refData, this.engine.isPopup);
+    const domain = await render(data.domain || 'vpn.example.com', refData, this.engine.isPopup);
+    const routePrefix = await render(data.subscriptionRoutePrefix || 'sub', refData, this.engine.isPopup);
+    const action = data.mode === 'verify' ? 'private_vpn_project_verify' : 'private_vpn_project_build';
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload: {
+        name: projectName,
+        template: data.template || 'private-vpn-lab',
+        brandName,
+        botUsername,
+        supportUsername,
+        domain,
+        subscriptionRoutePrefix: routePrefix,
+        deviceLimit: Number(data.deviceLimit || 10),
+        overwrite: data.overwrite !== false,
+        verify: true,
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function browserScanner({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'scan';
@@ -724,6 +758,7 @@ export default function () {
     pythonBridge,
     parallelRunner,
     buildApp,
+    projectTemplateBuilder,
     browserScanner,
     resourceStore,
     jsonTools,
