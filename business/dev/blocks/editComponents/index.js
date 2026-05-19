@@ -12,6 +12,7 @@ import EditParallelRunner from './EditParallelRunner.vue';
 import EditProfileAction from './EditProfileAction.vue';
 import EditProjectTemplateBuilder from './EditProjectTemplateBuilder.vue';
 import EditPythonBridge from './EditPythonBridge.vue';
+import EditResourceDesignBuilder from './EditResourceDesignBuilder.vue';
 import EditResourceStore from './EditResourceStore.vue';
 import EditResultTools from './EditResultTools.vue';
 import EditTelegramBotBuilder from './EditTelegramBotBuilder.vue';
@@ -34,6 +35,7 @@ export default function () {
     EditProfileAction,
     EditProjectTemplateBuilder,
     EditPythonBridge,
+    EditResourceDesignBuilder,
     EditResourceStore,
     EditResultTools,
     EditTelegramBotBuilder,

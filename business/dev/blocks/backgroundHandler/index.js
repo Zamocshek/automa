@@ -275,6 +275,92 @@ export async function resourceStore({ id, data }, { refData }) {
   }
 }
 
+export async function resourceDesignBuilder({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'schemaBuild';
+    const schemaName = await render(data.schemaName || 'startup-intake-fields', refData, this.engine.isPopup);
+    const schemaTitle = await render(data.schemaTitle || schemaName, refData, this.engine.isPopup);
+    const appName = await render(data.appName || 'visual-coding-designed-app', refData, this.engine.isPopup);
+    const appTitle = await render(data.appTitle || appName, refData, this.engine.isPopup);
+    const planName = await render(data.planName || 'visual-coding-parallel-plan', refData, this.engine.isPopup);
+    const projectPath = await render(data.projectPath || '', refData, this.engine.isPopup);
+
+    const actions = {
+      schemaBuild: 'resource_schema_build',
+      schemaGet: 'resource_schema_get',
+      schemaList: 'resource_schema_list',
+      schemaValidate: 'resource_schema_validate',
+      parallelPlanBuild: 'parallel_plan_build',
+      parallelPlanRun: 'parallel_plan_run',
+      parallelPlanList: 'parallel_plan_list',
+      designAppBuild: 'design_app_build',
+      designAppVerify: 'design_app_verify',
+    };
+    const action = actions[mode] || 'resource_schema_build';
+    let payload = {};
+
+    if (mode === 'schemaBuild') {
+      const fields = parseJsonArray(await render(data.fieldsJson || '[]', refData, this.engine.isPopup), 'fieldsJson');
+      const tokens = parseJsonObject(await render(data.tokensJson || '{}', refData, this.engine.isPopup), 'tokensJson');
+      payload = {
+        name: schemaName,
+        title: schemaTitle,
+        fields,
+        tokens,
+        layout: 'two-column',
+      };
+    } else if (mode === 'schemaGet') {
+      payload = { name: schemaName, path: projectPath };
+    } else if (mode === 'schemaValidate') {
+      const values = parseJsonObject(await render(data.valuesJson || '{}', refData, this.engine.isPopup), 'valuesJson');
+      payload = { name: schemaName, values };
+    } else if (mode === 'parallelPlanBuild') {
+      const tasks = parseJsonArray(await render(data.tasksJson || '[]', refData, this.engine.isPopup), 'tasksJson');
+      payload = {
+        name: planName,
+        mode: data.planMode || 'thread',
+        workers: Number(data.workers || 4),
+        repeats: Number(data.repeats || 1),
+        tasks,
+        resourceSchema: schemaName,
+      };
+    } else if (mode === 'parallelPlanRun') {
+      const tasks = parseJsonArray(await render(data.tasksJson || '[]', refData, this.engine.isPopup), 'tasksJson');
+      payload = {
+        name: planName,
+        mode: data.planMode || 'thread',
+        workers: Number(data.workers || 4),
+        repeats: Number(data.repeats || 1),
+        saveResult: data.saveResult !== false,
+      };
+      if (tasks.length) payload.tasks = tasks;
+    } else if (mode === 'designAppBuild') {
+      const fields = parseJsonArray(await render(data.fieldsJson || '[]', refData, this.engine.isPopup), 'fieldsJson');
+      const tokens = parseJsonObject(await render(data.tokensJson || '{}', refData, this.engine.isPopup), 'tokensJson');
+      payload = {
+        name: appName,
+        title: appTitle,
+        schemaName,
+        resourceSchemaName: schemaName,
+        fields,
+        tokens,
+        overwrite: data.overwrite !== false,
+        verify: data.verify !== false,
+      };
+    } else if (mode === 'designAppVerify') {
+      payload = { name: appName, path: projectPath };
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function jsonTools({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'get';
@@ -784,6 +870,7 @@ export default function () {
     projectTemplateBuilder,
     browserScanner,
     resourceStore,
+    resourceDesignBuilder,
     jsonTools,
     listTools,
     logicTools,

@@ -5,7 +5,7 @@
         <p class="vc-kicker">Automa-native development environment</p>
         <h1>Visual Coding</h1>
         <p class="vc-subtitle">
-          Bridge runner, MCP control plane, Python/Node libraries and app builder inside Automa.
+          Bridge runner, MCP control plane, resource fields, Python/Node libraries and app builder inside Automa.
         </p>
       </div>
       <div class="vc-header-actions">
@@ -92,6 +92,9 @@
           <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
           <ui-button @click="selectAction('telegram_bot_build')">Telegram bot</ui-button>
           <ui-button @click="selectAction('bot_service_build')">Bot service</ui-button>
+          <ui-button @click="selectAction('resource_schema_build')">Resource fields</ui-button>
+          <ui-button @click="selectAction('parallel_plan_build')">Parallel plan</ui-button>
+          <ui-button @click="selectAction('design_app_build')">Design app</ui-button>
           <ui-button @click="selectAction('private_vpn_project_build')">Private VPN</ui-button>
         </div>
       </article>
@@ -214,6 +217,72 @@
           />
         </label>
         <ui-button variant="accent" @click="safeRun(buildApp)">Generate app</ui-button>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Resource / Design Builder</h2>
+          <span>fields + workers + UI</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-input
+              :model-value="resourceSchemaName"
+              label="Schema name"
+              @change="resourceSchemaName = $event"
+            />
+            <ui-input
+              :model-value="resourceSchemaTitle"
+              label="Schema title"
+              @change="resourceSchemaTitle = $event"
+            />
+            <ui-input
+              :model-value="designAppName"
+              label="Design app"
+              @change="designAppName = $event"
+            />
+            <ui-input
+              :model-value="designAppTitle"
+              label="App title"
+              @change="designAppTitle = $event"
+            />
+            <ui-input
+              :model-value="parallelPlanName"
+              label="Parallel plan"
+              @change="parallelPlanName = $event"
+            />
+          </div>
+          <div class="vc-stack">
+            <label>
+              Fields JSON
+              <ui-textarea
+                :model-value="resourceFieldsJson"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="resourceFieldsJson = $event"
+              />
+            </label>
+            <label>
+              Values JSON
+              <ui-textarea
+                :model-value="resourceValuesJson"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="resourceValuesJson = $event"
+              />
+            </label>
+          </div>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(buildResourceSchema)">Build fields schema</ui-button>
+          <ui-button @click="safeRun(validateResourceSchema)">Validate values</ui-button>
+          <ui-button @click="safeRun(buildParallelPlan)">Build parallel plan</ui-button>
+          <ui-button @click="safeRun(runParallelPlan)">Run parallel plan</ui-button>
+          <ui-button @click="safeRun(buildDesignAppProject)">Build design app</ui-button>
+          <ui-button @click="safeRun(verifyDesignAppProject)">Verify design app</ui-button>
+          <ui-button @click="safeRun(composeDesignAppWorkflow)">Compose design workflow</ui-button>
+          <ui-button @click="selectMcpTool('design.app.build')">MCP design app</ui-button>
+        </div>
       </article>
 
       <article class="vc-panel vc-span-2">
@@ -390,6 +459,9 @@
           <ui-button @click="selectMcpTool('files.tool')">Files</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Wait</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
+          <ui-button @click="selectMcpTool('resources.schema.build')">Fields</ui-button>
+          <ui-button @click="selectMcpTool('parallel.plan.build')">Plan</ui-button>
+          <ui-button @click="selectMcpTool('design.app.build')">Design app</ui-button>
           <ui-button @click="selectMcpTool('bots.service.build')">Bot service</ui-button>
           <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">VPN benchmark</ui-button>
           <ui-button @click="safeRun(loadPatchTemplate)">AI patch template</ui-button>
@@ -612,7 +684,7 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, build resource fields/schema, generate a designed UI app, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing worker plan, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
@@ -621,13 +693,31 @@ const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('visual-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, process tasks in parallel, then build an app.');
+const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, build resource fields/schema, generate a designed UI app, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, process tasks in parallel with worker plan, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
 const resourceName = ref('api_url');
 const resourceType = ref('url');
 const resourceValue = ref('"https://example.com"');
+const resourceSchemaName = ref('startup-intake-fields');
+const resourceSchemaTitle = ref('Startup Intake Fields');
+const resourceFieldsJson = ref(`[
+  {"name":"api_url","label":"API URL","type":"url","required":true,"default":"https://example.com/api"},
+  {"name":"token","label":"Token","type":"secret","required":false},
+  {"name":"workers","label":"Workers","type":"number","default":4,"min":1,"max":32},
+  {"name":"mode","label":"Mode","type":"select","default":"startup","options":["startup","production"]},
+  {"name":"brand_color","label":"Brand color","type":"color","default":"#2563eb"}
+]`);
+const resourceValuesJson = ref(`{
+  "api_url": "https://example.com/api",
+  "workers": 4,
+  "mode": "startup",
+  "brand_color": "#2563eb"
+}`);
+const designAppName = ref('visual-coding-designed-app');
+const designAppTitle = ref('Visual Coding Designed App');
+const parallelPlanName = ref('visual-coding-parallel-plan');
 
 const examples = {
   echo: { message: 'from Automa Visual Coding' },
@@ -845,6 +935,37 @@ const examples = {
   resource_get: { name: 'api_url' },
   resource_list: {},
   resource_delete: { name: 'api_url' },
+  resource_schema_build: {
+    name: 'startup-intake-fields',
+    title: 'Startup Intake Fields',
+    fields: JSON.parse(resourceFieldsJson.value),
+  },
+  resource_schema_get: { name: 'startup-intake-fields' },
+  resource_schema_list: {},
+  resource_schema_validate: {
+    name: 'startup-intake-fields',
+    values: JSON.parse(resourceValuesJson.value),
+  },
+  parallel_plan_build: {
+    name: 'visual-coding-parallel-plan',
+    mode: 'process',
+    workers: 2,
+    tasks: [
+      { action: 'uppercase', payload: { text: 'one' } },
+      { action: 'json_get', payload: { data: { user: { name: 'Automa' } }, path: 'user.name' } },
+    ],
+  },
+  parallel_plan_run: { name: 'visual-coding-parallel-plan', saveResult: true },
+  parallel_plan_list: {},
+  design_app_build: {
+    name: 'visual-coding-designed-app',
+    title: 'Visual Coding Designed App',
+    schemaName: 'startup-intake-fields',
+    fields: JSON.parse(resourceFieldsJson.value),
+    overwrite: true,
+    verify: true,
+  },
+  design_app_verify: { name: 'visual-coding-designed-app' },
   workflow_build_from_prompt: {
     name: 'visual-coding-full-utility',
     prompt: 'Scan page with Playwright selectors, run Python, process tasks in parallel, then build an app.',
@@ -938,6 +1059,38 @@ const mcpExamples = {
   'resources.get': { name: 'api_url' },
   'resources.list': {},
   'resources.delete': { name: 'api_url' },
+  'resources.schema.build': {
+    name: 'startup-intake-fields',
+    title: 'Startup Intake Fields',
+    fields: JSON.parse(resourceFieldsJson.value),
+  },
+  'resources.schema.get': { name: 'startup-intake-fields' },
+  'resources.schema.list': {},
+  'resources.schema.validate': {
+    name: 'startup-intake-fields',
+    values: JSON.parse(resourceValuesJson.value),
+  },
+  'parallel.plan.build': {
+    name: 'visual-coding-parallel-plan',
+    mode: 'process',
+    workers: 2,
+    tasks: [
+      { action: 'uppercase', payload: { text: 'one' } },
+      { action: 'json_get', payload: { data: { user: { name: 'Automa' } }, path: 'user.name' } },
+    ],
+  },
+  'parallel.plan.run': { name: 'visual-coding-parallel-plan', saveResult: true },
+  'parallel.plan.list': {},
+  'design.app.build': {
+    name: 'visual-coding-designed-app',
+    title: 'Visual Coding Designed App',
+    schemaName: 'startup-intake-fields',
+    fields: JSON.parse(resourceFieldsJson.value),
+    overwrite: true,
+    verify: true,
+  },
+  'design.app.verify': { name: 'visual-coding-designed-app' },
+  'design.app.capabilities': {},
   'files.tool': { operation: 'write', path: 'automa-ui/demo.txt', text: 'created from MCP files.tool' },
   'paths.tool': { operation: 'relative', path: 'automa-ui/demo.txt', base: 'automa-ui' },
   'json.tool': { operation: 'keys', data: { user: { name: 'Automa' }, ok: true } },
@@ -1323,6 +1476,80 @@ async function buildApp() {
     },
   });
   print('Build App', data);
+}
+
+function resourceSchemaPayload() {
+  return {
+    name: resourceSchemaName.value,
+    title: resourceSchemaTitle.value,
+    fields: JSON.parse(resourceFieldsJson.value || '[]'),
+    tokens: {
+      accent: '#2563eb',
+      success: '#059669',
+      warning: '#f59e0b',
+      surface: '#f8fafc',
+      ink: '#111827',
+    },
+  };
+}
+
+async function buildResourceSchema() {
+  const data = await callMcp('resources.schema.build', resourceSchemaPayload());
+  print('Resource Field Schema', data);
+}
+
+async function validateResourceSchema() {
+  const data = await callMcp('resources.schema.validate', {
+    name: resourceSchemaName.value,
+    values: JSON.parse(resourceValuesJson.value || '{}'),
+  });
+  print('Resource Values Validation', data);
+}
+
+async function buildParallelPlan() {
+  const data = await callMcp('parallel.plan.build', {
+    name: parallelPlanName.value,
+    mode: batchMode.value,
+    workers: Number(batchWorkers.value || 2),
+    repeats: Number(batchRepeats.value || 1),
+    tasks: JSON.parse(batchTasks.value || '[]'),
+    resourceSchema: resourceSchemaName.value,
+  });
+  print('Parallel Plan Build', data);
+}
+
+async function runParallelPlan() {
+  const data = await callMcp('parallel.plan.run', {
+    name: parallelPlanName.value,
+    saveResult: true,
+  });
+  print('Parallel Plan Run', data);
+}
+
+async function buildDesignAppProject() {
+  const schema = await callMcp('resources.schema.build', resourceSchemaPayload());
+  const data = await callMcp('design.app.build', {
+    name: designAppName.value,
+    title: designAppTitle.value,
+    schemaName: resourceSchemaName.value,
+    overwrite: true,
+    verify: true,
+  });
+  print('Design App Build', { schema, data });
+}
+
+async function verifyDesignAppProject() {
+  const data = await callMcp('design.app.verify', {
+    name: designAppName.value,
+  });
+  print('Design App Verify', data);
+}
+
+async function composeDesignAppWorkflow() {
+  const data = await callMcp('workflow.compose_from_prompt', {
+    prompt: 'Build resource fields/schema, validate values, generate a designed UI app, create a reusable parallel worker plan with multiprocessing, then run the batch and save resources.',
+  });
+  print('Resource Design Workflow Composer', data);
 }
 
 function privateVpnPayload() {
