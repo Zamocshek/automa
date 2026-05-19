@@ -17,7 +17,7 @@
       :model-value="data.appName"
       label="App name"
       class="w-full"
-      placeholder="visual-coding-demo"
+      placeholder="silverback-coding-demo"
       @change="updateData({ appName: $event })"
     />
     <label class="input-label">Actions JSON</label>

@@ -26,7 +26,7 @@
       :model-value="data.appName"
       label="App name"
       class="w-full"
-      placeholder="visual-coding-telegram-bot"
+      placeholder="silverback-telegram-bot"
       @change="updateData({ appName: $event })"
     />
     <ui-input

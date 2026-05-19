@@ -1,12 +1,15 @@
 <template>
   <div class="visual-coding-page">
     <header class="vc-header">
-      <div>
-        <p class="vc-kicker">Automa-native development environment</p>
-        <h1>Visual Coding</h1>
-        <p class="vc-subtitle">
-          Bridge runner, MCP control plane, resource fields, Python/Node libraries and app builder inside Automa.
-        </p>
+      <div class="vc-brand-row">
+        <span class="vc-brand-mark">SB</span>
+        <div>
+          <p class="vc-kicker">Automa-native development environment</p>
+          <h1>Silverback Coding</h1>
+          <p class="vc-subtitle">
+            AI workflow studio for Automa, MCP, Python/Node runtimes and production builders.
+          </p>
+        </div>
       </div>
       <div class="vc-header-actions">
         <ui-button @click="safeRun(refreshAll)">Refresh</ui-button>
@@ -39,8 +42,8 @@
       <div class="vc-status-card">
         <span class="vc-dot ok"></span>
         <div>
-          <p>Editor</p>
-          <strong>Automa dashboard</strong>
+          <p>Studio</p>
+          <strong>Automa workspace</strong>
         </div>
       </div>
     </section>
@@ -664,15 +667,15 @@ const batchTasks = ref(`[
   {"action":"uppercase","payload":{"text":"alpha"}},
   {"action":"json_get","payload":{"data":{"user":{"name":"Automa"}},"path":"user.name"}}
 ]`);
-const appName = ref('visual-coding-automa-demo');
+const appName = ref('silverback-coding-automa-demo');
 const appActions = ref(`[
-  {"action":"echo","payload":{"message":"built from Automa UI"}},
+  {"action":"echo","payload":{"message":"built from Silverback Coding UI"}},
   {"action":"uppercase","payload":{"text":"automa"}},
-  {"action":"logic_compare","payload":{"left":"visual coding","operator":"contains","right":"coding"}},
+  {"action":"logic_compare","payload":{"left":"silverback coding","operator":"contains","right":"coding"}},
   {"action":"list_dedupe","payload":{"items":["alpha","beta","alpha"]}}
 ]`);
-const benchmarkProjectName = ref('visual-coding-private-vpn-benchmark');
-const benchmarkBrandName = ref('GOY VPN');
+const benchmarkProjectName = ref('silverback-private-vpn-benchmark');
+const benchmarkBrandName = ref('Silverback VPN');
 const benchmarkBotUsername = ref('goy_vpn_robot');
 const benchmarkSupportUsername = ref('@support');
 const benchmarkDomain = ref('vpn.example.com');
@@ -682,11 +685,11 @@ const libraryPackages = ref('[]');
 const libraryCode = ref('result = {"triple": input_data["x"] * 3}');
 const libraryInput = ref('{"x":14}');
 const telegramRuntime = ref('python');
-const telegramAppName = ref('visual-coding-telegram-bot');
+const telegramAppName = ref('silverback-telegram-bot');
 const telegramTokenResource = ref('telegram_bot_token');
 const telegramHandlersJson = ref(`[
   {"command":"ping","response":"pong"},
-  {"command":"status","response":"Visual Coding bot is alive"}
+  {"command":"status","response":"Silverback Coding bot is alive"}
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
@@ -697,8 +700,8 @@ const browserProfileName = ref('demo-browser-profile');
 const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
-const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
-const utilityName = ref('visual-coding-full-utility');
+const browserHtml = ref('<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
+const utilityName = ref('silverback-coding-full-utility');
 const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, build resource fields/schema, generate a designed UI app, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, process tasks in parallel with worker plan, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
@@ -713,28 +716,28 @@ const resourceFieldsJson = ref(`[
   {"name":"token","label":"Token","type":"secret","required":false},
   {"name":"workers","label":"Workers","type":"number","default":4,"min":1,"max":32},
   {"name":"mode","label":"Mode","type":"select","default":"startup","options":["startup","production"]},
-  {"name":"brand_color","label":"Brand color","type":"color","default":"#2563eb"}
+  {"name":"brand_color","label":"Brand color","type":"color","default":"#7c3aed"}
 ]`);
 const resourceValuesJson = ref(`{
   "api_url": "https://example.com/api",
   "workers": 4,
   "mode": "startup",
-  "brand_color": "#2563eb"
+  "brand_color": "#7c3aed"
 }`);
-const designAppName = ref('visual-coding-designed-app');
-const designAppTitle = ref('Visual Coding Designed App');
-const parallelPlanName = ref('visual-coding-parallel-plan');
+const designAppName = ref('silverback-designed-app');
+const designAppTitle = ref('Silverback Coding Designed App');
+const parallelPlanName = ref('silverback-parallel-plan');
 
 const examples = {
-  echo: { message: 'from Automa Visual Coding' },
-  uppercase: { text: 'hello visual coding' },
-  string_lowercase: { text: 'HELLO VISUAL CODING' },
-  string_trim: { text: '  hello visual coding  ' },
+  echo: { message: 'from Silverback Coding' },
+  uppercase: { text: 'hello silverback coding' },
+  string_lowercase: { text: 'HELLO SILVERBACK CODING' },
+  string_trim: { text: '  hello silverback coding  ' },
   string_replace: { text: 'hello BAS', old: 'BAS', new: 'Automa' },
   string_split: { text: 'one,two,three', separator: ',' },
   string_join: { items: ['one', 'two', 'three'], separator: ', ' },
   string_regex_match: { text: 'user42 order77', pattern: '\\d+' },
-  logic_compare: { left: 'visual coding', operator: 'contains', right: 'coding' },
+  logic_compare: { left: 'silverback coding', operator: 'contains', right: 'coding' },
   logic_truthy: { value: 'yes' },
   logic_boolean: { operator: 'and', values: [true, 1, 'yes'] },
   logic_choose: { condition: true, whenTrue: 'continue', whenFalse: 'stop' },
@@ -749,7 +752,7 @@ const examples = {
   loop_enumerate: { items: ['alpha', 'beta'], start: 1 },
   json_create: { shape: 'object', data: { ok: true } },
   json_get: { data: { user: { name: 'Automa' } }, path: 'user.name' },
-  json_set: { data: { user: { name: 'Automa' } }, path: 'user.name', value: 'Visual Coding' },
+  json_set: { data: { user: { name: 'Automa' } }, path: 'user.name', value: 'Silverback Coding' },
   json_delete: { data: { user: { name: 'Automa' }, ok: true }, path: 'ok' },
   json_parse: { text: '{"ok":true}' },
   json_stringify: { data: { ok: true }, indent: 2 },
@@ -780,7 +783,7 @@ const examples = {
   list_merge: { lists: [['one'], ['two', 'three']] },
   list_compare: { left: ['one', 'two'], right: ['two', 'one'], mode: 'same_items' },
   list_filter_contains: { items: ['alpha', 'beta', 'gamma'], text: 'a' },
-  file_write: { path: 'automa-ui/demo.txt', text: 'created from Automa Visual Coding' },
+  file_write: { path: 'automa-ui/demo.txt', text: 'created from Silverback Coding' },
   file_read: { path: 'automa-ui/demo.txt' },
   file_exists: { path: 'automa-ui/demo.txt' },
   file_mkdir: { path: 'automa-ui' },
@@ -800,14 +803,14 @@ const examples = {
   wait_http: { url: 'http://127.0.0.1:8765/health', status: 200, timeout: 5, interval: 0.25 },
   wait_selector: {
     browserEngine: 'chromium',
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button></main>',
     selector: 'button#run',
     state: 'visible',
   },
   wait_text: {
     browserEngine: 'chromium',
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button></main>',
-    text: 'Visual Coding Demo',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button></main>',
+    text: 'Silverback Coding Demo',
     state: 'visible',
   },
   try_action: { action: 'json_get', payload: { data: { ok: true }, path: 'ok' } },
@@ -819,7 +822,7 @@ const examples = {
   },
   random_number: { min: 1, max: 9, integer: true },
   result_log: { level: 'info', message: 'Automa Studio checkpoint', data: { ok: true } },
-  result_message: { title: 'Visual Coding', message: 'Workflow checkpoint', kind: 'info' },
+  result_message: { title: 'Silverback Coding', message: 'Workflow checkpoint', kind: 'info' },
   python_install_packages: { packages: ['requests'], timeout: 180 },
   python_script_exec: {
     packages: [],
@@ -835,26 +838,26 @@ const examples = {
     timeout: 10,
   },
   node_app_build: {
-    name: 'visual-coding-node-demo',
+    name: 'silverback-node-demo',
     packages: [],
-    code: "console.log(JSON.stringify({ ok: true, app: 'visual-coding-node-demo' }));",
+    code: "console.log(JSON.stringify({ ok: true, app: 'silverback-node-demo' }));",
   },
   telegram_send_message: {
     tokenResource: 'telegram_bot_token',
     chatId: '123456',
-    text: 'Hello from Automa Visual Coding',
+    text: 'Hello from Silverback Coding',
     dryRun: true,
   },
   telegram_bot_build: {
     runtime: 'python',
-    name: 'visual-coding-telegram-bot',
+    name: 'silverback-telegram-bot',
     tokenResource: 'telegram_bot_token',
-    startText: 'Hello from Visual Coding bot',
+    startText: 'Hello from Silverback Coding bot',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
   bot_service_build: {
-    name: 'visual-coding-bot-service',
-    brandName: 'Visual Coding Bot Service',
+    name: 'silverback-bot-service',
+    brandName: 'Silverback Bot Service',
     botUsername: 'visual_coding_bot',
     publicDomain: 'bot.example.com',
     deploymentProfile: 'production',
@@ -865,10 +868,10 @@ const examples = {
     verify: true,
   },
   bot_service_verify: {
-    name: 'visual-coding-bot-service',
+    name: 'silverback-bot-service',
   },
   private_vpn_project_build: {
-    name: 'visual-coding-private-vpn-benchmark',
+    name: 'silverback-private-vpn-benchmark',
     brandName: 'GOY VPN',
     botUsername: 'goy_vpn_robot',
     supportUsername: '@support',
@@ -878,7 +881,7 @@ const examples = {
     verify: true,
   },
   private_vpn_project_verify: {
-    name: 'visual-coding-private-vpn-benchmark',
+    name: 'silverback-private-vpn-benchmark',
   },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
   browser_engine_status: { browserEngine: 'chromium' },
@@ -905,14 +908,14 @@ const examples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   browser_query_selector: {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
@@ -920,7 +923,7 @@ const examples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
   },
@@ -953,7 +956,7 @@ const examples = {
     values: JSON.parse(resourceValuesJson.value),
   },
   parallel_plan_build: {
-    name: 'visual-coding-parallel-plan',
+    name: 'silverback-parallel-plan',
     mode: 'process',
     workers: 2,
     tasks: [
@@ -961,19 +964,19 @@ const examples = {
       { action: 'json_get', payload: { data: { user: { name: 'Automa' } }, path: 'user.name' } },
     ],
   },
-  parallel_plan_run: { name: 'visual-coding-parallel-plan', saveResult: true },
+  parallel_plan_run: { name: 'silverback-parallel-plan', saveResult: true },
   parallel_plan_list: {},
   design_app_build: {
-    name: 'visual-coding-designed-app',
-    title: 'Visual Coding Designed App',
+    name: 'silverback-designed-app',
+    title: 'Silverback Coding Designed App',
     schemaName: 'startup-intake-fields',
     fields: JSON.parse(resourceFieldsJson.value),
     overwrite: true,
     verify: true,
   },
-  design_app_verify: { name: 'visual-coding-designed-app' },
+  design_app_verify: { name: 'silverback-designed-app' },
   workflow_build_from_prompt: {
-    name: 'visual-coding-full-utility',
+    name: 'silverback-coding-full-utility',
     prompt: 'Scan page with Playwright selectors, run Python, process tasks in parallel, then build an app.',
   },
   workflow_from_http_requests: {
@@ -990,7 +993,7 @@ const examples = {
     ],
   },
   build_app: {
-    name: 'visual-coding-automa-demo',
+    name: 'silverback-coding-automa-demo',
     actions: [
       { action: 'echo', payload: { message: 'built from Automa UI' } },
       { action: 'uppercase', payload: { text: 'automa' } },
@@ -1033,14 +1036,14 @@ const mcpExamples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   'browser.query_selector': {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
@@ -1048,13 +1051,13 @@ const mcpExamples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
   },
   'http.request': { method: 'GET', url: 'https://example.com', maxChars: 4000 },
   'workflow.build_from_prompt': {
-    name: 'visual-coding-full-utility',
+    name: 'silverback-coding-full-utility',
     prompt: 'Scan page with Playwright selectors, save resources, run Python, process tasks in parallel, then build an app.',
   },
   'workflow.from_http_requests': {
@@ -1077,7 +1080,7 @@ const mcpExamples = {
     values: JSON.parse(resourceValuesJson.value),
   },
   'parallel.plan.build': {
-    name: 'visual-coding-parallel-plan',
+    name: 'silverback-parallel-plan',
     mode: 'process',
     workers: 2,
     tasks: [
@@ -1085,23 +1088,23 @@ const mcpExamples = {
       { action: 'json_get', payload: { data: { user: { name: 'Automa' } }, path: 'user.name' } },
     ],
   },
-  'parallel.plan.run': { name: 'visual-coding-parallel-plan', saveResult: true },
+  'parallel.plan.run': { name: 'silverback-parallel-plan', saveResult: true },
   'parallel.plan.list': {},
   'design.app.build': {
-    name: 'visual-coding-designed-app',
-    title: 'Visual Coding Designed App',
+    name: 'silverback-designed-app',
+    title: 'Silverback Coding Designed App',
     schemaName: 'startup-intake-fields',
     fields: JSON.parse(resourceFieldsJson.value),
     overwrite: true,
     verify: true,
   },
-  'design.app.verify': { name: 'visual-coding-designed-app' },
+  'design.app.verify': { name: 'silverback-designed-app' },
   'design.app.capabilities': {},
   'files.tool': { operation: 'write', path: 'automa-ui/demo.txt', text: 'created from MCP files.tool' },
   'paths.tool': { operation: 'relative', path: 'automa-ui/demo.txt', base: 'automa-ui' },
   'json.tool': { operation: 'keys', data: { user: { name: 'Automa' }, ok: true } },
   'lists.tool': { operation: 'dedupe', items: ['alpha', 'beta', 'alpha'] },
-  'logic.compare': { left: 'visual coding', operator: 'contains', right: 'coding' },
+  'logic.compare': { left: 'silverback coding', operator: 'contains', right: 'coding' },
   'logic.boolean': { operator: 'and', values: [true, 1, 'yes'] },
   'logic.choose': { condition: true, whenTrue: 'continue', whenFalse: 'stop' },
   'variables.set': { name: 'counter', type: 'number', scope: 'project', value: 1 },
@@ -1150,26 +1153,26 @@ const mcpExamples = {
     timeout: 10,
   },
   'node.build_app': {
-    name: 'visual-coding-node-demo',
+    name: 'silverback-node-demo',
     packages: [],
-    code: "console.log(JSON.stringify({ ok: true, app: 'visual-coding-node-demo' }));",
+    code: "console.log(JSON.stringify({ ok: true, app: 'silverback-node-demo' }));",
   },
   'telegram.send_message': {
     tokenResource: 'telegram_bot_token',
     chatId: '123456',
-    text: 'Hello from Automa Visual Coding',
+    text: 'Hello from Silverback Coding',
     dryRun: true,
   },
   'telegram.build_bot': {
     runtime: 'python',
-    name: 'visual-coding-telegram-bot',
+    name: 'silverback-telegram-bot',
     tokenResource: 'telegram_bot_token',
-    startText: 'Hello from Visual Coding bot',
+    startText: 'Hello from Silverback Coding bot',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
   'bots.service.build': {
-    name: 'visual-coding-bot-service',
-    brandName: 'Visual Coding Bot Service',
+    name: 'silverback-bot-service',
+    brandName: 'Silverback Bot Service',
     botUsername: 'visual_coding_bot',
     publicDomain: 'bot.example.com',
     deploymentProfile: 'production',
@@ -1180,11 +1183,11 @@ const mcpExamples = {
     verify: true,
   },
   'bots.service.verify': {
-    name: 'visual-coding-bot-service',
+    name: 'silverback-bot-service',
   },
   'bots.service.capabilities': {},
   'benchmark.private_vpn.build': {
-    name: 'visual-coding-private-vpn-benchmark',
+    name: 'silverback-private-vpn-benchmark',
     brandName: 'GOY VPN',
     botUsername: 'goy_vpn_robot',
     supportUsername: '@support',
@@ -1194,7 +1197,7 @@ const mcpExamples = {
     verify: true,
   },
   'benchmark.private_vpn.verify': {
-    name: 'visual-coding-private-vpn-benchmark',
+    name: 'silverback-private-vpn-benchmark',
   },
   'benchmark.private_vpn.capabilities': {},
   'demo.run': {},
@@ -1319,7 +1322,7 @@ async function runListToolkit() {
 
 async function runLogicToolkit() {
   const data = await callMcp('logic.compare', {
-    left: 'visual coding',
+    left: 'silverback coding',
     operator: 'contains',
     right: 'coding',
   });
@@ -1490,7 +1493,7 @@ function resourceSchemaPayload() {
     title: resourceSchemaTitle.value,
     fields: JSON.parse(resourceFieldsJson.value || '[]'),
     tokens: {
-      accent: '#2563eb',
+      accent: '#7c3aed',
       success: '#059669',
       warning: '#f59e0b',
       surface: '#f8fafc',
@@ -1585,8 +1588,8 @@ async function verifyPrivateVpnBenchmark() {
 
 function botServicePayload() {
   return {
-    name: 'visual-coding-bot-service',
-    brandName: 'Visual Coding Bot Service',
+    name: 'silverback-bot-service',
+    brandName: 'Silverback Bot Service',
     botUsername: benchmarkBotUsername.value || 'visual_coding_bot',
     publicDomain: benchmarkDomain.value || 'bot.example.com',
     deploymentProfile: 'production',
@@ -1605,7 +1608,7 @@ async function buildBotServiceProject() {
 
 async function verifyBotServiceProject() {
   const data = await callMcp('bots.service.verify', {
-    name: 'visual-coding-bot-service',
+    name: 'silverback-bot-service',
   });
   print('Bot Service Verify', data);
 }
@@ -1652,7 +1655,7 @@ async function buildTelegramBot() {
     runtime: telegramRuntime.value,
     name: telegramAppName.value,
     tokenResource: telegramTokenResource.value,
-    startText: 'Hello from Visual Coding bot',
+    startText: 'Hello from Silverback Coding bot',
     commandHandlers: JSON.parse(telegramHandlersJson.value || '[]'),
   });
   print('Telegram Bot Builder', data);
@@ -1662,7 +1665,7 @@ async function dryRunTelegramMessage() {
   const data = await callMcp('telegram.send_message', {
     tokenResource: telegramTokenResource.value,
     chatId: '123456',
-    text: 'Hello from Automa Visual Coding',
+    text: 'Hello from Silverback Coding',
     dryRun: true,
   });
   print('Telegram Message Dry Run', data);
@@ -1750,7 +1753,7 @@ async function createBrowserProfile() {
   const data = await callMcp('browser.profiles.create', {
     name: browserProfileName.value.trim() || 'demo-browser-profile',
     browserEngine: browserEngine.value,
-    description: 'Created from Automa Visual Coding Studio',
+    description: 'Created from Automa Silverback Coding Studio',
   });
   print('Browser Profile Created', data);
 }
@@ -1849,7 +1852,7 @@ async function listResources() {
 
 async function runFullDemo() {
   const data = await callMcp('demo.run');
-  print('Full Automa Visual Coding Demo', data);
+  print('Full Automa Silverback Coding Demo', data);
 }
 
 async function safeRun(task) {
@@ -1870,102 +1873,200 @@ onMounted(async () => {
 
 <style scoped>
 .visual-coding-page {
-  @apply min-h-screen bg-gray-50 p-6 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  min-height: 100vh;
+  padding: 24px;
+  color: #f7f2ff;
+  background:
+    linear-gradient(180deg, rgba(124, 58, 237, 0.12), rgba(8, 6, 13, 0) 220px),
+    #08060d;
+  letter-spacing: 0;
 }
 
 .vc-header {
-  @apply mb-6 flex flex-col gap-4 border-b border-gray-200 pb-5 dark:border-gray-700 lg:flex-row lg:items-end lg:justify-between;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.24);
+}
+
+.vc-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vc-brand-mark {
+  display: grid;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border: 1px solid rgba(196, 181, 253, 0.55);
+  border-radius: 8px;
+  color: #f5f3ff;
+  background: #171020;
+  box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.4), 0 10px 24px rgba(0, 0, 0, 0.26);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 .vc-kicker {
-  @apply mb-1 text-sm font-semibold uppercase tracking-wide text-accent;
+  margin-bottom: 4px;
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .vc-header h1 {
-  @apply text-3xl font-semibold tracking-normal;
+  margin: 0;
+  color: #ffffff;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0;
 }
 
 .vc-subtitle {
-  @apply mt-2 text-gray-600 dark:text-gray-300;
+  max-width: 760px;
+  margin-top: 8px;
+  color: #c9c1d9;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .vc-header-actions,
 .vc-actions,
 .vc-inline {
-  @apply flex flex-wrap items-center gap-3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 
 .vc-status-grid {
-  @apply mb-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .vc-status-card,
 .vc-panel {
-  @apply rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 8px;
+  background: #120d1a;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
 }
 
 .vc-status-card {
-  @apply flex items-center gap-3 p-4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 16px;
 }
 
 .vc-status-card p {
-  @apply text-sm text-gray-500 dark:text-gray-300;
+  margin: 0;
+  color: #a99fbb;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .vc-status-card strong {
-  @apply break-words text-sm font-semibold;
+  display: block;
+  margin-top: 2px;
+  color: #f7f2ff;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .vc-dot {
-  @apply h-3 w-3 shrink-0 rounded-full bg-yellow-500;
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #f59e0b;
 }
 
 .vc-dot.ok {
-  @apply bg-green-500;
+  background: #22c55e;
 }
 
 .vc-dot.bad {
-  @apply bg-red-500;
+  background: #ef4444;
 }
 
 .vc-dot.muted {
-  @apply bg-gray-400;
+  background: #6b6477;
 }
 
 .vc-grid {
-  @apply grid grid-cols-1 gap-4 xl:grid-cols-2;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .vc-panel {
-  @apply grid gap-4 p-4;
-}
-
-.vc-span-2 {
-  @apply xl:col-span-2;
+  display: grid;
+  gap: 16px;
+  padding: 16px;
 }
 
 .vc-panel-head {
-  @apply flex items-center justify-between gap-3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .vc-panel-head h2 {
-  @apply text-base font-semibold tracking-normal;
+  margin: 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 760;
+  line-height: 1.35;
+  letter-spacing: 0;
 }
 
 .vc-panel-head span {
-  @apply rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200;
+  max-width: 48%;
+  padding: 5px 8px;
+  border: 1px solid rgba(167, 139, 250, 0.34);
+  border-radius: 999px;
+  color: #ddd6fe;
+  background: rgba(124, 58, 237, 0.15);
+  font-size: 12px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .vc-form-grid {
-  @apply grid grid-cols-1 gap-4 lg:grid-cols-[220px_minmax(0,1fr)];
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
 .vc-stack {
-  @apply grid content-start gap-3;
+  display: grid;
+  align-content: start;
+  gap: 12px;
 }
 
 label {
-  @apply grid gap-2 text-sm text-gray-600 dark:text-gray-300;
+  display: grid;
+  gap: 8px;
+  color: #c9c1d9;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .vc-code-input {
@@ -1980,11 +2081,78 @@ label {
 }
 
 .vc-output-panel {
-  @apply mt-4;
+  margin-top: 16px;
 }
 
 pre {
-  @apply max-h-[520px] min-h-[260px] overflow-auto whitespace-pre-wrap break-words rounded-lg bg-gray-950 p-4 text-sm text-green-50;
+  min-height: 260px;
+  max-height: 520px;
+  margin: 0;
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 8px;
+  color: #d9f99d;
+  background: #05030a;
+  font-size: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   font-family: Consolas, "Cascadia Code", monospace;
+}
+
+.visual-coding-page :deep(button) {
+  border-color: rgba(167, 139, 250, 0.34);
+  color: #f7f2ff;
+  background: #1b1328;
+  letter-spacing: 0;
+}
+
+.visual-coding-page :deep(button:hover) {
+  border-color: rgba(196, 181, 253, 0.72);
+  background: #25163c;
+}
+
+.visual-coding-page :deep(input),
+.visual-coding-page :deep(select),
+.visual-coding-page :deep(textarea) {
+  border-color: rgba(167, 139, 250, 0.22);
+  color: #f7f2ff;
+  background: #08060d;
+}
+
+.visual-coding-page :deep(input::placeholder),
+.visual-coding-page :deep(textarea::placeholder) {
+  color: #7e748d;
+}
+
+@media (min-width: 768px) {
+  .vc-status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .vc-header {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .vc-form-grid {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .vc-status-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .vc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vc-span-2 {
+    grid-column: span 2 / span 2;
+  }
 }
 </style>

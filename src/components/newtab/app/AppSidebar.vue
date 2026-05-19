@@ -130,7 +130,7 @@ const tabs = [
   },
   {
     id: 'visual-coding',
-    label: 'Visual Coding',
+    label: 'Silverback Coding',
     icon: 'riCodeSSlashLine',
     path: '/visual-coding',
     shortcut: '',

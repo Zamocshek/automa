@@ -127,7 +127,7 @@ export async function parallelRunner({ id, data }, { refData }) {
 
 export async function buildApp({ id, data }, { refData }) {
   try {
-    const appName = await render(data.appName || 'visual-coding-demo', refData, this.engine.isPopup);
+    const appName = await render(data.appName || 'silverback-coding-demo', refData, this.engine.isPopup);
     const actionsText = await render(data.actionsJson || '[]', refData, this.engine.isPopup);
     const actions = parseJsonArray(actionsText, 'actionsJson');
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
@@ -280,9 +280,9 @@ export async function resourceDesignBuilder({ id, data }, { refData }) {
     const mode = data.mode || 'schemaBuild';
     const schemaName = await render(data.schemaName || 'startup-intake-fields', refData, this.engine.isPopup);
     const schemaTitle = await render(data.schemaTitle || schemaName, refData, this.engine.isPopup);
-    const appName = await render(data.appName || 'visual-coding-designed-app', refData, this.engine.isPopup);
+    const appName = await render(data.appName || 'silverback-designed-app', refData, this.engine.isPopup);
     const appTitle = await render(data.appTitle || appName, refData, this.engine.isPopup);
-    const planName = await render(data.planName || 'visual-coding-parallel-plan', refData, this.engine.isPopup);
+    const planName = await render(data.planName || 'silverback-parallel-plan', refData, this.engine.isPopup);
     const projectPath = await render(data.projectPath || '', refData, this.engine.isPopup);
 
     const actions = {
@@ -842,9 +842,9 @@ export async function libraryRunner({ id, data }, { refData }) {
 
 export async function telegramBotBuilder({ id, data }, { refData }) {
   try {
-    const appName = await render(data.appName || 'visual-coding-telegram-bot', refData, this.engine.isPopup);
+    const appName = await render(data.appName || 'silverback-telegram-bot', refData, this.engine.isPopup);
     const tokenResource = await render(data.tokenResource || 'telegram_bot_token', refData, this.engine.isPopup);
-    const startText = await render(data.startText || 'Hello from Visual Coding bot', refData, this.engine.isPopup);
+    const startText = await render(data.startText || 'Hello from Silverback Coding bot', refData, this.engine.isPopup);
     const handlersText = await render(data.commandHandlersJson || '[]', refData, this.engine.isPopup);
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
       action: 'telegram_bot_build',
