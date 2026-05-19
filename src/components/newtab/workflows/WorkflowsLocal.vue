@@ -1,9 +1,9 @@
 <template>
   <div
     v-if="workflowStore.getWorkflows.length === 0"
-    class="md:flex items-center md:text-left text-center py-12"
+    class="silverback-empty-state md:flex items-center md:text-left text-center"
   >
-    <img src="@/assets/svg/alien.svg" class="w-96" />
+    <img src="@/assets/svg/logo.svg" class="silverback-empty-logo w-40" />
     <div class="ml-4">
       <h1 class="mb-6 max-w-md text-2xl font-semibold">
         {{ t('message.empty') }}

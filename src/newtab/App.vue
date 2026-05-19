@@ -268,11 +268,11 @@ useHead(() => {
   const runningWorkflows = workflowStore.popupStates.length;
 
   return {
-    title: 'Dashboard',
+    title: 'Silverback Coding',
     titleTemplate:
       runningWorkflows > 0
-        ? `%s (${runningWorkflows} Workflows Running) - Automa`
-        : '%s - Automa',
+        ? `%s (${runningWorkflows} Workflows Running) - Silverback Coding`
+        : '%s - Silverback Coding',
   };
 });
 
@@ -416,7 +416,8 @@ watch(
 <style>
 html,
 body {
-  @apply bg-gray-50 dark:bg-gray-900 text-black dark:text-gray-100;
+  background: var(--silverback-bg);
+  color: var(--silverback-text);
 }
 
 body {

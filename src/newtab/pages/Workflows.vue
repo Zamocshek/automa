@@ -83,7 +83,7 @@ function addTab(detail = {}) {
   state.tabs.push({
     id: tabId,
     path: '/',
-    name: 'Workflows',
+    name: 'Silverback Workflows',
     ...detail,
   });
   state.activeTab = tabId;
@@ -93,7 +93,7 @@ function closeTab(index, tab) {
     state.tabs[0] = {
       path: '/',
       id: nanoid(),
-      name: 'Workflows',
+      name: 'Silverback Workflows',
     };
   } else {
     state.tabs.splice(index, 1);
@@ -104,9 +104,24 @@ function closeTab(index, tab) {
   }
 }
 function getTabTitle() {
-  if (route.name === 'workflows') return 'Workflows';
+  if (route.name === 'workflows') return 'Silverback Workflows';
 
-  return `${document.title}`.replace(' - Automa', '');
+  return `${document.title}`
+    .replace(' - Silverback Coding', '')
+    .replace(' - Automa', '');
+}
+function normalizeTab(tab) {
+  if (!tab) return tab;
+
+  if (tab.path === '/' || tab.path === '/workflows') {
+    return { ...tab, name: 'Silverback Workflows' };
+  }
+
+  if (tab.name === 'Dashboard') {
+    return { ...tab, name: getTabTitle() };
+  }
+
+  return tab;
 }
 
 watch(
@@ -163,10 +178,10 @@ watch(
 onMounted(() => {
   const tabs = parseJSON(localStorage.getItem('tabs'), null);
   if (tabs) {
-    state.tabs = tabs;
+    state.tabs = tabs.map(normalizeTab);
 
     const activeTab = localStorage.getItem('activeTab');
-    state.activeTab = activeTab || tabs[0].id;
+    state.activeTab = activeTab || state.tabs[0].id;
   }
 
   if (state.tabs.length !== 0) {

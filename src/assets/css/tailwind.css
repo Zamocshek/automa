@@ -4,28 +4,36 @@
 
 @layer utilities {
   .hoverable {
-    @apply hover:bg-gray-800 hover:bg-opacity-5 dark:hover:bg-gray-200 dark:hover:bg-opacity-5;
+    @apply hover:bg-purple-400 hover:bg-opacity-10 dark:hover:bg-purple-300 dark:hover:bg-opacity-10;
   }
   .bg-input {
-    @apply bg-black bg-opacity-5 hover:bg-opacity-10 dark:bg-gray-200 dark:bg-opacity-5 dark:hover:bg-opacity-10;
+    @apply bg-purple-100 bg-opacity-10 hover:bg-opacity-20 dark:bg-purple-100 dark:bg-opacity-10 dark:hover:bg-opacity-20;
   }
   .bg-box-transparent {
-    @apply bg-black bg-opacity-5 dark:bg-gray-200 dark:bg-opacity-5;
+    @apply bg-purple-100 bg-opacity-10 dark:bg-purple-100 dark:bg-opacity-10;
   }
   .bg-box-transparent-2 {
-    @apply bg-black bg-opacity-10 dark:bg-gray-200 dark:bg-opacity-10;
+    @apply bg-purple-100 bg-opacity-20 dark:bg-purple-100 dark:bg-opacity-20;
   }
 }
 
 :host, :root {
-  --color-primary: 59 130 246;
-  --color-secondary: 96 165 250;
-  --color-accent: 24 24 27;
+  --color-primary: 139 92 246;
+  --color-secondary: 167 139 250;
+  --color-accent: 124 58 237;
+  --silverback-bg: #08060d;
+  --silverback-surface: #12081f;
+  --silverback-surface-2: #1a1029;
+  --silverback-border: #35224f;
+  --silverback-text: #f7f2ff;
+  --silverback-muted: #c8bdd8;
+  --silverback-accent: #7c3aed;
+  --silverback-accent-soft: rgba(124, 58, 237, 0.16);
 }
 .dark {
-  --color-primary: 96 165 250;
-  --color-secondary: 59 130 246;
-  --color-accent: 244 244 245;
+  --color-primary: 167 139 250;
+  --color-secondary: 139 92 246;
+  --color-accent: 124 58 237;
 }
 
 * {
@@ -33,14 +41,16 @@
 }
 
 html.dark {
-  @apply bg-gray-900;
+  background: var(--silverback-bg);
 }
 
 body, :host {
   font-family: 'Inter var', sans-serif !important;
   font-size: 16px !important;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  @apply bg-gray-50 dark:bg-gray-900 leading-normal;
+  color: var(--silverback-text);
+  background: var(--silverback-bg);
+  @apply leading-normal;
 }
 table th,
 table td {

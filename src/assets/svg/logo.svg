@@ -1,5 +1,7 @@
 <svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="53" y="58" width="452" height="452" rx="80" fill="white" stroke="#181818" stroke-width="30" stroke-linejoin="round"/>
-<rect x="95" y="90" width="452" height="452" rx="80" fill="#18181B"/>
-<path d="M293.667 220.666C304.723 198.554 336.277 198.554 347.333 220.666L432.308 390.616C444.814 415.628 419.067 443.212 392.87 433.428C363.012 422.277 332.936 412.348 320.5 412.348C308.064 412.348 277.988 422.277 248.13 433.428C221.933 443.212 196.186 415.628 208.692 390.616L293.667 220.666Z" fill="white"/>
+  <rect x="38" y="38" width="524" height="524" rx="92" fill="#05030A"/>
+  <rect x="61" y="61" width="478" height="478" rx="72" fill="#12081F" stroke="#7C3AED" stroke-width="22"/>
+  <path d="M153 392C185 252 236 180 303 180C371 180 421 252 451 392H389C365 293 336 242 302 242C268 242 238 293 214 392H153Z" fill="#F7F2FF"/>
+  <path d="M233 392C252 326 274 293 302 293C330 293 352 326 371 392H322C314 366 308 352 302 352C296 352 289 366 282 392H233Z" fill="#A78BFA"/>
+  <text x="300" y="484" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="0" fill="#FFFFFF">SB</text>
 </svg>

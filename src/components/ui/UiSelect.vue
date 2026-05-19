@@ -98,6 +98,13 @@ export default {
 }
 .ui-select option,
 .ui-select optgroup {
-  @apply bg-gray-100 dark:bg-gray-700;
+  color: #f7f2ff;
+  background-color: #12081f;
+}
+
+.ui-select option:checked,
+.ui-select option:hover {
+  color: #ffffff;
+  background-color: #7c3aed;
 }
 </style>

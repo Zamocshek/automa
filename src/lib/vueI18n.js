@@ -8,14 +8,41 @@ const i18n = createI18n({
   fallbackLocale: 'en',
 });
 
-export function setI18nLanguage(locale) {
-  i18n.global.locale.value = locale;
+export function normalizeLocale(locale) {
+  const fallbackLocale = 'ru';
+  const normalized = `${locale || ''}`.trim();
+  const lowerLocale = normalized.toLowerCase();
 
-  document.querySelector('html').setAttribute('lang', locale);
+  const exactLocale = supportLocales.find(({ id }) => id === normalized);
+  if (exactLocale) return exactLocale.id;
+
+  const matchedLocale = supportLocales.find(({ id }) => {
+    const lowerId = id.toLowerCase();
+
+    return (
+      lowerId === lowerLocale ||
+      lowerLocale.startsWith(`${lowerId}-`) ||
+      lowerId.startsWith(`${lowerLocale}-`) ||
+      lowerId.split('-')[0] === lowerLocale.split('-')[0]
+    );
+  });
+
+  return matchedLocale?.id || fallbackLocale;
+}
+
+export function setI18nLanguage(locale) {
+  const normalizedLocale = normalizeLocale(locale);
+
+  i18n.global.locale.value = normalizedLocale;
+
+  document.querySelector('html').setAttribute('lang', normalizedLocale);
 }
 
 export async function loadLocaleMessages(locale, location) {
-  const isLocaleSupported = supportLocales.some(({ id }) => id === locale);
+  const normalizedLocale = normalizeLocale(locale);
+  const isLocaleSupported = supportLocales.some(
+    ({ id }) => id === normalizedLocale
+  );
 
   if (!isLocaleSupported) {
     console.error(`${locale} locale is not supported`);
@@ -26,24 +53,27 @@ export async function loadLocaleMessages(locale, location) {
   const importLocale = async (path, merge = false) => {
     try {
       const messages = await import(
-        /* webpackChunkName: "locales/locale-[request]" */ `../locales/${locale}/${path}`
+        /* webpackChunkName: "locales/locale-[request]" */ `../locales/${normalizedLocale}/${path}`
       );
 
       if (merge) {
-        i18n.global.mergeLocaleMessage(locale, messages.default);
+        i18n.global.mergeLocaleMessage(normalizedLocale, messages.default);
       } else {
-        i18n.global.setLocaleMessage(locale, messages.default);
+        i18n.global.setLocaleMessage(normalizedLocale, messages.default);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  if (locale !== 'en' && !i18n.global.availableLocales.includes('en')) {
+  if (
+    normalizedLocale !== 'en' &&
+    !i18n.global.availableLocales.includes('en')
+  ) {
     await loadLocaleMessages('en', location);
   }
 
-  dayjs.locale(locale);
+  dayjs.locale(normalizedLocale);
 
   await importLocale('common.json');
   await importLocale('popup.json', true);

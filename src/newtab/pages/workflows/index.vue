@@ -1,8 +1,6 @@
 <template>
   <div class="container pt-8 pb-4">
-    <h1 class="text-2xl font-semibold capitalize">
-      {{ t('common.workflow', 2) }}
-    </h1>
+    <h1 class="text-2xl font-semibold">Silverback Workflows</h1>
     <div class="mt-8 flex items-start">
       <div class="sticky top-8 hidden w-60 lg:block">
         <div class="flex w-full">
@@ -286,32 +284,22 @@
             class="absolute top-4 right-4 cursor-pointer"
             @click="workflowStore.isFirstTime = false"
           />
-          <p>Create your first workflow by recording your actions:</p>
+          <p>Создай первый проект Silverback записью действий:</p>
           <ol class="list-inside list-decimal">
-            <li>Open your browser and go to your destination URL</li>
+            <li>Открой нужную страницу в браузере</li>
             <li>
-              Click the "Record workflow" button, and do your simple repetitive
-              task
+              Нажми "Record workflow" и выполни повторяемое действие
             </li>
             <li>
-              Need more help? Join
-              <a
-                href="https://discord.gg/C6khwwTE84"
-                target="_blank"
-                rel="noreferer"
-                >the community</a
-              >, or email us at
-              <a href="mailto:support@automa.site" target="_blank"
-                >support@automa.site</a
-              >
+              Открой проект в редакторе и допили блоки через Silverback Coding
             </li>
           </ol>
           <p class="mt-4">
-            Learn more about recording in
+            Подробнее о записи:
             <a
               href="https://docs.extension.automa.site/guide/quick-start.html#recording-actions"
               target="_blank"
-              >the documentation</a
+              >документация</a
             >
           </p>
         </ui-card>

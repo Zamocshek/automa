@@ -2120,6 +2120,12 @@ pre {
   background: #08060d;
 }
 
+.visual-coding-page :deep(option),
+.visual-coding-page :deep(optgroup) {
+  color: #f7f2ff;
+  background: #12081f;
+}
+
 .visual-coding-page :deep(input::placeholder),
 .visual-coding-page :deep(textarea::placeholder) {
   color: #7e748d;

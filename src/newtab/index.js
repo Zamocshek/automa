@@ -11,6 +11,7 @@ import '../assets/css/tailwind.css';
 import '../assets/css/fonts.css';
 import '../assets/css/style.css';
 import '../assets/css/flow.css';
+import '../assets/css/silverback.css';
 
 const head = createHead();
 

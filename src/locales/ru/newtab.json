@@ -24,14 +24,14 @@
     }
   },
   "workflow": {
-    "my": "Мои workflow",
-    "import": "Импортировать workflow",
-    "new": "Новый workflow",
-    "delete": "Удалить workflow",
-    "browse": "Обзор workflow",
-    "name": "Имя workflow",
-    "rename": "Переименовать workflow",
-    "add": "Добавить workflow",
+    "my": "Мои проекты",
+    "import": "Импортировать проект",
+    "new": "Новый проект",
+    "delete": "Удалить проект",
+    "browse": "Обзор проектов",
+    "name": "Имя проекта",
+    "rename": "Переименовать проект",
+    "add": "Добавить проект",
     "toggleSidebar": "Переключить боковую панель",
     "undo": "Отменить",
     "redo": "Повторить",
@@ -61,6 +61,17 @@
     },
     "sidebar": {
       "workflowIcon": "Иконка workflow"
+    },
+    "pinWorkflow": {
+      "pin": "Закрепить проект",
+      "unpin": "Открепить проект",
+      "pinned": "Закрепленные проекты"
+    },
+    "backupCloud": "Резервная копия в облако",
+    "type": {
+      "local": "Локальные",
+      "shared": "Общие",
+      "host": "Хост"
     },
     "editor": {
       "zoomIn": "Приблизить",

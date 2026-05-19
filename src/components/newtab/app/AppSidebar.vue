@@ -3,7 +3,7 @@
     class="fixed left-0 top-0 z-50 flex h-screen w-16 flex-col items-center bg-white py-6 dark:bg-gray-800"
   >
     <img
-      :title="`v${extensionVersion}`"
+      :title="`Silverback Coding v${extensionVersion}`"
       src="@/assets/svg/logo.svg"
       class="mx-auto mb-4 w-10"
     />

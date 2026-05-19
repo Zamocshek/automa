@@ -1,0 +1,191 @@
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#app,
+main {
+  color: var(--silverback-text) !important;
+  background: var(--silverback-bg) !important;
+}
+
+::selection {
+  color: #ffffff;
+  background: rgba(124, 58, 237, 0.72);
+}
+
+.bg-gray-50,
+.dark .dark\:bg-gray-900 {
+  background-color: var(--silverback-bg) !important;
+}
+
+.bg-white,
+.dark .dark\:bg-gray-800,
+.ui-card,
+.ui-popover__content {
+  color: var(--silverback-text) !important;
+  background-color: var(--silverback-surface) !important;
+}
+
+.ui-card,
+.ui-popover__content {
+  border: 1px solid var(--silverback-border) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+}
+
+aside {
+  color: var(--silverback-text) !important;
+  background: #05030a !important;
+  border-right: 1px solid var(--silverback-border);
+}
+
+aside .tab > div,
+aside button,
+aside a {
+  color: var(--silverback-text) !important;
+}
+
+aside .tab.is-active > div,
+aside .router-link-active > div,
+.ui-list-item.bg-primary,
+.ui-list-item.bg-box-transparent,
+.ui-tabs__indicator {
+  color: #ffffff !important;
+  background-color: var(--silverback-accent-soft) !important;
+}
+
+.tab.is-active::after,
+.bg-accent,
+.dark .dark\:bg-gray-100,
+.ui-button.bg-accent {
+  background-color: var(--silverback-accent) !important;
+}
+
+.text-black,
+.dark .dark\:text-black,
+.dark .dark\:text-gray-100 {
+  color: var(--silverback-text) !important;
+}
+
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.dark .dark\:text-gray-200,
+.dark .dark\:text-gray-300,
+.dark .dark\:text-gray-400,
+.input-label,
+.ui-select label,
+.input-ui label {
+  color: var(--silverback-muted) !important;
+}
+
+.border,
+.border-b,
+.border-t,
+.border-r,
+.border-l,
+hr,
+.dark .dark\:border-gray-700,
+.border-gray-200,
+.border-gray-300 {
+  border-color: var(--silverback-border) !important;
+}
+
+.hoverable:hover,
+.ui-list-item:hover {
+  color: #ffffff !important;
+  background-color: rgba(124, 58, 237, 0.18) !important;
+}
+
+.bg-input,
+input,
+textarea,
+select,
+.ui-select select,
+.ui-textarea,
+.ui-input {
+  color: var(--silverback-text) !important;
+  background-color: #0f0918 !important;
+  border-color: var(--silverback-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8f82a3 !important;
+}
+
+select option,
+select optgroup,
+.ui-select option,
+.ui-select optgroup {
+  color: var(--silverback-text) !important;
+  background-color: var(--silverback-surface) !important;
+}
+
+select option:checked,
+.ui-select option:checked {
+  color: #ffffff !important;
+  background-color: var(--silverback-accent) !important;
+}
+
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[role='button']:focus {
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.46) !important;
+}
+
+.workflow-sort select {
+  color: var(--silverback-text) !important;
+  background-color: #0f0918 !important;
+}
+
+.workflows-container .ui-card,
+.local-workflow {
+  background:
+    linear-gradient(180deg, rgba(124, 58, 237, 0.12), rgba(124, 58, 237, 0)),
+    var(--silverback-surface) !important;
+}
+
+.local-workflow:hover {
+  border-color: rgba(167, 139, 250, 0.72) !important;
+  transform: translateY(-1px);
+}
+
+.first-card {
+  background:
+    linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(8, 6, 13, 0.94)),
+    var(--silverback-surface) !important;
+}
+
+.silverback-empty-state {
+  min-height: 360px;
+  padding: 48px 24px;
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(124, 58, 237, 0.10), transparent),
+    rgba(18, 8, 31, 0.56);
+}
+
+.silverback-empty-logo {
+  filter: drop-shadow(0 22px 48px rgba(124, 58, 237, 0.32));
+}
+
+.selection-area {
+  background: rgba(124, 58, 237, 0.16) !important;
+  border-color: rgba(196, 181, 253, 0.72) !important;
+}
+
+.scroll::-webkit-scrollbar-thumb,
+.scroll .cm-scroller::-webkit-scrollbar-thumb {
+  background: #4c3170 !important;
+}
+
+.tippy-box[data-theme~='tooltip-theme'] {
+  color: var(--silverback-text) !important;
+  background: #12081f !important;
+  border: 1px solid var(--silverback-border);
+}
