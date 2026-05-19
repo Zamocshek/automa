@@ -5,7 +5,7 @@
         <p class="vc-kicker">Automa-native development environment</p>
         <h1>Visual Coding</h1>
         <p class="vc-subtitle">
-          Bridge runner, MCP control plane and app builder inside Automa.
+          Bridge runner, MCP control plane, Python/Node libraries and app builder inside Automa.
         </p>
       </div>
       <div class="vc-header-actions">
@@ -81,6 +81,9 @@
           <ui-button @click="selectAction('echo')">Echo</ui-button>
           <ui-button @click="selectAction('json_get')">JSON get</ui-button>
           <ui-button @click="selectAction('build_app')">Build app payload</ui-button>
+          <ui-button @click="selectAction('python_script_exec')">Python library</ui-button>
+          <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
+          <ui-button @click="selectAction('telegram_bot_build')">Telegram bot</ui-button>
         </div>
       </article>
 
@@ -170,6 +173,88 @@
           />
         </label>
         <ui-button variant="accent" @click="safeRun(buildApp)">Generate app</ui-button>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Library Runtime Builder</h2>
+          <span>pip/npm + Telegram</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-select
+              :model-value="libraryRuntime"
+              label="Runtime"
+              block
+              @change="switchLibraryRuntime"
+            >
+              <option value="python">python</option>
+              <option value="node">node</option>
+            </ui-select>
+            <label>
+              Packages JSON
+              <ui-textarea
+                :model-value="libraryPackages"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="libraryPackages = $event"
+              />
+            </label>
+            <label>
+              Input JSON
+              <ui-textarea
+                :model-value="libraryInput"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="libraryInput = $event"
+              />
+            </label>
+          </div>
+          <label>
+            Code
+            <ui-textarea
+              :model-value="libraryCode"
+              spellcheck="false"
+              class="vc-code-input"
+              @change="libraryCode = $event"
+            />
+          </label>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(runLibraryCode)">Run library code</ui-button>
+          <ui-button @click="safeRun(buildTelegramBot)">Build Telegram Bot</ui-button>
+          <ui-button @click="safeRun(dryRunTelegramMessage)">Dry-run Telegram message</ui-button>
+        </div>
+        <div class="vc-inline">
+          <ui-select
+            :model-value="telegramRuntime"
+            label="Bot runtime"
+            block
+            @change="telegramRuntime = $event"
+          >
+            <option value="python">python</option>
+            <option value="node">node</option>
+          </ui-select>
+          <ui-input
+            :model-value="telegramAppName"
+            label="Bot app"
+            @change="telegramAppName = $event"
+          />
+          <ui-input
+            :model-value="telegramTokenResource"
+            label="Token resource"
+            @change="telegramTokenResource = $event"
+          />
+        </div>
+        <label>
+          Bot command handlers JSON
+          <ui-textarea
+            :model-value="telegramHandlersJson"
+            spellcheck="false"
+            class="vc-code-input vc-small-code"
+            @change="telegramHandlersJson = $event"
+          />
+        </label>
       </article>
 
       <article class="vc-panel vc-span-2">
@@ -386,16 +471,27 @@ const appActions = ref(`[
   {"action":"echo","payload":{"message":"built from Automa UI"}},
   {"action":"uppercase","payload":{"text":"automa"}}
 ]`);
+const libraryRuntime = ref('python');
+const libraryPackages = ref('[]');
+const libraryCode = ref('result = {"triple": input_data["x"] * 3}');
+const libraryInput = ref('{"x":14}');
+const telegramRuntime = ref('python');
+const telegramAppName = ref('visual-coding-telegram-bot');
+const telegramTokenResource = ref('telegram_bot_token');
+const telegramHandlersJson = ref(`[
+  {"command":"ping","response":"pong"},
+  {"command":"status","response":"Visual Coding bot is alive"}
+]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, run a Python step, process tasks in parallel with multiprocessing, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('visual-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, run an HTTP request, save a resource, run Python, process tasks in parallel, then build an app.');
+const utilityPrompt = ref('Scan page with Playwright selectors, run an HTTP request, save a resource, run Python and Node libraries, build a Telegram bot, process tasks in parallel, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -426,6 +522,38 @@ const examples = {
   path_is_absolute: { path: 'automa-ui/demo.txt' },
   http_request: { method: 'GET', url: 'https://example.com', maxChars: 4000 },
   wait_sleep: { seconds: 1 },
+  python_install_packages: { packages: ['requests'], timeout: 180 },
+  python_script_exec: {
+    packages: [],
+    code: 'import math\nresult = {"sqrt": math.sqrt(input_data["x"])}',
+    input: { x: 81 },
+    timeout: 10,
+  },
+  node_install_packages: { packages: ['axios'], timeout: 180 },
+  node_script_exec: {
+    packages: [],
+    code: 'result = { triple: inputData.x * 3 };',
+    input: { x: 14 },
+    timeout: 10,
+  },
+  node_app_build: {
+    name: 'visual-coding-node-demo',
+    packages: [],
+    code: "console.log(JSON.stringify({ ok: true, app: 'visual-coding-node-demo' }));",
+  },
+  telegram_send_message: {
+    tokenResource: 'telegram_bot_token',
+    chatId: '123456',
+    text: 'Hello from Automa Visual Coding',
+    dryRun: true,
+  },
+  telegram_bot_build: {
+    runtime: 'python',
+    name: 'visual-coding-telegram-bot',
+    tokenResource: 'telegram_bot_token',
+    startText: 'Hello from Visual Coding bot',
+    commandHandlers: [{ command: 'ping', response: 'pong' }],
+  },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
   browser_scan_page: {
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
@@ -506,6 +634,38 @@ const mcpExamples = {
   'resources.set': { name: 'api_url', type: 'url', value: 'https://example.com' },
   'resources.get': { name: 'api_url' },
   'resources.list': {},
+  'python.install_packages': { packages: ['requests'], timeout: 180 },
+  'python.run_script': {
+    packages: [],
+    code: 'import math\nresult = {"sqrt": math.sqrt(input_data["x"])}',
+    input: { x: 81 },
+    timeout: 10,
+  },
+  'node.install_packages': { packages: ['axios'], timeout: 180 },
+  'node.run_script': {
+    packages: [],
+    code: 'result = { triple: inputData.x * 3 };',
+    input: { x: 14 },
+    timeout: 10,
+  },
+  'node.build_app': {
+    name: 'visual-coding-node-demo',
+    packages: [],
+    code: "console.log(JSON.stringify({ ok: true, app: 'visual-coding-node-demo' }));",
+  },
+  'telegram.send_message': {
+    tokenResource: 'telegram_bot_token',
+    chatId: '123456',
+    text: 'Hello from Automa Visual Coding',
+    dryRun: true,
+  },
+  'telegram.build_bot': {
+    runtime: 'python',
+    name: 'visual-coding-telegram-bot',
+    tokenResource: 'telegram_bot_token',
+    startText: 'Hello from Visual Coding bot',
+    commandHandlers: [{ command: 'ping', response: 'pong' }],
+  },
   'demo.run': {},
 };
 
@@ -644,6 +804,50 @@ async function buildApp() {
     },
   });
   print('Build App', data);
+}
+
+function switchLibraryRuntime(runtime) {
+  libraryRuntime.value = runtime;
+  if (runtime === 'node') {
+    libraryCode.value = 'result = { triple: inputData.x * 3 };';
+    libraryInput.value = '{"x":14}';
+  } else {
+    libraryCode.value = 'result = {"triple": input_data["x"] * 3}';
+    libraryInput.value = '{"x":14}';
+  }
+}
+
+async function runLibraryCode() {
+  const tool = libraryRuntime.value === 'node' ? 'node.run_script' : 'python.run_script';
+  const data = await callMcp(tool, {
+    packages: JSON.parse(libraryPackages.value || '[]'),
+    code: libraryCode.value,
+    input: parseJson(libraryInput.value),
+    timeout: 30,
+    installTimeout: 180,
+  });
+  print(`Library Runtime: ${libraryRuntime.value}`, data);
+}
+
+async function buildTelegramBot() {
+  const data = await callMcp('telegram.build_bot', {
+    runtime: telegramRuntime.value,
+    name: telegramAppName.value,
+    tokenResource: telegramTokenResource.value,
+    startText: 'Hello from Visual Coding bot',
+    commandHandlers: JSON.parse(telegramHandlersJson.value || '[]'),
+  });
+  print('Telegram Bot Builder', data);
+}
+
+async function dryRunTelegramMessage() {
+  const data = await callMcp('telegram.send_message', {
+    tokenResource: telegramTokenResource.value,
+    chatId: '123456',
+    text: 'Hello from Automa Visual Coding',
+    dryRun: true,
+  });
+  print('Telegram Message Dry Run', data);
 }
 
 async function runMcpTool() {

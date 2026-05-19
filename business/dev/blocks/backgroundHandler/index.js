@@ -225,6 +225,50 @@ export async function httpClient({ id, data }, { refData }) {
   }
 }
 
+export async function libraryRunner({ id, data }, { refData }) {
+  try {
+    const runtime = data.runtime === 'node' ? 'node' : 'python';
+    const packagesText = await render(data.packagesJson || '[]', refData, this.engine.isPopup);
+    const inputText = await render(data.inputJson || '{}', refData, this.engine.isPopup);
+    const code = await render(data.code || '', refData, this.engine.isPopup);
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: runtime === 'node' ? 'node_script_exec' : 'python_script_exec',
+      payload: {
+        packages: parseJsonArray(packagesText, 'packagesJson'),
+        code,
+        input: JSON.parse(inputText || 'null'),
+        timeout: Number(data.executionTimeout || 30),
+        installTimeout: Number(data.installTimeout || 180),
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function telegramBotBuilder({ id, data }, { refData }) {
+  try {
+    const appName = await render(data.appName || 'visual-coding-telegram-bot', refData, this.engine.isPopup);
+    const tokenResource = await render(data.tokenResource || 'telegram_bot_token', refData, this.engine.isPopup);
+    const startText = await render(data.startText || 'Hello from Visual Coding bot', refData, this.engine.isPopup);
+    const handlersText = await render(data.commandHandlersJson || '[]', refData, this.engine.isPopup);
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'telegram_bot_build',
+      payload: {
+        runtime: data.runtime === 'node' ? 'node' : 'python',
+        name: appName,
+        tokenResource,
+        startText,
+        commandHandlers: parseJsonArray(handlersText, 'commandHandlersJson'),
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export default function () {
   return {
     pythonBridge,
@@ -233,5 +277,7 @@ export default function () {
     browserScanner,
     resourceStore,
     httpClient,
+    libraryRunner,
+    telegramBotBuilder,
   };
 }

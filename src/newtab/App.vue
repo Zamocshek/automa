@@ -333,7 +333,8 @@ watch(
     });
 
     const currentWindow = await browser.windows.getCurrent();
-    if (currentWindow.type !== 'popup') {
+    const isVisualCodingRoute = window.location.hash.includes('/visual-coding');
+    if (currentWindow.type !== 'popup' && !isVisualCodingRoute) {
       await browser.tabs.remove([tabs[0].id]);
       return;
     }
