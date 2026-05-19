@@ -233,6 +233,49 @@
           </ui-button>
         </div>
       </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Browser Scanner</h2>
+          <span>Playwright + selectors</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-input
+              :model-value="browserUrl"
+              label="URL"
+              @change="browserUrl = $event"
+            />
+            <ui-input
+              :model-value="browserSelector"
+              label="CSS / XPath selector"
+              @change="browserSelector = $event"
+            />
+            <ui-input
+              :model-value="selectorHint"
+              label="Selector hint"
+              @change="selectorHint = $event"
+            />
+          </div>
+          <label>
+            Inline HTML
+            <ui-textarea
+              :model-value="browserHtml"
+              spellcheck="false"
+              class="vc-code-input"
+              @change="browserHtml = $event"
+            />
+          </label>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(scanBrowserUrl)">
+            Scan URL
+          </ui-button>
+          <ui-button @click="safeRun(scanBrowserHtml)">Scan HTML</ui-button>
+          <ui-button @click="safeRun(queryBrowserSelector)">Query selector</ui-button>
+          <ui-button @click="safeRun(suggestBrowserSelectors)">Suggest selectors</ui-button>
+        </div>
+      </article>
     </section>
 
     <section class="vc-panel vc-output-panel">
@@ -278,8 +321,12 @@ const appActions = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Build an Automa workflow that runs a Python step, processes tasks in parallel with multiprocessing, then builds a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run a Python step, process tasks in parallel with multiprocessing, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
+const browserUrl = ref('https://example.com');
+const browserSelector = ref('button, a, input');
+const selectorHint = ref('run');
+const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 
 const examples = {
   echo: { message: 'from Automa Visual Coding' },
@@ -290,6 +337,20 @@ const examples = {
   file_write: { path: 'automa-ui/demo.txt', text: 'created from Automa Visual Coding' },
   file_read: { path: 'automa-ui/demo.txt' },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
+  browser_scan_page: {
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    maxElements: 40,
+  },
+  browser_query_selector: {
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    selector: 'button#run',
+    limit: 10,
+  },
+  browser_suggest_selectors: {
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    hint: 'run',
+    maxElements: 40,
+  },
   batch: {
     mode: 'thread',
     workers: 2,
@@ -317,6 +378,20 @@ const mcpExamples = {
   'skill.status': {},
   'workflow.patch_template': { kind: 'python_bridge' },
   'workflow.compose_from_prompt': { prompt: sampleComposerPrompt },
+  'browser.scan_page': {
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    maxElements: 40,
+  },
+  'browser.query_selector': {
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    selector: 'button#run',
+    limit: 10,
+  },
+  'browser.suggest_selectors': {
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    hint: 'run',
+    maxElements: 40,
+  },
   'demo.run': {},
 };
 
@@ -472,6 +547,45 @@ async function composeWorkflow() {
   print('AI Workflow Composer', data);
 }
 
+function browserPayload(useHtml = false) {
+  const html = browserHtml.value.trim();
+  if (useHtml || !browserUrl.value.trim()) {
+    return { html, maxElements: 80 };
+  }
+
+  return { url: browserUrl.value.trim(), maxElements: 80, captureNetwork: true };
+}
+
+async function scanBrowserUrl() {
+  const data = await callMcp('browser.scan_page', browserPayload(false));
+  print('Browser Scan URL', data);
+}
+
+async function scanBrowserHtml() {
+  const data = await callMcp('browser.scan_page', browserPayload(true));
+  print('Browser Scan HTML', data);
+}
+
+async function queryBrowserSelector() {
+  const payload = {
+    ...browserPayload(Boolean(browserHtml.value.trim())),
+    selector: browserSelector.value,
+    limit: 40,
+  };
+  const data = await callMcp('browser.query_selector', payload);
+  print('Browser Query Selector', data);
+}
+
+async function suggestBrowserSelectors() {
+  const payload = {
+    ...browserPayload(Boolean(browserHtml.value.trim())),
+    hint: selectorHint.value,
+    maxElements: 80,
+  };
+  const data = await callMcp('browser.suggest_selectors', payload);
+  print('Browser Selector Suggestions', data);
+}
+
 async function runFullDemo() {
   const data = await callMcp('demo.run');
   print('Full Automa Visual Coding Demo', data);
@@ -583,6 +697,10 @@ onMounted(async () => {
 
 .vc-form-grid {
   @apply grid grid-cols-1 gap-4 lg:grid-cols-[220px_minmax(0,1fr)];
+}
+
+.vc-stack {
+  @apply grid content-start gap-3;
 }
 
 label {
