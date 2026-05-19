@@ -132,10 +132,106 @@ export async function buildApp({ id, data }, { refData }) {
   }
 }
 
+export async function browserScanner({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'scan';
+    const source = data.source || 'html';
+    const payload = {
+      maxElements: Number(data.maxElements || 80),
+      captureNetwork: Boolean(data.captureNetwork),
+    };
+
+    if (source === 'url') {
+      payload.url = await render(data.url || '', refData, this.engine.isPopup);
+    } else {
+      payload.html = await render(data.html || '', refData, this.engine.isPopup);
+    }
+
+    let action = 'browser_scan_page';
+    if (mode === 'query') {
+      action = 'browser_query_selector';
+      payload.selector = await render(data.selector || '', refData, this.engine.isPopup);
+    } else if (mode === 'suggest') {
+      action = 'browser_suggest_selectors';
+      payload.hint = await render(data.hint || '', refData, this.engine.isPopup);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function resourceStore({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'get';
+    const resourceName = await render(data.resourceName || '', refData, this.engine.isPopup);
+    let action = 'resource_get';
+    const payload = { name: resourceName };
+
+    if (mode === 'set') {
+      action = 'resource_set';
+      payload.type = data.resourceType || 'string';
+      payload.description = await render(data.resourceDescription || '', refData, this.engine.isPopup);
+      const valueText = await render(data.resourceValue || 'null', refData, this.engine.isPopup);
+      payload.value = JSON.parse(valueText);
+    } else if (mode === 'list') {
+      action = 'resource_list';
+      delete payload.name;
+    } else if (mode === 'delete') {
+      action = 'resource_delete';
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function httpClient({ id, data }, { refData }) {
+  try {
+    const url = await render(data.url || '', refData, this.engine.isPopup);
+    const headersText = await render(data.headersJson || '{}', refData, this.engine.isPopup);
+    const payload = {
+      method: data.method || 'GET',
+      url,
+      headers: parseJsonObject(headersText, 'headersJson'),
+      timeout: Number(data.timeout || 20),
+      maxChars: Number(data.maxChars || 200000),
+    };
+
+    if (data.bodyMode === 'json') {
+      const jsonBody = await render(data.jsonBody || '{}', refData, this.engine.isPopup);
+      payload.json = JSON.parse(jsonBody);
+    } else if (data.bodyMode === 'text') {
+      payload.body = await render(data.body || '', refData, this.engine.isPopup);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'http_request',
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export default function () {
   return {
     pythonBridge,
     parallelRunner,
     buildApp,
+    browserScanner,
+    resourceStore,
+    httpClient,
   };
 }

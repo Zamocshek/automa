@@ -236,6 +236,69 @@
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
+          <h2>Workflow Utility Builder</h2>
+          <span>save into Automa</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-input
+              :model-value="utilityName"
+              label="Workflow name"
+              @change="utilityName = $event"
+            />
+            <ui-input
+              :model-value="resourceName"
+              label="Resource name"
+              @change="resourceName = $event"
+            />
+            <ui-input
+              :model-value="resourceType"
+              label="Resource type"
+              @change="resourceType = $event"
+            />
+          </div>
+          <div class="vc-stack">
+            <label>
+              Workflow prompt
+              <ui-textarea
+                :model-value="utilityPrompt"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="utilityPrompt = $event"
+              />
+            </label>
+            <label>
+              HTTP requests JSON
+              <ui-textarea
+                :model-value="httpRequestsJson"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="httpRequestsJson = $event"
+              />
+            </label>
+            <label>
+              Resource value JSON
+              <ui-textarea
+                :model-value="resourceValue"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="resourceValue = $event"
+              />
+            </label>
+          </div>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(buildUtilityWorkflow)">
+            Build importable workflow
+          </ui-button>
+          <ui-button @click="safeRun(buildHttpWorkflow)">HTTP requests workflow</ui-button>
+          <ui-button @click="safeRun(saveResource)">Save resource</ui-button>
+          <ui-button @click="safeRun(listResources)">List resources</ui-button>
+        </div>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
           <h2>Browser Scanner</h2>
           <span>Playwright + selectors</span>
         </div>
@@ -290,8 +353,12 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { useWorkflowStore } from '@/stores/workflow';
+import { findTriggerBlock } from '@/utils/helper';
+import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
 
 const BRIDGE_URL = 'http://127.0.0.1:8765';
+const workflowStore = useWorkflowStore();
 
 const bridgeLabel = ref('checking');
 const bridgeState = ref('muted');
@@ -321,21 +388,44 @@ const appActions = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run a Python step, process tasks in parallel with multiprocessing, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, run a Python step, process tasks in parallel with multiprocessing, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
+const utilityName = ref('visual-coding-full-utility');
+const utilityPrompt = ref('Scan page with Playwright selectors, run an HTTP request, save a resource, run Python, process tasks in parallel, then build an app.');
+const httpRequestsJson = ref(`[
+  {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
+]`);
+const resourceName = ref('api_url');
+const resourceType = ref('url');
+const resourceValue = ref('"https://example.com"');
 
 const examples = {
   echo: { message: 'from Automa Visual Coding' },
   uppercase: { text: 'hello visual coding' },
+  string_lowercase: { text: 'HELLO VISUAL CODING' },
+  string_trim: { text: '  hello visual coding  ' },
+  string_replace: { text: 'hello BAS', old: 'BAS', new: 'Automa' },
+  string_split: { text: 'one,two,three', separator: ',' },
+  string_join: { items: ['one', 'two', 'three'], separator: ', ' },
+  string_regex_match: { text: 'user42 order77', pattern: '\\d+' },
   json_get: { data: { user: { name: 'Automa' } }, path: 'user.name' },
   list_length: { items: ['one', 'two', 'three'] },
   list_append: { items: ['one', 'two'], item: 'three' },
   file_write: { path: 'automa-ui/demo.txt', text: 'created from Automa Visual Coding' },
   file_read: { path: 'automa-ui/demo.txt' },
+  file_delete: { path: 'automa-ui/demo.txt' },
+  path_join: { parts: ['automa-ui', 'demo.txt'] },
+  path_basename: { path: 'automa-ui/demo.txt' },
+  path_dirname: { path: 'automa-ui/demo.txt' },
+  path_ext: { path: 'automa-ui/demo.txt' },
+  path_normalize: { path: 'automa-ui/../automa-ui/demo.txt' },
+  path_is_absolute: { path: 'automa-ui/demo.txt' },
+  http_request: { method: 'GET', url: 'https://example.com', maxChars: 4000 },
+  wait_sleep: { seconds: 1 },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
   browser_scan_page: {
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
@@ -350,6 +440,18 @@ const examples = {
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
+  },
+  resource_set: { name: 'api_url', type: 'url', value: 'https://example.com' },
+  resource_get: { name: 'api_url' },
+  resource_list: {},
+  resource_delete: { name: 'api_url' },
+  workflow_build_from_prompt: {
+    name: 'visual-coding-full-utility',
+    prompt: 'Scan page with Playwright selectors, run Python, process tasks in parallel, then build an app.',
+  },
+  workflow_from_http_requests: {
+    name: 'captured-http-utility',
+    requests: [{ method: 'GET', url: 'https://example.com/api', resourceType: 'fetch' }],
   },
   batch: {
     mode: 'thread',
@@ -392,6 +494,18 @@ const mcpExamples = {
     hint: 'run',
     maxElements: 40,
   },
+  'http.request': { method: 'GET', url: 'https://example.com', maxChars: 4000 },
+  'workflow.build_from_prompt': {
+    name: 'visual-coding-full-utility',
+    prompt: 'Scan page with Playwright selectors, save resources, run Python, process tasks in parallel, then build an app.',
+  },
+  'workflow.from_http_requests': {
+    name: 'captured-http-utility',
+    requests: [{ method: 'GET', url: 'https://example.com/api', resourceType: 'fetch' }],
+  },
+  'resources.set': { name: 'api_url', type: 'url', value: 'https://example.com' },
+  'resources.get': { name: 'api_url' },
+  'resources.list': {},
   'demo.run': {},
 };
 
@@ -584,6 +698,53 @@ async function suggestBrowserSelectors() {
   };
   const data = await callMcp('browser.suggest_selectors', payload);
   print('Browser Selector Suggestions', data);
+}
+
+async function saveWorkflowToAutoma(workflow) {
+  if (!workflowStore.retrieved) await workflowStore.loadData();
+  const inserted = await workflowStore.insert({
+    ...workflow,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  });
+  Object.entries(inserted).forEach(([id, item]) => {
+    const triggerBlock = findTriggerBlock(item.drawflow);
+    if (triggerBlock) registerWorkflowTrigger(id, triggerBlock);
+  });
+
+  return inserted;
+}
+
+async function buildUtilityWorkflow() {
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: utilityName.value,
+    prompt: utilityPrompt.value,
+  });
+  const inserted = await saveWorkflowToAutoma(data.result.workflow);
+  print('Saved Automa Workflow', { ...data, insertedWorkflowIds: Object.keys(inserted) });
+}
+
+async function buildHttpWorkflow() {
+  const data = await callMcp('workflow.from_http_requests', {
+    name: `${utilityName.value}-http`,
+    requests: JSON.parse(httpRequestsJson.value),
+  });
+  const inserted = await saveWorkflowToAutoma(data.result.workflow);
+  print('Saved HTTP Workflow', { ...data, insertedWorkflowIds: Object.keys(inserted) });
+}
+
+async function saveResource() {
+  const data = await callMcp('resources.set', {
+    name: resourceName.value,
+    type: resourceType.value,
+    value: JSON.parse(resourceValue.value),
+  });
+  print('Resource Saved', data);
+}
+
+async function listResources() {
+  const data = await callMcp('resources.list');
+  print('Resources', data);
 }
 
 async function runFullDemo() {
