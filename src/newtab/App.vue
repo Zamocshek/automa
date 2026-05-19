@@ -334,12 +334,17 @@ watch(
 
     const currentWindow = await browser.windows.getCurrent();
     const isVisualCodingRoute = window.location.hash.includes('/visual-coding');
-    if (currentWindow.type !== 'popup' && !isVisualCodingRoute) {
+    const isWorkflowRoute = window.location.hash.includes('/workflows');
+    const isGeneratedWorkflowRoute = window.location.search.includes('vcProject=');
+    const shouldPreserveCurrentTab =
+      isVisualCodingRoute || isWorkflowRoute || isGeneratedWorkflowRoute;
+
+    if (currentWindow.type !== 'popup' && !shouldPreserveCurrentTab) {
       await browser.tabs.remove([tabs[0].id]);
       return;
     }
 
-    if (tabs.length > 1 && !isVisualCodingRoute) {
+    if (tabs.length > 1 && !shouldPreserveCurrentTab) {
       const firstTab = tabs.shift();
       await browser.windows.update(firstTab.windowId, { focused: true });
       await browser.tabs.update(firstTab.id, { active: true });
@@ -406,6 +411,9 @@ watch(
 
     autoDeleteLogs();
   } catch (error) {
+    await loadLocaleMessages(store.settings.locale, 'newtab');
+    await setI18nLanguage(store.settings.locale);
+
     retrieved.value = true;
     console.error(error);
   }
