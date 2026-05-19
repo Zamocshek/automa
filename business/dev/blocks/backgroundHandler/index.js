@@ -453,6 +453,199 @@ export async function loopHelper({ id, data }, { refData }) {
   }
 }
 
+export async function filePathTools({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'write';
+    const modeToAction = {
+      read: 'file_read',
+      write: 'file_write',
+      list: 'file_list',
+      delete: 'file_delete',
+      exists: 'file_exists',
+      mkdir: 'file_mkdir',
+      copy: 'file_copy',
+      move: 'file_move',
+      join: 'path_join',
+      dirname: 'path_dirname',
+      basename: 'path_basename',
+      ext: 'path_ext',
+      normalize: 'path_normalize',
+      relative: 'path_relative',
+      isAbsolute: 'path_is_absolute',
+    };
+    const action = modeToAction[mode] || 'file_write';
+    const payload = {
+      path: await render(data.path || '', refData, this.engine.isPopup),
+    };
+
+    if (mode === 'write') payload.text = await render(data.text || '', refData, this.engine.isPopup);
+    if (['copy', 'move'].includes(mode)) {
+      payload.source = await render(data.source || '', refData, this.engine.isPopup);
+      payload.target = await render(data.target || '', refData, this.engine.isPopup);
+    }
+    if (mode === 'join') {
+      payload.parts = parseJsonArray(await render(data.partsJson || '[]', refData, this.engine.isPopup), 'partsJson');
+    }
+    if (mode === 'relative') {
+      payload.base = await render(data.base || '.', refData, this.engine.isPopup);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function waitTools({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'sleep';
+    const modeToAction = {
+      sleep: 'wait_sleep',
+      file: 'wait_file',
+      http: 'wait_http',
+      selector: 'wait_selector',
+      text: 'wait_text',
+      try: 'try_action',
+      retry: 'retry_action',
+    };
+    const action = modeToAction[mode] || 'wait_sleep';
+    const payload = {
+      seconds: Number(data.seconds || 1),
+      timeout: Number(data.timeoutSeconds || data.timeout || 10),
+      interval: Number(data.interval || 0.5),
+    };
+
+    if (mode === 'file') {
+      payload.path = await render(data.path || '', refData, this.engine.isPopup);
+      payload.mode = data.fileMode || 'exists';
+      payload.contains = await render(data.text || '', refData, this.engine.isPopup);
+    } else if (mode === 'http') {
+      payload.url = await render(data.url || '', refData, this.engine.isPopup);
+      payload.status = Number(data.status || 200);
+      payload.contains = await render(data.text || '', refData, this.engine.isPopup);
+    } else if (['selector', 'text'].includes(mode)) {
+      payload.browserEngine = data.browserEngine || 'chromium';
+      payload.url = await render(data.url || '', refData, this.engine.isPopup);
+      payload.selector = await render(data.selector || '', refData, this.engine.isPopup);
+      payload.text = await render(data.text || '', refData, this.engine.isPopup);
+      payload.state = data.state || 'visible';
+      payload.headless = data.headless !== false;
+    } else if (['try', 'retry'].includes(mode)) {
+      payload.action = await render(data.retryAction || 'echo', refData, this.engine.isPopup);
+      payload.payload = parseJsonObject(await render(data.actionPayloadJson || '{}', refData, this.engine.isPopup), 'actionPayloadJson');
+      payload.attempts = Number(data.attempts || 3);
+      payload.delaySeconds = Number(data.delaySeconds || 1);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function profileAction({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'create';
+    const modeToAction = {
+      create: 'browser_profile_create',
+      list: 'browser_profile_list',
+      get: 'browser_profile_get',
+      delete: 'browser_profile_delete',
+      lock: 'browser_profile_lock',
+      release: 'browser_profile_release',
+      copy: 'browser_profile_copy',
+      metadata: 'browser_profile_set_metadata',
+      importCookies: 'browser_profile_import_cookies',
+      exportCookies: 'browser_profile_export_cookies',
+    };
+    const action = modeToAction[mode] || 'browser_profile_create';
+    const profileName = await render(data.profileName || '', refData, this.engine.isPopup);
+    const payload = {
+      name: profileName,
+      browserEngine: data.browserEngine || 'chromium',
+      description: await render(data.profileDescription || '', refData, this.engine.isPopup),
+      force: Boolean(data.force),
+      overwrite: Boolean(data.overwrite),
+    };
+    if (mode === 'release') {
+      payload.token = await render(data.lockToken || '', refData, this.engine.isPopup);
+    }
+    if (mode === 'copy') {
+      payload.source = profileName;
+      payload.target = await render(data.targetProfileName || '', refData, this.engine.isPopup);
+    }
+    if (mode === 'metadata') {
+      Object.assign(payload, parseJsonObject(await render(data.metadataJson || '{}', refData, this.engine.isPopup), 'metadataJson'));
+    }
+    if (mode === 'importCookies') {
+      payload.cookies = parseJsonArray(await render(data.cookiesJson || '[]', refData, this.engine.isPopup), 'cookiesJson');
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function networkRecorderImport({ id, data }, { refData }) {
+  try {
+    const payload = {
+      name: await render(data.workflowName || 'captured-http-workflow', refData, this.engine.isPopup),
+      browserEngine: data.browserEngine || 'chromium',
+      profileName: await render(data.profileName || '', refData, this.engine.isPopup),
+      limit: Number(data.limit || 12),
+      headless: data.headless !== false,
+    };
+    if (data.source === 'html') {
+      payload.html = await render(data.html || '', refData, this.engine.isPopup);
+    } else {
+      payload.url = await render(data.url || '', refData, this.engine.isPopup);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'network_recorder_import',
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function resultTools({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'log';
+    const action = mode === 'random' ? 'random_number' : mode === 'message' ? 'result_message' : 'result_log';
+    const payload = {
+      level: data.level || 'info',
+      message: await render(data.message || '', refData, this.engine.isPopup),
+      data: parseJsonValue(await render(data.dataJson || 'null', refData, this.engine.isPopup), 'dataJson'),
+      min: Number(data.min || 0),
+      max: Number(data.max || 100),
+      integer: data.integer !== false,
+    };
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function httpClient({ id, data }, { refData }) {
   try {
     const url = await render(data.url || '', refData, this.engine.isPopup);
@@ -538,6 +731,11 @@ export default function () {
     logicTools,
     variableStore,
     loopHelper,
+    filePathTools,
+    waitTools,
+    profileAction,
+    networkRecorderImport,
+    resultTools,
     httpClient,
     libraryRunner,
     telegramBotBuilder,

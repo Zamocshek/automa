@@ -84,6 +84,9 @@
           <ui-button @click="selectAction('variable_set')">Variable</ui-button>
           <ui-button @click="selectAction('loop_range')">Loop range</ui-button>
           <ui-button @click="selectAction('list_shuffle')">List shuffle</ui-button>
+          <ui-button @click="selectAction('file_write')">File write</ui-button>
+          <ui-button @click="selectAction('wait_file')">Wait file</ui-button>
+          <ui-button @click="selectAction('retry_action')">Retry</ui-button>
           <ui-button @click="selectAction('build_app')">Build app payload</ui-button>
           <ui-button @click="selectAction('python_script_exec')">Python library</ui-button>
           <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
@@ -103,6 +106,23 @@
           <ui-button @click="safeRun(runVariableToolkit)">Variable set</ui-button>
           <ui-button @click="safeRun(runLoopToolkit)">Loop range</ui-button>
           <ui-button @click="safeRun(composeDataWorkflow)">Compose data workflow</ui-button>
+        </div>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Article Block Toolkit</h2>
+          <span>files + waits + profiles + recorder</span>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(runFileToolkit)">File write/copy</ui-button>
+          <ui-button @click="safeRun(runPathToolkit)">Path relative</ui-button>
+          <ui-button @click="safeRun(runWaitToolkit)">Wait file</ui-button>
+          <ui-button @click="safeRun(runRetryToolkit)">Retry HTTP</ui-button>
+          <ui-button @click="safeRun(runProfileToolkit)">Profile metadata</ui-button>
+          <ui-button @click="safeRun(runRecorderToolkit)">Recorder import</ui-button>
+          <ui-button @click="safeRun(runResultToolkit)">Result/random</ui-button>
+          <ui-button @click="safeRun(composeArticleWorkflow)">Compose article workflow</ui-button>
         </div>
       </article>
 
@@ -310,6 +330,9 @@
           <ui-button variant="accent" @click="safeRun(runMcpTool)">Call tool</ui-button>
           <ui-button @click="selectMcpTool('bridge.health')">Bridge health</ui-button>
           <ui-button @click="selectMcpTool('skill.status')">Skill status</ui-button>
+          <ui-button @click="selectMcpTool('files.tool')">Files</ui-button>
+          <ui-button @click="selectMcpTool('wait.tool')">Wait</ui-button>
+          <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
           <ui-button @click="safeRun(loadPatchTemplate)">AI patch template</ui-button>
         </div>
       </article>
@@ -524,7 +547,7 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
@@ -533,7 +556,7 @@ const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('visual-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot, process tasks in parallel, then build an app.');
+const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot, process tasks in parallel, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -598,6 +621,10 @@ const examples = {
   list_filter_contains: { items: ['alpha', 'beta', 'gamma'], text: 'a' },
   file_write: { path: 'automa-ui/demo.txt', text: 'created from Automa Visual Coding' },
   file_read: { path: 'automa-ui/demo.txt' },
+  file_exists: { path: 'automa-ui/demo.txt' },
+  file_mkdir: { path: 'automa-ui' },
+  file_copy: { source: 'automa-ui/demo.txt', target: 'automa-ui/demo-copy.txt' },
+  file_move: { source: 'automa-ui/demo-copy.txt', target: 'automa-ui/demo-moved.txt' },
   file_delete: { path: 'automa-ui/demo.txt' },
   path_join: { parts: ['automa-ui', 'demo.txt'] },
   path_basename: { path: 'automa-ui/demo.txt' },
@@ -605,8 +632,33 @@ const examples = {
   path_ext: { path: 'automa-ui/demo.txt' },
   path_normalize: { path: 'automa-ui/../automa-ui/demo.txt' },
   path_is_absolute: { path: 'automa-ui/demo.txt' },
+  path_relative: { path: 'automa-ui/demo.txt', base: 'automa-ui' },
   http_request: { method: 'GET', url: 'https://example.com', maxChars: 4000 },
   wait_sleep: { seconds: 1 },
+  wait_file: { path: 'automa-ui/demo.txt', timeout: 5, interval: 0.25 },
+  wait_http: { url: 'http://127.0.0.1:8765/health', status: 200, timeout: 5, interval: 0.25 },
+  wait_selector: {
+    browserEngine: 'chromium',
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button></main>',
+    selector: 'button#run',
+    state: 'visible',
+  },
+  wait_text: {
+    browserEngine: 'chromium',
+    html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button></main>',
+    text: 'Visual Coding Demo',
+    state: 'visible',
+  },
+  try_action: { action: 'json_get', payload: { data: { ok: true }, path: 'ok' } },
+  retry_action: {
+    action: 'http_request',
+    payload: { url: 'http://127.0.0.1:8765/health', maxChars: 4000 },
+    attempts: 2,
+    delaySeconds: 0.1,
+  },
+  random_number: { min: 1, max: 9, integer: true },
+  result_log: { level: 'info', message: 'Automa Studio checkpoint', data: { ok: true } },
+  result_message: { title: 'Visual Coding', message: 'Workflow checkpoint', kind: 'info' },
   python_install_packages: { packages: ['requests'], timeout: 180 },
   python_script_exec: {
     packages: [],
@@ -650,6 +702,16 @@ const examples = {
   browser_profile_delete: { name: 'demo-browser-profile', force: true },
   browser_profile_lock: { name: 'demo-browser-profile', browserEngine: 'chromium', owner: 'studio', ttlSeconds: 300 },
   browser_profile_release: { name: 'demo-browser-profile', token: '<lock-token>' },
+  browser_profile_get: { name: 'demo-browser-profile' },
+  browser_profile_copy: { source: 'demo-browser-profile', target: 'demo-browser-profile-copy', overwrite: true },
+  browser_profile_set_metadata: {
+    name: 'demo-browser-profile',
+    notes: 'Created from Automa Studio',
+    locale: 'en-US',
+    timezoneId: 'UTC',
+  },
+  browser_profile_import_cookies: { name: 'demo-browser-profile', cookies: [] },
+  browser_profile_export_cookies: { name: 'demo-browser-profile' },
   browser_scan_page: {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
@@ -672,6 +734,19 @@ const examples = {
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
+  },
+  network_capture: {
+    browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    url: 'http://127.0.0.1:8765/health',
+    limit: 12,
+  },
+  network_recorder_import: {
+    browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    url: 'http://127.0.0.1:8765/health',
+    name: 'automa-studio-captured-http',
+    limit: 12,
   },
   resource_set: { name: 'api_url', type: 'url', value: 'https://example.com' },
   resource_get: { name: 'api_url' },
@@ -722,6 +797,16 @@ const mcpExamples = {
   'browser.profiles.delete': { name: 'demo-browser-profile', force: true },
   'browser.profiles.lock': { name: 'demo-browser-profile', browserEngine: 'chromium', owner: 'studio', ttlSeconds: 300 },
   'browser.profiles.release': { name: 'demo-browser-profile', token: '<lock-token>' },
+  'browser.profiles.get': { name: 'demo-browser-profile' },
+  'browser.profiles.copy': { source: 'demo-browser-profile', target: 'demo-browser-profile-copy', overwrite: true },
+  'browser.profiles.metadata': {
+    name: 'demo-browser-profile',
+    notes: 'Created from Automa Studio',
+    locale: 'en-US',
+    timezoneId: 'UTC',
+  },
+  'browser.profiles.import_cookies': { name: 'demo-browser-profile', cookies: [] },
+  'browser.profiles.export_cookies': { name: 'demo-browser-profile' },
   'browser.scan_page': {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
@@ -758,6 +843,8 @@ const mcpExamples = {
   'resources.get': { name: 'api_url' },
   'resources.list': {},
   'resources.delete': { name: 'api_url' },
+  'files.tool': { operation: 'write', path: 'automa-ui/demo.txt', text: 'created from MCP files.tool' },
+  'paths.tool': { operation: 'relative', path: 'automa-ui/demo.txt', base: 'automa-ui' },
   'json.tool': { operation: 'keys', data: { user: { name: 'Automa' }, ok: true } },
   'lists.tool': { operation: 'dedupe', items: ['alpha', 'beta', 'alpha'] },
   'logic.compare': { left: 'visual coding', operator: 'contains', right: 'coding' },
@@ -772,6 +859,28 @@ const mcpExamples = {
   'loops.repeat': { item: { ok: true }, times: 3 },
   'loops.chunk': { items: ['alpha', 'beta', 'gamma'], size: 2 },
   'loops.enumerate': { items: ['alpha', 'beta'], start: 1 },
+  'wait.tool': { operation: 'file', path: 'automa-ui/demo.txt', timeout: 5, interval: 0.25 },
+  'runtime.try_action': { action: 'json_get', payload: { data: { ok: true }, path: 'ok' } },
+  'runtime.retry_action': {
+    action: 'http_request',
+    payload: { url: 'http://127.0.0.1:8765/health', maxChars: 4000 },
+    attempts: 2,
+    delaySeconds: 0.1,
+  },
+  'network.capture': {
+    browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    url: 'http://127.0.0.1:8765/health',
+  },
+  'network.recorder_import': {
+    browserEngine: 'chromium',
+    profileName: 'demo-browser-profile',
+    url: 'http://127.0.0.1:8765/health',
+    name: 'automa-studio-captured-http',
+    limit: 12,
+  },
+  'result.log': { level: 'info', message: 'MCP checkpoint', data: { ok: true } },
+  'random.number': { min: 1, max: 9, integer: true },
   'python.install_packages': { packages: ['requests'], timeout: 180 },
   'python.run_script': {
     packages: [],
@@ -958,6 +1067,101 @@ async function composeDataWorkflow() {
     prompt: 'Use variables, JSON, list dedupe, logic if condition and loop range, then run Python and build app.',
   });
   print('Data Workflow Composer', data);
+}
+
+async function runFileToolkit() {
+  const write = await callMcp('files.tool', {
+    operation: 'write',
+    path: 'automa-ui/demo.txt',
+    text: 'created from Article Block Toolkit',
+  });
+  const copy = await callMcp('files.tool', {
+    operation: 'copy',
+    source: 'automa-ui/demo.txt',
+    target: 'automa-ui/demo-copy.txt',
+  });
+  print('File Toolkit', { write, copy });
+}
+
+async function runPathToolkit() {
+  const data = await callMcp('paths.tool', {
+    operation: 'relative',
+    path: 'automa-ui/demo-copy.txt',
+    base: 'automa-ui',
+  });
+  print('Path Toolkit', data);
+}
+
+async function runWaitToolkit() {
+  await callMcp('files.tool', {
+    operation: 'write',
+    path: 'automa-ui/wait-target.txt',
+    text: 'ready',
+  });
+  const data = await callMcp('wait.tool', {
+    operation: 'file',
+    path: 'automa-ui/wait-target.txt',
+    timeout: 5,
+    interval: 0.25,
+  });
+  print('Wait Toolkit', data);
+}
+
+async function runRetryToolkit() {
+  const data = await callMcp('runtime.retry_action', {
+    action: 'http_request',
+    payload: { url: `${BRIDGE_URL}/health`, maxChars: 4000 },
+    attempts: 2,
+    delaySeconds: 0.1,
+  });
+  print('Retry Toolkit', data);
+}
+
+async function runProfileToolkit() {
+  const create = await callMcp('browser.profiles.create', {
+    name: browserProfileName.value.trim() || 'demo-browser-profile',
+    browserEngine: browserEngine.value,
+    description: 'Created from Article Block Toolkit',
+  });
+  const metadata = await callMcp('browser.profiles.metadata', {
+    name: browserProfileName.value.trim() || 'demo-browser-profile',
+    notes: 'Article Block Toolkit profile',
+    locale: 'en-US',
+    timezoneId: 'UTC',
+  });
+  const cookies = await callMcp('browser.profiles.import_cookies', {
+    name: browserProfileName.value.trim() || 'demo-browser-profile',
+    cookies: [],
+  });
+  print('Profile Toolkit', { create, metadata, cookies });
+}
+
+async function runRecorderToolkit() {
+  const data = await callMcp('network.recorder_import', {
+    name: 'automa-studio-captured-http',
+    url: `${BRIDGE_URL}/health`,
+    browserEngine: browserEngine.value,
+    profileName: browserProfileName.value.trim() || 'demo-browser-profile',
+    limit: 12,
+  });
+  print('Recorder Import Toolkit', data);
+}
+
+async function runResultToolkit() {
+  const log = await callMcp('result.log', {
+    level: 'info',
+    message: 'Article toolkit checkpoint',
+    data: { ok: true },
+  });
+  const random = await callMcp('random.number', { min: 1, max: 9, integer: true });
+  print('Result Toolkit', { log, random });
+}
+
+async function composeArticleWorkflow() {
+  const data = await callMcp('workflow.compose_from_prompt', {
+    prompt: sampleComposerPrompt,
+  });
+  print('Article Workflow Composer', data);
 }
 
 async function runPython() {
