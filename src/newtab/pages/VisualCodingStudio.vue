@@ -471,7 +471,7 @@
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
           <h2>AI Workflow Composer</h2>
-          <span>prompt -> patch</span>
+          <span>prompt -> Local workflow project</span>
         </div>
         <label>
           Intent
@@ -484,6 +484,9 @@
         </label>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(composeWorkflow)">
+            Create project + open editor
+          </ui-button>
+          <ui-button @click="safeRun(composeWorkflowPatch)">
             Compose workflow patch
           </ui-button>
           <ui-button @click="composerPrompt = sampleComposerPrompt">
@@ -547,8 +550,9 @@
         </div>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(buildUtilityWorkflow)">
-            Build importable workflow
+            Build + open project
           </ui-button>
+          <ui-button @click="safeRun(buildUtilityArtifact)">Build importable workflow</ui-button>
           <ui-button @click="safeRun(buildHttpWorkflow)">HTTP requests workflow</ui-button>
           <ui-button @click="safeRun(saveResource)">Save resource</ui-button>
           <ui-button @click="safeRun(listResources)">List resources</ui-button>
@@ -630,11 +634,13 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useWorkflowStore } from '@/stores/workflow';
 import { findTriggerBlock } from '@/utils/helper';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
 
 const BRIDGE_URL = 'http://127.0.0.1:8765';
+const router = useRouter();
 const workflowStore = useWorkflowStore();
 
 const bridgeLabel = ref('checking');
@@ -1672,9 +1678,21 @@ async function loadPatchTemplate() {
   await runMcpTool();
 }
 
-async function composeWorkflow() {
+async function composeWorkflowPatch() {
   const data = await callMcp('workflow.compose_from_prompt', { prompt: composerPrompt.value });
   print('AI Workflow Composer', data);
+}
+
+async function composeWorkflow() {
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: utilityName.value || 'AI generated Automa project',
+    prompt: composerPrompt.value,
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'AI Automa Project',
+    source: data,
+    openEditor: true,
+  });
 }
 
 function browserPayload(useHtml = false) {
@@ -1757,13 +1775,50 @@ async function saveWorkflowToAutoma(workflow) {
   return inserted;
 }
 
-async function buildUtilityWorkflow() {
+async function saveWorkflowProject(workflow, { label, source, openEditor = false } = {}) {
+  const inserted = await saveWorkflowToAutoma(workflow);
+  const [workflowId] = Object.keys(inserted);
+  const editorRoute = `/workflows/${workflowId}`;
+  const result = {
+    ...source,
+    insertedWorkflowIds: Object.keys(inserted),
+    workflowId,
+    editorRoute,
+    workflowName: inserted[workflowId]?.name,
+    nodeCount: inserted[workflowId]?.drawflow?.nodes?.length ?? 0,
+    edgeCount: inserted[workflowId]?.drawflow?.edges?.length ?? 0,
+  };
+
+  print(label || 'Saved Automa Workflow Project', result);
+  if (openEditor && workflowId) {
+    await router.push(editorRoute);
+  }
+  return result;
+}
+
+async function buildUtilityArtifact() {
   const data = await callMcp('workflow.build_from_prompt', {
     name: utilityName.value,
     prompt: utilityPrompt.value,
   });
   const inserted = await saveWorkflowToAutoma(data.result.workflow);
-  print('Saved Automa Workflow', { ...data, insertedWorkflowIds: Object.keys(inserted) });
+  print('Saved Automa Workflow', {
+    ...data,
+    insertedWorkflowIds: Object.keys(inserted),
+    editorRoute: `/workflows/${Object.keys(inserted)[0]}`,
+  });
+}
+
+async function buildUtilityWorkflow() {
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: utilityName.value,
+    prompt: utilityPrompt.value,
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'Saved Automa Workflow Project',
+    source: data,
+    openEditor: true,
+  });
 }
 
 async function buildHttpWorkflow() {
@@ -1771,8 +1826,11 @@ async function buildHttpWorkflow() {
     name: `${utilityName.value}-http`,
     requests: JSON.parse(httpRequestsJson.value),
   });
-  const inserted = await saveWorkflowToAutoma(data.result.workflow);
-  print('Saved HTTP Workflow', { ...data, insertedWorkflowIds: Object.keys(inserted) });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'Saved HTTP Workflow Project',
+    source: data,
+    openEditor: true,
+  });
 }
 
 async function saveResource() {
