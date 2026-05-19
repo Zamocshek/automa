@@ -1,0 +1,101 @@
+{
+  "workflows": {
+    "folder": {
+      "new": "Новая папка",
+      "name": "Имя папки",
+      "delete": "Удалить папку",
+      "rename": "Переименовать папку"
+    }
+  },
+  "settings": {
+    "theme": "Тема",
+    "language": {
+      "label": "Язык",
+      "helpTranslate": "Не нашли язык? Помогите с переводом.",
+      "reloadPage": "Перезагрузите страницу, чтобы применить изменение"
+    },
+    "menu": {
+      "general": "Общее",
+      "profile": "Профиль",
+      "backup": "Бэкап workflow",
+      "editor": "Редактор",
+      "shortcuts": "Горячие клавиши",
+      "about": "О приложении"
+    }
+  },
+  "workflow": {
+    "my": "Мои workflow",
+    "import": "Импортировать workflow",
+    "new": "Новый workflow",
+    "delete": "Удалить workflow",
+    "browse": "Обзор workflow",
+    "name": "Имя workflow",
+    "rename": "Переименовать workflow",
+    "add": "Добавить workflow",
+    "toggleSidebar": "Переключить боковую панель",
+    "undo": "Отменить",
+    "redo": "Повторить",
+    "categories": {
+      "pinned": "Закрепленные блоки",
+      "interaction": "Веб-взаимодействие",
+      "browser": "Браузер",
+      "general": "Общее",
+      "onlineServices": "Онлайн-сервисы",
+      "data": "Данные",
+      "conditions": "Логика и поток",
+      "package": "Пакеты"
+    },
+    "variables": {
+      "title": "Переменная | Переменные",
+      "name": "Имя переменной",
+      "assign": "Записать в переменную"
+    },
+    "table": {
+      "title": "Таблица | Таблицы",
+      "placeholder": "Найти или добавить колонку",
+      "select": "Выберите колонку",
+      "column": {
+        "name": "Имя колонки",
+        "type": "Тип данных"
+      }
+    },
+    "sidebar": {
+      "workflowIcon": "Иконка workflow"
+    },
+    "editor": {
+      "zoomIn": "Приблизить",
+      "zoomOut": "Отдалить",
+      "resetZoom": "Сбросить масштаб",
+      "duplicate": "Дублировать",
+      "copy": "Копировать",
+      "paste": "Вставить",
+      "group": "Сгруппировать блоки",
+      "ungroup": "Разгруппировать"
+    },
+    "conditionBuilder": {
+      "title": "Конструктор условий",
+      "add": "Добавить условие",
+      "and": "И",
+      "or": "ИЛИ",
+      "topAwait": "Поддерживает top-level await и функцию automaRefData"
+    },
+    "settings": {
+      "saveLog": "Сохранять лог workflow",
+      "executedBlockOnWeb": "Показывать выполненный блок на странице",
+      "timeout": {
+        "title": "Таймаут workflow (мс)"
+      },
+      "blockDelay": {
+        "title": "Задержка между блоками (мс)",
+        "description": "Добавляет задержку перед каждым блоком"
+      }
+    }
+  },
+  "log": {
+    "startedDate": "Дата запуска",
+    "duration": "Длительность",
+    "selectAll": "Выбрать все",
+    "deselectAll": "Снять выбор",
+    "deleteSelected": "Удалить выбранные логи"
+  }
+}

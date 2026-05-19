@@ -1,0 +1,391 @@
+{
+  "workflow": {
+    "categories": {
+      "pinned": "Закрепленные блоки",
+      "interaction": "Веб-взаимодействие",
+      "browser": "Браузер",
+      "general": "Общее",
+      "onlineServices": "Онлайн-сервисы",
+      "data": "Данные",
+      "conditions": "Логика и поток",
+      "package": "Пакеты"
+    },
+    "blocks": {
+      "base": {
+        "title": "Блоки",
+        "selector": "Селектор элемента",
+        "timeout": "Таймаут (мс)",
+        "action": "Действие",
+        "toggle": {
+          "enable": "Включить блок",
+          "disable": "Отключить блок"
+        },
+        "onError": {
+          "button": "При ошибке",
+          "title": "Если блок завершился ошибкой",
+          "retry": "Повторить действие",
+          "fallbackTitle": "Выполняется, если блок завершился ошибкой",
+          "toDo": {
+            "error": "Выдать ошибку",
+            "continue": "Продолжить поток",
+            "fallback": "Выполнить запасной выход",
+            "restart": "Перезапустить поток"
+          }
+        },
+        "table": {
+          "checkbox": "Записать в таблицу",
+          "select": "Выберите колонку"
+        },
+        "findElement": {
+          "placeholder": "Найти элемент по",
+          "options": {
+            "cssSelector": "CSS-селектор",
+            "xpath": "XPath"
+          }
+        },
+        "markElement": {
+          "text": "Пометить элемент"
+        },
+        "multiple": {
+          "text": "Несколько элементов"
+        },
+        "waitSelector": {
+          "title": "Ждать селектор",
+          "timeout": "Таймаут селектора (мс)"
+        }
+      },
+      "trigger": {
+        "name": "Триггер",
+        "description": "Стартовый блок workflow"
+      },
+      "ai-workflow": {
+        "name": "AI Workflow",
+        "description": "Workflow, созданный AI"
+      },
+      "execute-workflow": {
+        "name": "Выполнить workflow",
+        "description": "Запустить другой workflow как функцию"
+      },
+      "active-tab": {
+        "name": "Активная вкладка",
+        "description": "Сделать текущую вкладку активной"
+      },
+      "new-tab": {
+        "name": "Новая вкладка",
+        "description": "Открыть новую вкладку"
+      },
+      "switch-tab": {
+        "name": "Переключить вкладку",
+        "description": "Перейти на другую вкладку"
+      },
+      "new-window": {
+        "name": "Новое окно",
+        "description": "Открыть новое окно браузера"
+      },
+      "proxy": {
+        "name": "Прокси",
+        "description": "Установить прокси браузера"
+      },
+      "go-back": {
+        "name": "Назад",
+        "description": "Вернуться на предыдущую страницу"
+      },
+      "forward-page": {
+        "name": "Вперед",
+        "description": "Перейти на следующую страницу"
+      },
+      "close-tab": {
+        "name": "Закрыть вкладку/окно",
+        "description": "Закрыть вкладку или окно"
+      },
+      "reload-tab": {
+        "name": "Обновить вкладку",
+        "description": "Перезагрузить активную вкладку"
+      },
+      "take-screenshot": {
+        "name": "Скриншот",
+        "description": "Сделать скриншот активной вкладки"
+      },
+      "browser-event": {
+        "name": "Событие браузера",
+        "description": "Ждать событие браузера"
+      },
+      "event-click": {
+        "name": "Клик по элементу",
+        "description": "Найти элемент и кликнуть по нему"
+      },
+      "delay": {
+        "name": "Задержка",
+        "description": "Подождать перед следующим блоком"
+      },
+      "get-text": {
+        "name": "Получить текст",
+        "description": "Получить текст элемента"
+      },
+      "export-data": {
+        "name": "Экспорт данных",
+        "description": "Экспортировать данные workflow"
+      },
+      "element-scroll": {
+        "name": "Прокрутка элемента",
+        "description": "Прокрутить элемент или страницу"
+      },
+      "link": {
+        "name": "Ссылка",
+        "description": "Открыть ссылку из элемента"
+      },
+      "attribute-value": {
+        "name": "Атрибут элемента",
+        "description": "Получить или установить атрибут элемента"
+      },
+      "forms": {
+        "name": "Формы",
+        "description": "Работа с input, select, checkbox и radio"
+      },
+      "repeat-task": {
+        "name": "Повторить задачу",
+        "description": "Повторить блоки заданное число раз"
+      },
+      "javascript-code": {
+        "name": "JavaScript-код",
+        "description": "Выполнить JavaScript на странице или в фоне"
+      },
+      "trigger-event": {
+        "name": "Вызвать событие",
+        "description": "Сгенерировать DOM-событие"
+      },
+      "conditions": {
+        "name": "Условия",
+        "description": "Логическая развилка"
+      },
+      "element-exists": {
+        "name": "Элемент существует",
+        "description": "Проверить наличие элемента"
+      },
+      "webhook": {
+        "name": "HTTP-запрос",
+        "description": "Выполнить HTTP-запрос"
+      },
+      "while-loop": {
+        "name": "Цикл while",
+        "description": "Выполнять блоки, пока условие истинно"
+      },
+      "loop-data": {
+        "name": "Цикл по данным",
+        "description": "Итерироваться по таблице, переменной или своим данным"
+      },
+      "loop-elements": {
+        "name": "Цикл по элементам",
+        "description": "Итерироваться по найденным элементам"
+      },
+      "loop-breakpoint": {
+        "name": "Точка выхода из цикла",
+        "description": "Место, где цикл должен остановиться"
+      },
+      "insert-data": {
+        "name": "Вставить данные",
+        "description": "Записать данные в таблицу или переменную"
+      },
+      "delete-data": {
+        "name": "Удалить данные",
+        "description": "Удалить данные таблицы или переменной"
+      },
+      "data-mapping": {
+        "name": "Маппинг данных",
+        "description": "Преобразовать данные таблицы или переменной"
+      },
+      "sort-data": {
+        "name": "Сортировка данных",
+        "description": "Отсортировать данные"
+      },
+      "slice-variable": {
+        "name": "Срез переменной",
+        "description": "Вырезать часть значения переменной"
+      },
+      "increase-variable": {
+        "name": "Увеличить переменную",
+        "description": "Увеличить числовую переменную"
+      },
+      "regex-variable": {
+        "name": "RegEx переменной",
+        "description": "Проверить или заменить значение по регулярному выражению"
+      },
+      "workflow-state": {
+        "name": "Состояние workflow",
+        "description": "Управлять состоянием workflow"
+      },
+      "notification": {
+        "name": "Уведомление",
+        "description": "Показать уведомление"
+      },
+      "log-data": {
+        "name": "Получить лог",
+        "description": "Получить последний лог workflow"
+      },
+      "wait-connections": {
+        "name": "Ждать соединения",
+        "description": "Ждать все входящие соединения перед продолжением"
+      },
+      "blocks-group": {
+        "name": "Группа блоков",
+        "description": "Сгруппировать блоки"
+      },
+      "blocks-group-2": {
+        "name": "Группа блоков 2",
+        "description": "Сгруппировать блоки"
+      },
+      "clipboard": {
+        "name": "Буфер обмена",
+        "description": "Прочитать или записать текст в буфер обмена"
+      },
+      "cookie": {
+        "name": "Cookie",
+        "description": "Получить, установить или удалить cookie"
+      },
+      "handle-download": {
+        "name": "Обработать загрузку",
+        "description": "Обработать скачанный файл"
+      },
+      "upload-file": {
+        "name": "Загрузить файл",
+        "description": "Загрузить файл через input[type=file]"
+      },
+      "save-assets": {
+        "name": "Сохранить ассеты",
+        "description": "Сохранить изображение, видео, аудио или файл"
+      },
+      "create-element": {
+        "name": "Создать элемент",
+        "description": "Создать и вставить HTML-элемент"
+      },
+      "hover-element": {
+        "name": "Навести на элемент",
+        "description": "Навести курсор на элемент"
+      },
+      "press-key": {
+        "name": "Нажать клавишу",
+        "description": "Нажать клавишу или комбинацию"
+      },
+      "handle-dialog": {
+        "name": "Обработать диалог",
+        "description": "Принять или закрыть alert, confirm, prompt"
+      },
+      "tab-url": {
+        "name": "URL вкладки",
+        "description": "Получить URL вкладки"
+      },
+      "switch-to": {
+        "name": "Переключить фрейм",
+        "description": "Переключиться между страницей и iframe"
+      },
+      "parameter-prompt": {
+        "name": "Параметры запуска",
+        "description": "Запросить параметры перед запуском"
+      },
+      "google-sheets": {
+        "name": "Google Sheets",
+        "description": "Читать или обновлять Google Sheets"
+      },
+      "google-sheets-drive": {
+        "name": "Google Sheets (Drive)",
+        "description": "Читать Google Sheets через Drive"
+      },
+      "google-drive": {
+        "name": "Google Drive",
+        "description": "Загрузить файлы в Google Drive"
+      },
+      "block-package": {
+        "name": "Пакет блоков",
+        "description": "Пакет блоков"
+      },
+      "note": {
+        "name": "Заметка",
+        "description": "Текстовая заметка на холсте"
+      },
+      "python-bridge": {
+        "name": "Python-мост",
+        "description": "Вызвать действие локального моста Silverback Coding"
+      },
+      "parallel-runner": {
+        "name": "Параллельный запуск",
+        "description": "Запускать действия потоками или процессами Python"
+      },
+      "build-app": {
+        "name": "Сборка приложения",
+        "description": "Сгенерировать отдельное приложение из действий"
+      },
+      "project-template-builder": {
+        "name": "Сборка проекта",
+        "description": "Создать scaffold проекта, бота или private-vpn-lab"
+      },
+      "browser-scanner": {
+        "name": "Сканер браузера",
+        "description": "Сканировать страницы, CSS/XPath и сетевые события"
+      },
+      "resource-store": {
+        "name": "Хранилище ресурсов",
+        "description": "Читать и писать типизированные ресурсы"
+      },
+      "resource-design-builder": {
+        "name": "Ресурсы / Дизайн",
+        "description": "Схемы ресурсов, планы воркеров и генерация UI"
+      },
+      "json-tools": {
+        "name": "JSON-инструменты",
+        "description": "Создать, прочитать, изменить и проверить JSON"
+      },
+      "list-tools": {
+        "name": "Списки",
+        "description": "Создать, фильтровать, сортировать и сравнивать списки"
+      },
+      "logic-tools": {
+        "name": "Логика",
+        "description": "Сравнения, boolean-группы и выбор значения"
+      },
+      "variable-store": {
+        "name": "Хранилище переменных",
+        "description": "Переменные для AI, MCP и Automa-блоков"
+      },
+      "automa-core-tools": {
+        "name": "Ядро Automa",
+        "description": "Штатные переменные, таблицы и globalData без Python-моста"
+      },
+      "loop-helper": {
+        "name": "Помощник циклов",
+        "description": "Генерация диапазонов и списков для циклов Automa"
+      },
+      "file-path-tools": {
+        "name": "Файлы / Пути",
+        "description": "Читать, писать, копировать и нормализовать пути"
+      },
+      "wait-tools": {
+        "name": "Ожидание / Повторы",
+        "description": "Ожидания, проверки и retry-сценарии"
+      },
+      "profile-action": {
+        "name": "Профиль браузера",
+        "description": "Профили Chromium, Firefox и Camoufox"
+      },
+      "network-recorder-import": {
+        "name": "Импорт сетевого рекордера",
+        "description": "Захватить запросы и собрать HTTP-блоки workflow"
+      },
+      "result-tools": {
+        "name": "Результат / Логи",
+        "description": "Структурные логи, сообщения и случайные значения"
+      },
+      "http-client": {
+        "name": "HTTP-клиент",
+        "description": "Выполнить HTTP-запрос через Silverback Coding bridge"
+      },
+      "library-runner": {
+        "name": "Python/Node-библиотеки",
+        "description": "Запустить Python или Node код с pip/npm библиотеками"
+      },
+      "telegram-bot-builder": {
+        "name": "Telegram-бот",
+        "description": "Сгенерировать Python или Node Telegram-бота"
+      }
+    }
+  }
+}

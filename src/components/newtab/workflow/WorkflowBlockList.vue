@@ -6,7 +6,7 @@
     <template #header="{ show }">
       <span :class="category.color" class="h-3 w-3 rounded-full"></span>
       <p class="ml-2 flex-1 capitalize">
-        {{ category.name }}
+        {{ getCategoryName(category) }}
       </p>
       <v-remixicon :name="show ? 'riSubtractLine' : 'riAddLine'" size="20" />
     </template>
@@ -58,7 +58,7 @@
           class="mb-2"
         />
         <p class="text-overflow capitalize leading-tight">
-          {{ block.name }}
+          {{ getBlockName(block) }}
         </p>
         <div
           v-if="block.tag"
@@ -95,7 +95,7 @@ const blocksDetail = getBlocks();
 
 function getBlockTitle({ description, id, name }) {
   const blockPath = `workflow.blocks.${id}`;
-  if (!te(blockPath)) return blocksDetail[id].name;
+  if (!te(blockPath)) return blocksDetail[id]?.name || name;
 
   const descPath = `${blockPath}.${description ? 'description' : 'name'}`;
   let blockDescription = te(descPath) ? t(descPath) : name;
@@ -105,6 +105,16 @@ function getBlockTitle({ description, id, name }) {
   }
 
   return blockDescription;
+}
+function getCategoryName(category) {
+  const localeKey = `workflow.categories.${category.id}`;
+
+  return category.id && te(localeKey) ? t(localeKey) : category.name;
+}
+function getBlockName({ id, name }) {
+  const localeKey = `workflow.blocks.${id}.name`;
+
+  return id && te(localeKey) ? t(localeKey) : name;
 }
 function getIconPath(path) {
   if (path && path.startsWith('path')) {

@@ -71,7 +71,7 @@
       :key="catId"
       :model-value="true"
       :blocks="items"
-      :category="categories[catId]"
+      :category="{ ...categories[catId], id: catId }"
       :pinned="pinnedBlocks"
       @pin="pinBlock"
     />
@@ -106,6 +106,7 @@ const shortcut = useShortcut('action:search', () => {
 });
 
 const pinnedCategory = {
+  id: 'pinned',
   name: 'Pinned blocks',
   color: 'bg-accent',
 };

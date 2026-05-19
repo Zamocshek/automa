@@ -1,0 +1,24 @@
+{
+  "recording": {
+    "stop": "Остановить запись",
+    "title": "Запись"
+  },
+  "home": {
+    "record": {
+      "title": "Записать workflow",
+      "button": "Записать",
+      "name": "Имя workflow",
+      "selectBlock": "Выберите стартовый блок",
+      "anotherBlock": "С этого блока нельзя стартовать"
+    },
+    "elementSelector": {
+      "name": "Селектор элемента",
+      "noAccess": "Нет доступа к этому сайту"
+    },
+    "workflow": {
+      "new": "Новый workflow",
+      "rename": "Переименовать workflow",
+      "delete": "Удалить workflow"
+    }
+  }
+}

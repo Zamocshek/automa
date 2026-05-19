@@ -106,6 +106,90 @@
         "name": "AI Workflow",
         "description": "A workflow that is created by AI-Power"
       },
+      "python-bridge": {
+        "name": "Python Bridge",
+        "description": "Call the local Silverback Coding Python bridge action"
+      },
+      "parallel-runner": {
+        "name": "Parallel Runner",
+        "description": "Run bridge actions with Python threads or processes"
+      },
+      "build-app": {
+        "name": "Build App",
+        "description": "Generate a standalone app from bridge actions"
+      },
+      "project-template-builder": {
+        "name": "Project Template Builder",
+        "description": "Generate project scaffolds such as private-vpn-lab or bot-service"
+      },
+      "browser-scanner": {
+        "name": "Browser Scanner",
+        "description": "Scan pages, check CSS/XPath selectors and capture network events"
+      },
+      "resource-store": {
+        "name": "Resource Store",
+        "description": "Read and write typed local resources"
+      },
+      "resource-design-builder": {
+        "name": "Resource / Design Builder",
+        "description": "Build resource schemas, worker plans and generated design apps"
+      },
+      "json-tools": {
+        "name": "JSON Tools",
+        "description": "Create, read, change, validate and stringify JSON"
+      },
+      "list-tools": {
+        "name": "List Tools",
+        "description": "Create, read, filter, sort, shuffle and compare lists"
+      },
+      "logic-tools": {
+        "name": "Logic Tools",
+        "description": "Evaluate comparisons and boolean groups"
+      },
+      "variable-store": {
+        "name": "Variable Store",
+        "description": "Persist typed variables for AI, MCP and Automa blocks"
+      },
+      "automa-core-tools": {
+        "name": "Automa Core Tools",
+        "description": "Read and write Automa native variables, tables and global data"
+      },
+      "loop-helper": {
+        "name": "Loop Helper",
+        "description": "Generate ranges and lists for Automa loop blocks"
+      },
+      "file-path-tools": {
+        "name": "File / Path Tools",
+        "description": "Read, write, list, copy and normalize sandboxed files and paths"
+      },
+      "wait-tools": {
+        "name": "Wait / Retry Tools",
+        "description": "Wait for time, files, HTTP, selectors and text, with retry support"
+      },
+      "profile-action": {
+        "name": "Profile Action",
+        "description": "Create, copy, lock and manage browser profiles"
+      },
+      "network-recorder-import": {
+        "name": "Network Recorder Import",
+        "description": "Capture browser requests and generate HTTP Client workflow blocks"
+      },
+      "result-tools": {
+        "name": "Result / Log Tools",
+        "description": "Create structured logs, messages and random values"
+      },
+      "http-client": {
+        "name": "HTTP Client",
+        "description": "Run an HTTP request through the Silverback Coding bridge"
+      },
+      "library-runner": {
+        "name": "Library Runner",
+        "description": "Run Python or Node code with pip/npm libraries"
+      },
+      "telegram-bot-builder": {
+        "name": "Telegram Bot Builder",
+        "description": "Generate a Python or Node Telegram bot project"
+      },
       "wait-connections": {
         "name": "Wait connections",
         "description": "Wait for all connections before continuing to the next block",

@@ -560,6 +560,78 @@ export async function variableStore({ id, data }, { refData }) {
   }
 }
 
+export async function automaCoreTools({ id, data }, { refData, prevBlockData }) {
+  try {
+    const mode = data.mode || 'setVariable';
+    const name = await render(data.coreName || '', refData, this.engine.isPopup);
+    const path = await render(data.corePath || '', refData, this.engine.isPopup);
+    const value = parseJsonValue(
+      await render(data.valueJson || 'null', refData, this.engine.isPopup),
+      'valueJson'
+    );
+    const defaultValue = parseJsonValue(
+      await render(data.defaultJson || 'null', refData, this.engine.isPopup),
+      'defaultJson'
+    );
+    const variables = this.engine.referenceData.variables || {};
+    const table = Array.isArray(this.engine.referenceData.table)
+      ? this.engine.referenceData.table
+      : [];
+    const globalData =
+      this.engine.referenceData.globalData &&
+      typeof this.engine.referenceData.globalData === 'object' &&
+      !Array.isArray(this.engine.referenceData.globalData)
+        ? this.engine.referenceData.globalData
+        : {};
+    let result;
+
+    if (mode === 'getVariable') {
+      result = objectPath.get(variables, name, defaultValue);
+    } else if (mode === 'setVariable') {
+      await this.setVariable(name, value);
+      result = { name, value };
+    } else if (mode === 'pushVariable') {
+      await this.setVariable(`$push:${name}`, value);
+      result = { name, value: objectPath.get(this.engine.referenceData.variables, name) };
+    } else if (mode === 'incrementVariable') {
+      const currentValue = Number(objectPath.get(variables, name, 0) || 0);
+      const nextValue = currentValue + Number(data.delta || 1);
+      await this.setVariable(name, nextValue);
+      result = { name, previous: currentValue, value: nextValue };
+    } else if (mode === 'setTableColumn') {
+      this.addDataToColumn(name, value);
+      result = { column: name, value, rows: table.length };
+    } else if (mode === 'getTable') {
+      result = path ? objectPath.get(table, path, defaultValue) : table;
+    } else if (mode === 'setGlobalData') {
+      objectPath.set(globalData, path || name, value);
+      this.engine.referenceData.globalData = globalData;
+      result = { path: path || name, value };
+    } else if (mode === 'getGlobalData') {
+      result = objectPath.get(globalData, path || name, defaultValue);
+    } else if (mode === 'getPrevBlockData') {
+      result = path ? objectPath.get(prevBlockData, path, defaultValue) : prevBlockData;
+    } else {
+      result = {
+        variables,
+        table,
+        globalData,
+        loopData: this.engine.referenceData.loopData,
+        workflow: this.engine.referenceData.workflow,
+      };
+    }
+
+    const responseData = {
+      ok: true,
+      action: 'automa_core_tools',
+      result: { mode, name, path, value: result },
+    };
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function loopHelper({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'range';
@@ -875,6 +947,7 @@ export default function () {
     listTools,
     logicTools,
     variableStore,
+    automaCoreTools,
     loopHelper,
     filePathTools,
     waitTools,
