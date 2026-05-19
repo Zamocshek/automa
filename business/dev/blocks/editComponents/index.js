@@ -1,5 +1,7 @@
 import EditBuildApp from './EditBuildApp.vue';
 import EditAutomaCoreTools from './EditAutomaCoreTools.vue';
+import EditBasForEachLoop from './EditBasForEachLoop.vue';
+import EditBasForLoop from './EditBasForLoop.vue';
 import EditBrowserScanner from './EditBrowserScanner.vue';
 import EditFilePathTools from './EditFilePathTools.vue';
 import EditHttpClient from './EditHttpClient.vue';
@@ -23,6 +25,8 @@ import EditVariableStore from './EditVariableStore.vue';
 export default function () {
   return {
     EditAutomaCoreTools,
+    EditBasForEachLoop,
+    EditBasForLoop,
     EditBuildApp,
     EditBrowserScanner,
     EditFilePathTools,

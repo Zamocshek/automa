@@ -668,6 +668,48 @@ export async function loopHelper({ id, data }, { refData }) {
   }
 }
 
+export async function basForLoop({ id, data }, { refData }) {
+  try {
+    const indexName = await render(data.indexName || 'i', refData, this.engine.isPopup);
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'loop_for',
+      payload: {
+        start: Number(data.start || 0),
+        end: Number(data.end || 0),
+        step: Number(data.step || 1),
+        inclusive: Boolean(data.inclusive),
+        indexName,
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
+export async function basForeachLoop({ id, data }, { refData }) {
+  try {
+    const items = parseJsonArray(
+      await render(data.itemsJson || '[]', refData, this.engine.isPopup),
+      'itemsJson'
+    );
+    const indexName = await render(data.indexName || 'index', refData, this.engine.isPopup);
+    const itemName = await render(data.itemName || 'item', refData, this.engine.isPopup);
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'loop_foreach',
+      payload: {
+        items,
+        start: Number(data.start || 0),
+        indexName,
+        itemName,
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function filePathTools({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'write';
@@ -949,6 +991,8 @@ export default function () {
     variableStore,
     automaCoreTools,
     loopHelper,
+    basForLoop,
+    basForeachLoop,
     filePathTools,
     waitTools,
     profileAction,

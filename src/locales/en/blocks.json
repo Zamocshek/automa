@@ -158,6 +158,14 @@
         "name": "Loop Helper",
         "description": "Generate ranges and lists for Automa loop blocks"
       },
+      "bas-for-loop": {
+        "name": "BAS For Loop",
+        "description": "Generate For loop rows with an index variable"
+      },
+      "bas-foreach-loop": {
+        "name": "BAS For Each",
+        "description": "Generate Foreach rows from an array"
+      },
       "file-path-tools": {
         "name": "File / Path Tools",
         "description": "Read, write, list, copy and normalize sandboxed files and paths"
