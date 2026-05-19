@@ -348,6 +348,22 @@ watch(
       return;
     }
 
+    if (isVisualCodingRoute) {
+      await Promise.allSettled([
+        folderStore.load(),
+        store.loadSettings(),
+        workflowStore.loadData(),
+      ]);
+
+      await loadLocaleMessages(store.settings.locale, 'newtab');
+      await setI18nLanguage(store.settings.locale);
+      await automa('app');
+
+      retrieved.value = true;
+      localStorage.setItem('ext-version', currentVersion);
+      return;
+    }
+
     const { isFirstTime } = await browser.storage.local.get('isFirstTime');
     isUpdated.value = !isFirstTime && compare(currentVersion, prevVersion, '>');
 

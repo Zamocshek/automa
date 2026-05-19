@@ -385,10 +385,21 @@
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
           <h2>Browser Scanner</h2>
-          <span>Playwright + selectors</span>
+          <span>engine + selectors</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
+            <ui-select
+              :model-value="browserEngine"
+              label="Browser engine"
+              block
+              @change="browserEngine = $event"
+            >
+              <option value="chromium">chromium</option>
+              <option value="firefox">firefox</option>
+              <option value="webkit">webkit</option>
+              <option value="camoufox">camoufox</option>
+            </ui-select>
             <ui-input
               :model-value="browserUrl"
               label="URL"
@@ -422,6 +433,7 @@
           <ui-button @click="safeRun(scanBrowserHtml)">Scan HTML</ui-button>
           <ui-button @click="safeRun(queryBrowserSelector)">Query selector</ui-button>
           <ui-button @click="safeRun(suggestBrowserSelectors)">Suggest selectors</ui-button>
+          <ui-button @click="safeRun(checkBrowserEngines)">Engine status</ui-button>
         </div>
       </article>
     </section>
@@ -486,6 +498,7 @@ const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
 const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, run an HTTP API request, save a resource, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
+const browserEngine = ref('chromium');
 const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
@@ -555,16 +568,20 @@ const examples = {
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
   python_exec: { code: 'result = input_data["x"] * 2', input: { x: 21 }, timeout: 5 },
+  browser_engine_status: { browserEngine: 'chromium' },
   browser_scan_page: {
+    browserEngine: 'chromium',
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   browser_query_selector: {
+    browserEngine: 'chromium',
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
   browser_suggest_selectors: {
+    browserEngine: 'chromium',
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
@@ -608,16 +625,20 @@ const mcpExamples = {
   'skill.status': {},
   'workflow.patch_template': { kind: 'python_bridge' },
   'workflow.compose_from_prompt': { prompt: sampleComposerPrompt },
+  'browser.engine_status': { browserEngine: 'chromium' },
   'browser.scan_page': {
+    browserEngine: 'chromium',
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   'browser.query_selector': {
+    browserEngine: 'chromium',
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
   'browser.suggest_selectors': {
+    browserEngine: 'chromium',
     html: '<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
@@ -867,11 +888,16 @@ async function composeWorkflow() {
 
 function browserPayload(useHtml = false) {
   const html = browserHtml.value.trim();
+  const base = {
+    browserEngine: browserEngine.value,
+    headless: true,
+    maxElements: 80,
+  };
   if (useHtml || !browserUrl.value.trim()) {
-    return { html, maxElements: 80 };
+    return { ...base, html };
   }
 
-  return { url: browserUrl.value.trim(), maxElements: 80, captureNetwork: true };
+  return { ...base, url: browserUrl.value.trim(), captureNetwork: true };
 }
 
 async function scanBrowserUrl() {
@@ -902,6 +928,11 @@ async function suggestBrowserSelectors() {
   };
   const data = await callMcp('browser.suggest_selectors', payload);
   print('Browser Selector Suggestions', data);
+}
+
+async function checkBrowserEngines() {
+  const data = await callMcp('browser.engine_status', { browserEngine: browserEngine.value });
+  print('Browser Engine Status', data);
 }
 
 async function saveWorkflowToAutoma(workflow) {

@@ -131,7 +131,7 @@ const tabs = [
   {
     id: 'visual-coding',
     label: 'Visual Coding',
-    icon: 'riTerminalBoxLine',
+    icon: 'riCodeSSlashLine',
     path: '/visual-coding',
     shortcut: '',
   },

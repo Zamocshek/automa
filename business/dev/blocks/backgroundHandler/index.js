@@ -136,7 +136,14 @@ export async function browserScanner({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'scan';
     const source = data.source || 'html';
+    const browserEngine = await render(
+      data.browserEngine || 'chromium',
+      refData,
+      this.engine.isPopup
+    );
     const payload = {
+      browserEngine,
+      headless: data.headless !== false,
       maxElements: Number(data.maxElements || 80),
       captureNetwork: Boolean(data.captureNetwork),
     };

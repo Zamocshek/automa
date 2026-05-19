@@ -24,6 +24,23 @@
       <option value="suggest">suggest selectors</option>
     </ui-select>
     <ui-select
+      :model-value="data.browserEngine || 'chromium'"
+      label="Browser engine"
+      class="w-full"
+      @change="updateData({ browserEngine: $event })"
+    >
+      <option value="chromium">chromium</option>
+      <option value="firefox">firefox</option>
+      <option value="webkit">webkit</option>
+      <option value="camoufox">camoufox</option>
+    </ui-select>
+    <ui-checkbox
+      :model-value="data.headless !== false"
+      @change="updateData({ headless: $event })"
+    >
+      Headless browser
+    </ui-checkbox>
+    <ui-select
       :model-value="data.source"
       label="Source"
       class="w-full"
