@@ -152,18 +152,41 @@ export async function projectTemplateBuilder({ id, data }, { refData }) {
     const supportUsername = await render(data.supportUsername || '@support', refData, this.engine.isPopup);
     const domain = await render(data.domain || 'vpn.example.com', refData, this.engine.isPopup);
     const routePrefix = await render(data.subscriptionRoutePrefix || 'sub', refData, this.engine.isPopup);
-    const action = data.mode === 'verify' ? 'private_vpn_project_verify' : 'private_vpn_project_build';
+    const template = data.template || 'private-vpn-lab';
+    const isBotService = template === 'bot-service';
+    const runMode = await render(data.runMode || 'polling', refData, this.engine.isPopup);
+    const deploymentProfile = await render(
+      data.deploymentProfile || 'startup',
+      refData,
+      this.engine.isPopup
+    );
+    const genericEventPath = await render(data.genericEventPath || '/events', refData, this.engine.isPopup);
+    const startupEventPath = await render(data.startupEventPath || '/startup', refData, this.engine.isPopup);
+    const action = isBotService
+      ? data.mode === 'verify'
+        ? 'bot_service_verify'
+        : 'bot_service_build'
+      : data.mode === 'verify'
+        ? 'private_vpn_project_verify'
+        : 'private_vpn_project_build';
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
       action,
       payload: {
         name: projectName,
-        template: data.template || 'private-vpn-lab',
+        template,
         brandName,
         botUsername,
         supportUsername,
         domain,
+        publicDomain: domain,
         subscriptionRoutePrefix: routePrefix,
         deviceLimit: Number(data.deviceLimit || 10),
+        runMode,
+        deploymentProfile,
+        httpPort: Number(data.httpPort || 8082),
+        genericEventPath,
+        startupEventPath,
+        includeNginx: data.includeNginx !== false,
         overwrite: data.overwrite !== false,
         verify: true,
       },

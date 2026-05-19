@@ -91,6 +91,7 @@
           <ui-button @click="selectAction('python_script_exec')">Python library</ui-button>
           <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
           <ui-button @click="selectAction('telegram_bot_build')">Telegram bot</ui-button>
+          <ui-button @click="selectAction('bot_service_build')">Bot service</ui-button>
           <ui-button @click="selectAction('private_vpn_project_build')">Private VPN</ui-button>
         </div>
       </article>
@@ -260,8 +261,12 @@
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(buildPrivateVpnBenchmark)">Build benchmark project</ui-button>
           <ui-button @click="safeRun(verifyPrivateVpnBenchmark)">Verify generated</ui-button>
+          <ui-button @click="safeRun(buildBotServiceProject)">Build bot service</ui-button>
+          <ui-button @click="safeRun(verifyBotServiceProject)">Verify bot service</ui-button>
+          <ui-button @click="safeRun(composeBotServiceWorkflow)">Compose bot workflow</ui-button>
           <ui-button @click="safeRun(composePrivateVpnWorkflow)">Compose VPN workflow</ui-button>
           <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">MCP args</ui-button>
+          <ui-button @click="selectMcpTool('bots.service.build')">MCP bot service</ui-button>
         </div>
       </article>
 
@@ -385,6 +390,7 @@
           <ui-button @click="selectMcpTool('files.tool')">Files</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Wait</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
+          <ui-button @click="selectMcpTool('bots.service.build')">Bot service</ui-button>
           <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">VPN benchmark</ui-button>
           <ui-button @click="safeRun(loadPatchTemplate)">AI patch template</ui-button>
         </div>
@@ -606,7 +612,7 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot, generate a private VPN Marzban project, then build a small app.';
+const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, then build a small app.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
@@ -615,7 +621,7 @@ const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Visual Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('visual-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot, generate a private VPN Marzban project, process tasks in parallel, then build an app.');
+const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, save a resource, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, process tasks in parallel, then build an app.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -749,6 +755,21 @@ const examples = {
     tokenResource: 'telegram_bot_token',
     startText: 'Hello from Visual Coding bot',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
+  },
+  bot_service_build: {
+    name: 'visual-coding-bot-service',
+    brandName: 'Visual Coding Bot Service',
+    botUsername: 'visual_coding_bot',
+    publicDomain: 'bot.example.com',
+    deploymentProfile: 'production',
+    runMode: 'webhook',
+    httpPort: 8082,
+    includeNginx: true,
+    overwrite: true,
+    verify: true,
+  },
+  bot_service_verify: {
+    name: 'visual-coding-bot-service',
   },
   private_vpn_project_build: {
     name: 'visual-coding-private-vpn-benchmark',
@@ -987,6 +1008,22 @@ const mcpExamples = {
     startText: 'Hello from Visual Coding bot',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
+  'bots.service.build': {
+    name: 'visual-coding-bot-service',
+    brandName: 'Visual Coding Bot Service',
+    botUsername: 'visual_coding_bot',
+    publicDomain: 'bot.example.com',
+    deploymentProfile: 'production',
+    runMode: 'webhook',
+    httpPort: 8082,
+    includeNginx: true,
+    overwrite: true,
+    verify: true,
+  },
+  'bots.service.verify': {
+    name: 'visual-coding-bot-service',
+  },
+  'bots.service.capabilities': {},
   'benchmark.private_vpn.build': {
     name: 'visual-coding-private-vpn-benchmark',
     brandName: 'GOY VPN',
@@ -1311,6 +1348,40 @@ async function verifyPrivateVpnBenchmark() {
     name: benchmarkProjectName.value,
   });
   print('Private VPN Benchmark Verify', data);
+}
+
+function botServicePayload() {
+  return {
+    name: 'visual-coding-bot-service',
+    brandName: 'Visual Coding Bot Service',
+    botUsername: benchmarkBotUsername.value || 'visual_coding_bot',
+    publicDomain: benchmarkDomain.value || 'bot.example.com',
+    deploymentProfile: 'production',
+    runMode: 'webhook',
+    httpPort: 8082,
+    includeNginx: true,
+    overwrite: true,
+    verify: true,
+  };
+}
+
+async function buildBotServiceProject() {
+  const data = await callMcp('bots.service.build', botServicePayload());
+  print('Bot Service Build', data);
+}
+
+async function verifyBotServiceProject() {
+  const data = await callMcp('bots.service.verify', {
+    name: 'visual-coding-bot-service',
+  });
+  print('Bot Service Verify', data);
+}
+
+async function composeBotServiceWorkflow() {
+  const data = await callMcp('workflow.compose_from_prompt', {
+    prompt: 'Build a Telegram bot service with polling for startup, webhook HTTP receiver for production, Nginx reverse proxy, generic POST /events receiver, Docker, systemd and logic routing.',
+  });
+  print('Bot Service Workflow Composer', data);
 }
 
 async function composePrivateVpnWorkflow() {

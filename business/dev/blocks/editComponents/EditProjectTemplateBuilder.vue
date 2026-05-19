@@ -29,6 +29,7 @@
       @change="updateData({ template: $event })"
     >
       <option value="private-vpn-lab">private-vpn-lab</option>
+      <option value="bot-service">bot-service</option>
     </ui-select>
     <ui-input
       :model-value="data.projectName"
@@ -79,6 +80,52 @@
       class="w-full"
       @change="updateData({ deviceLimit: Number($event) })"
     />
+    <ui-select
+      :model-value="data.runMode"
+      label="Run mode"
+      class="w-full"
+      @change="updateData({ runMode: $event })"
+    >
+      <option value="polling">polling</option>
+      <option value="http">http</option>
+      <option value="webhook">webhook</option>
+    </ui-select>
+    <ui-select
+      :model-value="data.deploymentProfile"
+      label="Deployment profile"
+      class="w-full"
+      @change="updateData({ deploymentProfile: $event })"
+    >
+      <option value="startup">startup</option>
+      <option value="production">production</option>
+    </ui-select>
+    <ui-input
+      :model-value="data.httpPort"
+      label="HTTP port"
+      type="number"
+      class="w-full"
+      @change="updateData({ httpPort: Number($event) })"
+    />
+    <ui-input
+      :model-value="data.genericEventPath"
+      label="Generic event path"
+      class="w-full"
+      placeholder="/events"
+      @change="updateData({ genericEventPath: $event })"
+    />
+    <ui-input
+      :model-value="data.startupEventPath"
+      label="Startup event path"
+      class="w-full"
+      placeholder="/startup"
+      @change="updateData({ startupEventPath: $event })"
+    />
+    <ui-checkbox
+      :model-value="data.includeNginx"
+      @change="updateData({ includeNginx: $event })"
+    >
+      Include Nginx config
+    </ui-checkbox>
     <ui-checkbox
       :model-value="data.overwrite"
       @change="updateData({ overwrite: $event })"
