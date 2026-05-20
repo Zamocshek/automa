@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Foreach"
+      description="BAS-цикл по списку: item/index для обработки элементов."
+      :actions="foreachPresets"
+      active="foreach"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -64,6 +71,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -72,7 +81,18 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const foreachPresets = [
+  { key: 'commands', label: 'Команды бота', hint: 'start/ping/status', values: { itemsJson: '[\n  "start",\n  "ping",\n  "status"\n]', indexName: 'index', itemName: 'command' } },
+  { key: 'leads', label: 'Лиды', hint: 'lead items', values: { itemsJson: '[\n  "lead_1",\n  "lead_2",\n  "lead_3"\n]', indexName: 'index', itemName: 'lead' } },
+  { key: 'urls', label: 'URL список', hint: 'scan pages', values: { itemsJson: '[\n  "https://example.com",\n  "https://example.com/pricing"\n]', indexName: 'index', itemName: 'url' } },
+  { key: 'tasks', label: 'Задачи', hint: 'scan/parse/build', values: { itemsJson: '[\n  "scan",\n  "parse",\n  "build"\n]', indexName: 'index', itemName: 'task' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

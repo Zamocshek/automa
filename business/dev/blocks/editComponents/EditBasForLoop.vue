@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="For"
+      description="BAS-цикл по числам: индекс, шаг, включать конец."
+      :actions="forPresets"
+      :active="`${data.start}:${data.end}:${data.step}`"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -69,6 +76,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -77,7 +86,18 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const forPresets = [
+  { key: '0:5:1', label: 'For 0..5', hint: 'i++', values: { start: 0, end: 5, step: 1, inclusive: false, indexName: 'i' } },
+  { key: '1:10:1', label: 'For 1..10', hint: 'inclusive', values: { start: 1, end: 10, step: 1, inclusive: true, indexName: 'i' } },
+  { key: '10:0:-1', label: 'Обратный цикл', hint: 'i--', values: { start: 10, end: 0, step: -1, inclusive: false, indexName: 'i' } },
+  { key: '0:100:10', label: 'Шаг 10', hint: 'batch', values: { start: 0, end: 100, step: 10, inclusive: false, indexName: 'i' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

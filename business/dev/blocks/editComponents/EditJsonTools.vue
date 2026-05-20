@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="JSON"
+      description="Работа с JSON и JSONPath как отдельные BAS-кубики."
+      :actions="jsonPresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -109,6 +116,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -117,7 +126,24 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const jsonPresets = [
+  { key: 'create-object', label: 'Создать объект', hint: '{}', values: { mode: 'create', shape: 'object', returnPath: 'result' } },
+  { key: 'get', label: 'Получить значение', hint: 'path', values: { mode: 'get', path: 'user.name', returnPath: 'result' } },
+  { key: 'keys', label: 'Получить все ключи', hint: 'keys', values: { mode: 'keys', path: '', returnPath: 'result' } },
+  { key: 'values', label: 'Получить все значения', hint: 'values', values: { mode: 'values', path: '', returnPath: 'result' } },
+  { key: 'count', label: 'Количество элементов', hint: 'count', values: { mode: 'count', path: '', returnPath: 'result' } },
+  { key: 'set', label: 'Изменить значение', hint: 'set path', values: { mode: 'set', path: 'user.name', valueJson: '"Silverback"', returnPath: 'result' } },
+  { key: 'delete', label: 'Удалить значение', hint: 'delete path', values: { mode: 'delete', path: 'user.name', returnPath: 'result' } },
+  { key: 'parse', label: 'Строку в JSON', hint: 'parse', values: { mode: 'parse', text: '{"ok": true}', returnPath: 'result' } },
+  { key: 'stringify', label: 'JSON в строку', hint: 'stringify', values: { mode: 'stringify', indent: 2, returnPath: 'result' } },
+  { key: 'valid', label: 'Проверить JSON', hint: 'valid', values: { mode: 'valid', text: '{"ok": true}', returnPath: 'result' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

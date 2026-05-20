@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Списки"
+      description="Готовые действия со списками: создать, добавить, получить, удалить, сравнить."
+      :actions="listPresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -182,6 +189,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -190,7 +199,30 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const listPresets = [
+  { key: 'create', label: 'Создать список', hint: '[]', values: { mode: 'create', itemsJson: '[]', returnPath: 'result' } },
+  { key: 'append', label: 'Добавить элемент', hint: 'push', values: { mode: 'append', itemJson: '"new item"', returnPath: 'result' } },
+  { key: 'get', label: 'Получить элемент', hint: 'index', values: { mode: 'get', index: 0, returnPath: 'result' } },
+  { key: 'first', label: 'Первый элемент', hint: 'first', values: { mode: 'first', returnPath: 'result' } },
+  { key: 'last', label: 'Последний элемент', hint: 'last', values: { mode: 'last', returnPath: 'result' } },
+  { key: 'random', label: 'Случайный элемент', hint: 'random', values: { mode: 'random', returnPath: 'result' } },
+  { key: 'insert', label: 'Вставить элемент', hint: 'insert', values: { mode: 'insert', index: 0, itemJson: '"inserted"', returnPath: 'result' } },
+  { key: 'set', label: 'Установить элемент', hint: 'set', values: { mode: 'set', index: 0, itemJson: '"updated"', returnPath: 'result' } },
+  { key: 'remove', label: 'Удалить по индексу', hint: 'remove', values: { mode: 'remove', index: 0, returnPath: 'result' } },
+  { key: 'contains', label: 'Содержит', hint: 'contains', values: { mode: 'contains', itemJson: '"alpha"', returnPath: 'result' } },
+  { key: 'dedupe', label: 'Удалить дубликаты', hint: 'unique', values: { mode: 'dedupe', returnPath: 'result' } },
+  { key: 'join', label: 'Объединить в строку', hint: 'join', values: { mode: 'join', separator: ',', returnPath: 'result' } },
+  { key: 'parse', label: 'Парсить строку', hint: 'split', values: { mode: 'parse', text: 'a,b,c', separator: ',', returnPath: 'result' } },
+  { key: 'sort', label: 'Сортировать', hint: 'sort', values: { mode: 'sort', reverse: false, returnPath: 'result' } },
+  { key: 'merge', label: 'Объединить списки', hint: 'merge', values: { mode: 'merge', listsJson: '[["a"], ["b"]]', returnPath: 'result' } },
+  { key: 'compare', label: 'Сравнить списки', hint: 'compare', values: { mode: 'compare', compareMode: 'same_items', rightJson: '[]', returnPath: 'result' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

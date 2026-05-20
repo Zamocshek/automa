@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Ресурсы"
+      description="Секреты, URL, токены и настройки проекта как reusable BAS-ресурсы."
+      :actions="resourcePresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -77,6 +84,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -85,7 +94,21 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const resourcePresets = [
+  { key: 'token', label: 'Создать токен', hint: 'secret', values: { mode: 'set', resourceName: 'telegram_bot_token', resourceType: 'secret', resourceDescription: 'Token is injected locally', resourceValue: '"<TOKEN>"', returnPath: 'result.name' } },
+  { key: 'url', label: 'Создать URL', hint: 'api', values: { mode: 'set', resourceName: 'api_url', resourceType: 'url', resourceValue: '"https://example.com/api"', returnPath: 'result.name' } },
+  { key: 'proxy', label: 'Создать прокси', hint: 'proxy', values: { mode: 'set', resourceName: 'proxy_url', resourceType: 'proxy', resourceValue: '"http://user:pass@host:port"', returnPath: 'result.name' } },
+  { key: 'list', label: 'Создать список', hint: 'list', values: { mode: 'set', resourceName: 'items', resourceType: 'list', resourceValue: '["alpha", "beta"]', returnPath: 'result.name' } },
+  { key: 'get', label: 'Получить ресурс', hint: 'get', values: { mode: 'get', returnPath: 'result.value' } },
+  { key: 'all', label: 'Все ресурсы', hint: 'list', values: { mode: 'list', returnPath: 'result' } },
+  { key: 'delete', label: 'Удалить ресурс', hint: 'delete', values: { mode: 'delete', returnPath: 'result.deleted' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

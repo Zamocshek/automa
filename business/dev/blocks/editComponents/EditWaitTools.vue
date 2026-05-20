@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Ожидание"
+      description="Ждать загрузку, файл, CSS, текст или повторять действие с retry."
+      :actions="waitPresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -178,6 +185,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -186,7 +195,21 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const waitPresets = [
+  { key: 'sleep', label: 'Спать', hint: 'seconds', values: { mode: 'sleep', seconds: 1, returnPath: 'result' } },
+  { key: 'http', label: 'Ждать URL', hint: 'HTTP 200', values: { mode: 'http', url: 'https://example.com', timeoutSeconds: 30, interval: 1, returnPath: 'result' } },
+  { key: 'selector', label: 'Ждать CSS', hint: 'selector', values: { mode: 'selector', url: 'https://example.com', selector: 'h1', state: 'visible', returnPath: 'result' } },
+  { key: 'text', label: 'Ждать текст', hint: 'page text', values: { mode: 'text', url: 'https://example.com', text: 'Example', returnPath: 'result' } },
+  { key: 'file', label: 'Ждать файл', hint: 'file exists', values: { mode: 'file', path: 'demo/file.txt', fileMode: 'exists', timeoutSeconds: 30, interval: 1, returnPath: 'result' } },
+  { key: 'retry', label: 'Retry действие', hint: 'try again', values: { mode: 'retry', retryAction: 'http_request', attempts: 3, delaySeconds: 1, returnPath: 'result' } },
+  { key: 'try', label: 'Try/Catch', hint: 'safe run', values: { mode: 'try', retryAction: 'http_request', returnPath: 'result' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

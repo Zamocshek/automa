@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Файлы и пути"
+      description="Работа с файлами и путями проекта как отдельные BAS-действия."
+      :actions="filePresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -107,6 +114,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -115,7 +124,23 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const filePresets = [
+  { key: 'write', label: 'Записать файл', hint: 'write', values: { mode: 'write', path: 'demo/output.txt', text: 'Silverback Coding', returnPath: 'result.path' } },
+  { key: 'read', label: 'Прочитать файл', hint: 'read', values: { mode: 'read', path: 'demo/output.txt', returnPath: 'result.text' } },
+  { key: 'list', label: 'Список файлов', hint: 'folder', values: { mode: 'list', path: 'demo', returnPath: 'result.items' } },
+  { key: 'exists', label: 'Проверить файл', hint: 'exists', values: { mode: 'exists', path: 'demo/output.txt', returnPath: 'result.exists' } },
+  { key: 'mkdir', label: 'Создать папку', hint: 'mkdir', values: { mode: 'mkdir', path: 'demo', returnPath: 'result.path' } },
+  { key: 'copy', label: 'Копировать', hint: 'copy', values: { mode: 'copy', source: 'demo/output.txt', target: 'demo/copy.txt', returnPath: 'result' } },
+  { key: 'join', label: 'Объединить путь', hint: 'join', values: { mode: 'join', partsJson: '["demo", "output.txt"]', returnPath: 'result' } },
+  { key: 'basename', label: 'Имя файла', hint: 'basename', values: { mode: 'basename', path: 'demo/output.txt', returnPath: 'result' } },
+  { key: 'normalize', label: 'Нормализовать путь', hint: 'normalize', values: { mode: 'normalize', path: 'demo/../demo/output.txt', returnPath: 'result' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

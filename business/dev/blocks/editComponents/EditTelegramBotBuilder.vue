@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Telegram bot"
+      description="Готовые пресеты стартап-бота: polling, команды, MCP-демо, токен через resource."
+      :actions="telegramPresets"
+      :active="data.runtime"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -74,6 +81,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -82,7 +91,66 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const telegramPresets = [
+  {
+    key: 'python-basic',
+    label: 'Python bot',
+    hint: 'polling',
+    values: {
+      runtime: 'python',
+      appName: 'silverback-telegram-bot',
+      tokenResource: 'telegram_bot_token',
+      startText: 'Silverback bot online',
+      commandHandlersJson: '[\n  { "command": "ping", "response": "pong" },\n  { "command": "status", "response": "bot is alive" }\n]',
+      returnPath: 'result.dir',
+    },
+  },
+  {
+    key: 'python-mcp',
+    label: 'MCP demo bot',
+    hint: 'status/upper',
+    values: {
+      runtime: 'python',
+      appName: 'silverback-telegram-mcp-bot',
+      tokenResource: 'telegram_bot_token',
+      startText: 'MCP bot online: /ping /status /upper text',
+      commandHandlersJson: '[\n  { "command": "ping", "response": "pong from MCP bridge" },\n  { "command": "status", "response": "MCP workflow is ready" },\n  { "command": "upper", "response": "Use MCP uppercase block in workflow" }\n]',
+      returnPath: 'result.dir',
+    },
+  },
+  {
+    key: 'node-basic',
+    label: 'Node bot',
+    hint: 'telegraf',
+    values: {
+      runtime: 'node',
+      appName: 'silverback-telegraf-bot',
+      tokenResource: 'telegram_bot_token',
+      startText: 'Silverback Node bot online',
+      commandHandlersJson: '[\n  { "command": "ping", "response": "pong" },\n  { "command": "status", "response": "node bot is alive" }\n]',
+      returnPath: 'result.dir',
+    },
+  },
+  {
+    key: 'startup',
+    label: 'Startup bot',
+    hint: 'lead flow',
+    values: {
+      runtime: 'python',
+      appName: 'silverback-startup-bot',
+      tokenResource: 'telegram_bot_token',
+      startText: 'Send /lead to start',
+      commandHandlersJson: '[\n  { "command": "lead", "response": "Lead accepted. Workflow will process it." },\n  { "command": "help", "response": "Commands: /lead /status" }\n]',
+      returnPath: 'result.dir',
+    },
+  },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

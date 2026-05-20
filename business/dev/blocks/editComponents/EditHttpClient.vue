@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="HTTP"
+      description="Сетевые запросы и быстрые проверки ответа в стиле BAS HTTP-клиента."
+      :actions="httpPresets"
+      :active="data.method"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -106,6 +113,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -114,7 +123,21 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const httpPresets = [
+  { key: 'GET', label: 'Get запрос', hint: 'GET', values: { method: 'GET', bodyMode: 'none', returnPath: 'result' } },
+  { key: 'POST', label: 'Post JSON', hint: 'POST', values: { method: 'POST', bodyMode: 'json', jsonBody: '{\n  "ok": true\n}', returnPath: 'result' } },
+  { key: 'status', label: 'Статус ответа', hint: 'status', values: { method: 'GET', bodyMode: 'none', returnPath: 'result.status' } },
+  { key: 'text', label: 'Содержание ответа', hint: 'text', values: { method: 'GET', bodyMode: 'none', returnPath: 'result.text' } },
+  { key: 'headers', label: 'Заголовки', hint: 'headers', values: { method: 'GET', bodyMode: 'none', returnPath: 'result.headers' } },
+  { key: 'cookies', label: 'Cookie request', hint: 'cookie', values: { method: 'GET', headersJson: '{\n  "Cookie": "name=value"\n}', bodyMode: 'none', returnPath: 'result' } },
+  { key: 'download', label: 'Скачать', hint: 'body', values: { method: 'GET', bodyMode: 'none', maxChars: 200000, returnPath: 'result.text' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

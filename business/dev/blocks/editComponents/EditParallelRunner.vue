@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Многопоток"
+      description="Запуск пачки действий в thread/process стиле, как массовый запуск в BAS."
+      :actions="parallelPresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -68,6 +75,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -76,7 +85,18 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const parallelPresets = [
+  { key: 'thread-fast', label: 'Потоки быстрые', hint: 'I/O', values: { mode: 'thread', workers: 4, repeats: 1, returnPath: 'summary' } },
+  { key: 'process-cpu', label: 'Процессы CPU', hint: 'python', values: { mode: 'process', workers: 2, repeats: 1, returnPath: 'summary' } },
+  { key: 'stress', label: 'Массовый запуск', hint: 'repeat', values: { mode: 'thread', workers: 8, repeats: 5, returnPath: 'summary' } },
+  { key: 'safe', label: 'Безопасный тест', hint: '2 x 1', values: { mode: 'thread', workers: 2, repeats: 1, returnPath: 'summary' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

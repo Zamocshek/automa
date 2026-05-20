@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Переменные"
+      description="Хранилище переменных для проекта, workflow и MCP-сценариев."
+      :actions="variablePresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -100,6 +107,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -108,7 +117,21 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const variablePresets = [
+  { key: 'set-string', label: 'Установить строку', hint: 'set', values: { mode: 'set', variableType: 'string', valueJson: '"value"', returnPath: 'result.value' } },
+  { key: 'set-number', label: 'Установить число', hint: 'number', values: { mode: 'set', variableType: 'number', valueJson: '1', returnPath: 'result.value' } },
+  { key: 'set-list', label: 'Установить список', hint: 'list', values: { mode: 'set', variableType: 'list', valueJson: '["alpha", "beta"]', returnPath: 'result.value' } },
+  { key: 'get', label: 'Получить переменную', hint: 'get', values: { mode: 'get', returnPath: 'result.value' } },
+  { key: 'list', label: 'Список переменных', hint: 'list', values: { mode: 'list', returnPath: 'result' } },
+  { key: 'increment', label: 'Увеличить', hint: '+1', values: { mode: 'increment', delta: 1, returnPath: 'result.value' } },
+  { key: 'delete', label: 'Удалить', hint: 'delete', values: { mode: 'delete', returnPath: 'result.deleted' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

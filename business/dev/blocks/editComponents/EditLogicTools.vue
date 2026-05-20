@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Логика скрипта"
+      description="If/boolean/choose в формате простых действий для визуального workflow."
+      :actions="logicPresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Description"
@@ -118,6 +125,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -126,7 +135,22 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const logicPresets = [
+  { key: 'if-eq', label: 'If равно', hint: '==', values: { mode: 'compare', operator: 'eq', returnPath: 'result' } },
+  { key: 'if-contains', label: 'If содержит', hint: 'contains', values: { mode: 'compare', operator: 'contains', leftJson: '"silverback coding"', rightJson: '"coding"', returnPath: 'result' } },
+  { key: 'regex', label: 'Regex проверка', hint: 'regex', values: { mode: 'compare', operator: 'regex', rightJson: '"coding"', returnPath: 'result' } },
+  { key: 'truthy', label: 'Truthy', hint: 'bool', values: { mode: 'truthy', leftJson: 'true', returnPath: 'result' } },
+  { key: 'and', label: 'AND', hint: 'all', values: { mode: 'boolean', operator: 'and', valuesJson: '[true, true]', returnPath: 'result' } },
+  { key: 'or', label: 'OR', hint: 'any', values: { mode: 'boolean', operator: 'or', valuesJson: '[true, false]', returnPath: 'result' } },
+  { key: 'not', label: 'NOT', hint: 'invert', values: { mode: 'boolean', operator: 'not', valuesJson: '[false]', returnPath: 'result' } },
+  { key: 'choose', label: 'Выбрать значение', hint: 'true/false', values: { mode: 'choose', operator: 'eq', whenTrueJson: '"ok"', whenFalseJson: '"fail"', returnPath: 'result' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>
