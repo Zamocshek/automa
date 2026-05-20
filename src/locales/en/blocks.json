@@ -182,6 +182,10 @@
         "name": "Network Recorder Import",
         "description": "Capture browser requests and generate HTTP Client workflow blocks"
       },
+      "manual-intervention": {
+        "name": "Manual Intervention",
+        "description": "Detect captcha/security checks and create an operator pause/resume checkpoint"
+      },
       "result-tools": {
         "name": "Result / Log Tools",
         "description": "Create structured logs, messages and random values"

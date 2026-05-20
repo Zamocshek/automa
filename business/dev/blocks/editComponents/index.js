@@ -10,6 +10,7 @@ import EditLibraryRunner from './EditLibraryRunner.vue';
 import EditListTools from './EditListTools.vue';
 import EditLogicTools from './EditLogicTools.vue';
 import EditLoopHelper from './EditLoopHelper.vue';
+import EditManualIntervention from './EditManualIntervention.vue';
 import EditNetworkRecorderImport from './EditNetworkRecorderImport.vue';
 import EditParallelRunner from './EditParallelRunner.vue';
 import EditProfileAction from './EditProfileAction.vue';
@@ -36,6 +37,7 @@ export default function () {
     EditListTools,
     EditLogicTools,
     EditLoopHelper,
+    EditManualIntervention,
     EditNetworkRecorderImport,
     EditParallelRunner,
     EditProfileAction,

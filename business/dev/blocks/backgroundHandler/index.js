@@ -881,10 +881,61 @@ export async function networkRecorderImport({ id, data }, { refData }) {
   }
 }
 
+export async function manualIntervention({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'captchaCheck';
+    const payload = {
+      title: await render(data.title || 'Captcha or manual check', refData, this.engine.isPopup),
+      reason: await render(data.reason || 'manual_checkpoint', refData, this.engine.isPopup),
+      instructions: await render(data.instructions || '', refData, this.engine.isPopup),
+      workflowId: this.engine?.workflow?.id || '',
+      blockId: id,
+      timeoutSeconds: Number(data.timeoutSeconds || 300),
+    };
+
+    let action = 'manual_intervention_create';
+    if (mode === 'captchaCheck') {
+      action = 'captcha_manual_check';
+      payload.browserEngine = data.browserEngine || 'chromium';
+      payload.profileName = await render(data.profileName || '', refData, this.engine.isPopup);
+      payload.text = await render(data.text || '', refData, this.engine.isPopup);
+      payload.screenshot = data.screenshot !== false;
+      payload.force = Boolean(data.force);
+      payload.wait = Boolean(data.wait);
+      payload.createIntervention = true;
+      if (data.source === 'url') {
+        payload.url = await render(data.url || '', refData, this.engine.isPopup);
+      } else {
+        payload.html = await render(data.html || '', refData, this.engine.isPopup);
+      }
+    } else if (mode === 'wait') {
+      action = 'manual_intervention_wait';
+      payload.id = await render(data.interventionId || '', refData, this.engine.isPopup);
+    } else if (mode === 'respond') {
+      action = 'manual_intervention_respond';
+      payload.id = await render(data.interventionId || '', refData, this.engine.isPopup);
+      payload.decision = data.decision || 'resume';
+      payload.note = await render(data.note || '', refData, this.engine.isPopup);
+    } else if (mode === 'list') {
+      action = 'manual_intervention_list';
+      payload.status = data.status || '';
+      payload.limit = Number(data.limit || 20);
+    }
+
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action,
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function resultTools({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'log';
-    const action = mode === 'random' ? 'random_number' : mode === 'message' ? 'result_message' : 'result_log';
+    const action = mode === 'random' ? 'random_number' : ['message', 'messageBox'].includes(mode) ? 'result_message' : 'result_log';
     const payload = {
       level: data.level || 'info',
       message: await render(data.message || '', refData, this.engine.isPopup),
@@ -897,6 +948,23 @@ export async function resultTools({ id, data }, { refData }) {
       action,
       payload,
     });
+    if (mode === 'messageBox') {
+      const message = payload.message || JSON.stringify(responseData.result || responseData);
+      let shown = false;
+      if (typeof globalThis.alert === 'function') {
+        globalThis.alert(message);
+        shown = true;
+      } else if (globalThis.chrome?.notifications?.create) {
+        await globalThis.chrome.notifications.create({
+          type: 'basic',
+          iconUrl: '/icon-128.png',
+          title: 'Silverback Coding',
+          message,
+        });
+        shown = true;
+      }
+      responseData.result = { ...(responseData.result || {}), messageBoxShown: shown };
+    }
     return finishBlock(this, id, data, responseData);
   } catch (error) {
     return fallbackOrThrow(this, id, error);
@@ -997,6 +1065,7 @@ export default function () {
     waitTools,
     profileAction,
     networkRecorderImport,
+    manualIntervention,
     resultTools,
     httpClient,
     libraryRunner,

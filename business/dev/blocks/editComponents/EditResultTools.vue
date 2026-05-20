@@ -21,6 +21,7 @@
     >
       <option value="log">log</option>
       <option value="message">message</option>
+      <option value="messageBox">messageBox</option>
       <option value="random">случайное число</option>
     </ui-select>
     <ui-select
