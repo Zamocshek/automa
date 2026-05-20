@@ -482,6 +482,8 @@ export async function resourceDesignBuilder({ id, data }, { refData }) {
       parallelPlanList: 'parallel_plan_list',
       designAppBuild: 'design_app_build',
       designAppVerify: 'design_app_verify',
+      runtimeFormBuild: 'runtime_form_build',
+      runtimeFormVerify: 'runtime_form_verify',
     };
     const action = actions[mode] || 'resource_schema_build';
     let payload = {};
@@ -535,6 +537,42 @@ export async function resourceDesignBuilder({ id, data }, { refData }) {
         verify: data.verify !== false,
       };
     } else if (mode === 'designAppVerify') {
+      payload = { name: appName, path: projectPath };
+    } else if (mode === 'runtimeFormBuild') {
+      const fields = parseJsonArray(await render(data.fieldsJson || '[]', refData, this.engine.isPopup), 'fieldsJson');
+      const tokens = parseJsonObject(await render(data.tokensJson || '{}', refData, this.engine.isPopup), 'tokensJson');
+      const env = parseJsonObject(await render(data.envJson || '{}', refData, this.engine.isPopup), 'envJson');
+      const envMapping = parseJsonObject(await render(data.envMappingJson || '{}', refData, this.engine.isPopup), 'envMappingJson');
+      const input = parseJsonValue(await render(data.inputJson || '{}', refData, this.engine.isPopup), 'inputJson');
+      const packages = parseJsonArray(await render(data.packagesJson || '[]', refData, this.engine.isPopup), 'packagesJson');
+      const androidDevices = parseJsonArray(await render(data.androidDevicesJson || '[]', refData, this.engine.isPopup), 'androidDevicesJson');
+      const androidTasks = parseJsonArray(await render(data.androidTasksJson || '[]', refData, this.engine.isPopup), 'androidTasksJson');
+      payload = {
+        name: appName,
+        title: appTitle,
+        schemaName,
+        resourceSchemaName: schemaName,
+        fields,
+        tokens,
+        runtime: data.runtime || 'system',
+        shell: data.shell || 'powershell',
+        command: await render(data.command || '', refData, this.engine.isPopup),
+        cwd: await render(data.cwd || '.', refData, this.engine.isPopup),
+        code: await render(data.code || 'result = {"ok": True, "input": input_data}', refData, this.engine.isPopup),
+        input,
+        packages,
+        env,
+        envMapping,
+        workers: Number(data.workers || 4),
+        repeats: Number(data.repeats || 1),
+        batchMode: data.planMode || 'thread',
+        dryRun: Boolean(data.dryRun),
+        androidDevices,
+        androidTasks,
+        overwrite: data.overwrite !== false,
+        verify: data.verify !== false,
+      };
+    } else if (mode === 'runtimeFormVerify') {
       payload = { name: appName, path: projectPath };
     }
 

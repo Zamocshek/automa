@@ -358,9 +358,11 @@
           <ui-button @click="safeRun(buildParallelPlan)">Собрать параллельный план</ui-button>
           <ui-button @click="safeRun(runParallelPlan)">Запустить параллельный план</ui-button>
           <ui-button @click="safeRun(buildDesignAppProject)">Собрать дизайн-приложение</ui-button>
+          <ui-button @click="safeRun(buildRuntimeFormProject)">Собрать BAS-форму запуска</ui-button>
           <ui-button @click="safeRun(verifyDesignAppProject)">Проверить дизайн-приложение</ui-button>
           <ui-button @click="safeRun(composeDesignAppWorkflow)">Собрать design workflow</ui-button>
           <ui-button @click="selectMcpTool('design.app.build')">MCP design app</ui-button>
+          <ui-button @click="selectMcpTool('runtime.form.build')">MCP runtime form</ui-button>
         </div>
       </article>
 
@@ -1990,6 +1992,33 @@ async function buildDesignAppProject() {
     verify: true,
   });
   print('Design App Build', { schema, data });
+}
+
+async function buildRuntimeFormProject() {
+  const schema = await callMcp('resources.schema.build', resourceSchemaPayload());
+  const data = await callMcp('runtime.form.build', {
+    name: `${designAppName.value}-runtime`,
+    title: `${designAppTitle.value} Runtime`,
+    schemaName: resourceSchemaName.value,
+    runtime: 'system',
+    shell: 'powershell',
+    command: 'Write-Output "Silverback runtime run [[run_index]]"; Write-Output "API=$env:API_URL"',
+    cwd: '.',
+    envMapping: {
+      api_url: 'API_URL',
+      token: 'TOKEN',
+      workers: 'WORKERS',
+      mode: 'MODE',
+    },
+    workers: Number(batchWorkers.value || 2),
+    repeats: Number(batchRepeats.value || 1),
+    batchMode: batchMode.value,
+    androidDevices: ['emulator-5554', 'emulator-5556', 'emulator-5558', 'emulator-5560', 'emulator-5562'],
+    androidTasks: [{ action: 'android_state', payload: { maxElements: 20 } }],
+    overwrite: true,
+    verify: true,
+  });
+  print('Runtime Form Build', { schema, data });
 }
 
 async function verifyDesignAppProject() {
