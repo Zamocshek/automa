@@ -3,8 +3,109 @@ import renderString from '@/workflowEngine/templating/renderString';
 
 const DEFAULT_BRIDGE_URL = 'http://127.0.0.1:8765/run';
 
+function stringifyTemplateValue(value) {
+  if (value === null || typeof value === 'undefined') return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return JSON.stringify(value);
+}
+
+function readTemplatePath(source, path) {
+  if (!source || !path) return { found: false, value: undefined };
+  if (Array.isArray(source)) {
+    const item = source.find((entry) => {
+      if (!entry || typeof entry !== 'object') return false;
+      return entry.name === path || entry.id === path || entry.key === path;
+    });
+    if (item) {
+      return {
+        found: true,
+        value: Object.prototype.hasOwnProperty.call(item, 'value') ? item.value : item,
+      };
+    }
+  }
+  if (typeof source !== 'object') return { found: false, value: undefined };
+  if (Object.prototype.hasOwnProperty.call(source, path)) {
+    return { found: true, value: source[path] };
+  }
+  try {
+    if (objectPath.has(source, path)) {
+      return { found: true, value: objectPath.get(source, path) };
+    }
+  } catch (_error) {
+    return { found: false, value: undefined };
+  }
+  return { found: false, value: undefined };
+}
+
+function lookupTemplateValue(refData, rawName) {
+  const name = String(rawName || '').trim();
+  if (!name) return { found: false, value: undefined };
+
+  const directSources = [
+    refData,
+    refData?.variables,
+    refData?.globalData,
+    refData?.loopData,
+    refData?.table,
+    refData?.prevBlockData,
+    refData?.data,
+    refData?.workflow,
+  ];
+
+  for (const source of directSources) {
+    const direct = readTemplatePath(source, name);
+    if (direct.found) return direct;
+    const dollarName = readTemplatePath(source, `$$${name}`);
+    if (dollarName.found) return dollarName;
+  }
+
+  const prefixed = [
+    `variables.${name}`,
+    `globalData.${name}`,
+    `loopData.${name}`,
+    `table.${name}`,
+    `data.${name}`,
+  ];
+  for (const path of prefixed) {
+    const found = readTemplatePath(refData, path);
+    if (found.found) return found;
+  }
+
+  return { found: false, value: undefined };
+}
+
+function renderLegacyTemplate(value, refData) {
+  return String(value ?? '').replace(/\[\[\s*([A-Za-z0-9_$:.-]+)\s*\]\]/g, (match, name) => {
+    const result = lookupTemplateValue(refData, name);
+    return result.found ? stringifyTemplateValue(result.value) : match;
+  });
+}
+
+function namedMap(value) {
+  if (!value) return {};
+  if (!Array.isArray(value)) return value;
+  return value.reduce((acc, item) => {
+    if (item && typeof item === 'object' && item.name) {
+      acc[item.name] = Object.prototype.hasOwnProperty.call(item, 'value') ? item.value : item;
+    }
+    return acc;
+  }, {});
+}
+
+function legacyTemplateVariables(refData) {
+  return {
+    variables: namedMap(refData?.variables),
+    globalData: refData?.globalData || {},
+    loopData: refData?.loopData || {},
+    table: refData?.table || {},
+    previous: refData?.prevBlockData || refData?.data || {},
+  };
+}
+
 async function render(value, refData, isPopup) {
-  return (await renderString(String(value ?? ''), refData, isPopup)).value;
+  const rendered = (await renderString(String(value ?? ''), refData, isPopup)).value;
+  return renderLegacyTemplate(rendered, refData);
 }
 
 function parseJsonObject(value, label) {
@@ -1000,6 +1101,29 @@ export async function httpClient({ id, data }, { refData }) {
   }
 }
 
+export async function systemCommand({ id, data }, { refData }) {
+  try {
+    const envText = await render(data.envJson || '{}', refData, this.engine.isPopup);
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'system_command_exec',
+      payload: {
+        shell: data.shell || 'cmd',
+        command: await render(data.command || '', refData, this.engine.isPopup),
+        cwd: await render(data.cwd || '.', refData, this.engine.isPopup),
+        inputText: await render(data.inputText || '', refData, this.engine.isPopup),
+        env: parseJsonObject(envText, 'envJson'),
+        dryRun: Boolean(data.dryRun),
+        timeout: Number(data.executionTimeout || 30),
+        maxOutputChars: Number(data.maxOutputChars || 200000),
+        templateVariables: legacyTemplateVariables(refData),
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function libraryRunner({ id, data }, { refData }) {
   try {
     const runtime = data.runtime === 'node' ? 'node' : 'python';
@@ -1022,6 +1146,28 @@ export async function libraryRunner({ id, data }, { refData }) {
   }
 }
 
+export async function telegramMessage({ id, data }, { refData }) {
+  try {
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: 'telegram_send_message',
+      payload: {
+        valueToken: await render(data.valueToken || '', refData, this.engine.isPopup),
+        token: await render(data.valueToken || '', refData, this.engine.isPopup),
+        tokenResource: await render(data.tokenResource || 'telegram_bot_token', refData, this.engine.isPopup),
+        chatId: await render(data.chatId || '', refData, this.engine.isPopup),
+        text: await render(data.text || '', refData, this.engine.isPopup),
+        parseMode: data.parseMode || '',
+        dryRun: data.dryRun !== false,
+        timeout: Number(data.requestTimeout || 20),
+        templateVariables: legacyTemplateVariables(refData),
+      },
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function telegramBotBuilder({ id, data }, { refData }) {
   try {
     const appName = await render(data.appName || 'silverback-telegram-bot', refData, this.engine.isPopup);
@@ -1036,6 +1182,7 @@ export async function telegramBotBuilder({ id, data }, { refData }) {
         tokenResource,
         startText,
         commandHandlers: parseJsonArray(handlersText, 'commandHandlersJson'),
+        templateVariables: legacyTemplateVariables(refData),
       },
     });
     return finishBlock(this, id, data, responseData);
@@ -1068,7 +1215,9 @@ export default function () {
     manualIntervention,
     resultTools,
     httpClient,
+    systemCommand,
     libraryRunner,
+    telegramMessage,
     telegramBotBuilder,
   };
 }

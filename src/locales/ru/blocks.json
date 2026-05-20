@@ -194,9 +194,17 @@
         "name": "HTTP-клиент",
         "description": "Выполнить HTTP-запрос через Silverback Coding bridge"
       },
+      "system-command": {
+        "name": "Системная команда",
+        "description": "Выполнить cmd, PowerShell или shell-команду и получить stdout/stderr"
+      },
       "library-runner": {
         "name": "Python/Node-библиотеки",
         "description": "Запустить Python или Node код с pip/npm библиотеками"
+      },
+      "telegram-message": {
+        "name": "Telegram сообщение",
+        "description": "Отправить или проверить Telegram-сообщение с ресурсами и [[VARIABLE]]"
       },
       "telegram-bot-builder": {
         "name": "Telegram-бот",

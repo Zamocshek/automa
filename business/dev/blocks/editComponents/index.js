@@ -19,6 +19,8 @@ import EditPythonBridge from './EditPythonBridge.vue';
 import EditResourceDesignBuilder from './EditResourceDesignBuilder.vue';
 import EditResourceStore from './EditResourceStore.vue';
 import EditResultTools from './EditResultTools.vue';
+import EditSystemCommand from './EditSystemCommand.vue';
+import EditTelegramMessage from './EditTelegramMessage.vue';
 import EditTelegramBotBuilder from './EditTelegramBotBuilder.vue';
 import EditWaitTools from './EditWaitTools.vue';
 import EditVariableStore from './EditVariableStore.vue';
@@ -46,6 +48,8 @@ export default function () {
     EditResourceDesignBuilder,
     EditResourceStore,
     EditResultTools,
+    EditSystemCommand,
+    EditTelegramMessage,
     EditTelegramBotBuilder,
     EditWaitTools,
     EditVariableStore,
