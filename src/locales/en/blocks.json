@@ -190,6 +190,10 @@
         "name": "User Interaction",
         "description": "Show message boxes, request input, play sound, manual browser control and page JS"
       },
+      "android-automation": {
+        "name": "Android Automation",
+        "description": "ADB/Airtest-style Android device, UI tree, selector, input and multi-device actions"
+      },
       "result-tools": {
         "name": "Result / Log Tools",
         "description": "Create structured logs, messages and random values"

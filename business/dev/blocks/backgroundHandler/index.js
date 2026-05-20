@@ -1320,6 +1320,79 @@ export async function systemCommand({ id, data }, { refData }) {
   }
 }
 
+export async function androidAutomation({ id, data }, { refData }) {
+  try {
+    const selectorText = await render(data.selectorJson || '{}', refData, this.engine.isPopup);
+    const tasksText = await render(data.tasksJson || '[]', refData, this.engine.isPopup);
+    const devicesText = await render(data.devicesJson || '[]', refData, this.engine.isPopup);
+    const stepsText = await render(data.stepsJson || '[]', refData, this.engine.isPopup);
+    const mode = data.mode || 'devices';
+    const actionMap = {
+      devices: 'android_adb_devices',
+      connect: 'android_adb_connect',
+      state: 'android_state',
+      uiTree: 'android_ui_tree',
+      analyze: 'android_ui_analyze',
+      findElement: 'android_find_element',
+      tap: 'android_tap',
+      longClick: 'android_long_click',
+      inputText: 'android_input_text',
+      swipe: 'android_swipe',
+      drag: 'android_drag',
+      press: 'android_press',
+      wait: 'android_wait',
+      shell: 'android_shell',
+      screenshot: 'android_screenshot',
+      notifications: 'android_notifications',
+      app: 'android_app',
+      buildAirtestScript: 'android_script_build',
+      parallelRun: 'android_parallel_run',
+    };
+    const payload = {
+      adbPath: await render(data.adbPath || 'adb', refData, this.engine.isPopup),
+      deviceId: await render(data.deviceId || '', refData, this.engine.isPopup),
+      connection: data.connection || 'auto',
+      host: await render(data.host || '', refData, this.engine.isPopup),
+      wifi: Boolean(data.wifi),
+      packageName: await render(data.packageName || '', refData, this.engine.isPopup),
+      activity: await render(data.activity || '', refData, this.engine.isPopup),
+      apkPath: await render(data.apkPath || '', refData, this.engine.isPopup),
+      selector: parseJsonObject(selectorText, 'selectorJson'),
+      text: await render(data.text || '', refData, this.engine.isPopup),
+      key: await render(data.key || 'BACK', refData, this.engine.isPopup),
+      command: await render(data.shellCommand || '', refData, this.engine.isPopup),
+      x: Number(data.x || 0),
+      y: Number(data.y || 0),
+      x1: Number(data.x1 || 0),
+      y1: Number(data.y1 || 0),
+      x2: Number(data.x2 || 0),
+      y2: Number(data.y2 || 0),
+      durationMs: Number(data.durationMs || 400),
+      seconds: Number(data.seconds || 1),
+      clear: Boolean(data.clear),
+      tapBefore: data.tapBefore !== false,
+      includeXml: Boolean(data.includeXml),
+      maxElements: Number(data.maxElements || 200),
+      operation: data.appOperation || 'current',
+      name: await render(data.scriptName || 'silverback-android-script', refData, this.engine.isPopup),
+      steps: parseJsonArray(stepsText, 'stepsJson'),
+      devices: parseJsonArray(devicesText, 'devicesJson'),
+      tasks: parseJsonArray(tasksText, 'tasksJson'),
+      workers: Number(data.workers || 4),
+      dryRun: Boolean(data.dryRun),
+      timeout: Number(data.executionTimeout || 30),
+      templateVariables: legacyTemplateVariables(refData),
+    };
+    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+      action: actionMap[mode] || 'android_adb_devices',
+      payload,
+    });
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function libraryRunner({ id, data }, { refData }) {
   try {
     const runtime = data.runtime === 'node' ? 'node' : 'python';
@@ -1413,6 +1486,7 @@ export default function () {
     resultTools,
     httpClient,
     systemCommand,
+    androidAutomation,
     libraryRunner,
     telegramMessage,
     telegramBotBuilder,

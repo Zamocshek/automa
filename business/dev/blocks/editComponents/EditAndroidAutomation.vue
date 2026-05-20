@@ -1,0 +1,267 @@
+<template>
+  <div class="space-y-2">
+    <BasActionGrid
+      title="Android automation"
+      description="ADB/Airtest-style blocks: devices, connect, UI tree, selectors, tap, input, swipe, shell, app control and multi-device run."
+      :actions="androidPresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
+    <ui-textarea
+      :model-value="data.description"
+      placeholder="Description"
+      class="w-full"
+      @change="updateData({ description: $event })"
+    />
+    <ui-input
+      :model-value="data.bridgeUrl"
+      label="Bridge URL"
+      class="w-full"
+      placeholder="http://127.0.0.1:8765/run"
+      @change="updateData({ bridgeUrl: $event })"
+    />
+    <ui-select
+      :model-value="data.mode"
+      label="Operation"
+      class="w-full"
+      @change="updateData({ mode: $event })"
+    >
+      <option value="devices">ADB devices</option>
+      <option value="connect">Connect device</option>
+      <option value="state">Device state</option>
+      <option value="uiTree">Get UI tree</option>
+      <option value="analyze">Analyze UI</option>
+      <option value="findElement">Find element</option>
+      <option value="tap">Tap / click</option>
+      <option value="longClick">Long click</option>
+      <option value="inputText">Input text</option>
+      <option value="swipe">Swipe</option>
+      <option value="drag">Drag</option>
+      <option value="press">Press key</option>
+      <option value="wait">Wait</option>
+      <option value="shell">ADB shell</option>
+      <option value="screenshot">Screenshot</option>
+      <option value="notifications">Notifications</option>
+      <option value="app">App control</option>
+      <option value="buildAirtestScript">Build Airtest script</option>
+      <option value="parallelRun">Parallel multi-device run</option>
+    </ui-select>
+    <ui-input
+      :model-value="data.adbPath"
+      label="ADB path"
+      class="w-full"
+      placeholder="adb"
+      @change="updateData({ adbPath: $event })"
+    />
+    <div class="grid grid-cols-2 gap-2">
+      <ui-input
+        :model-value="data.deviceId"
+        label="Device serial"
+        class="w-full"
+        placeholder="emulator-5554"
+        @change="updateData({ deviceId: $event })"
+      />
+      <ui-select
+        :model-value="data.connection"
+        label="Connection"
+        class="w-full"
+        @change="updateData({ connection: $event })"
+      >
+        <option value="auto">auto</option>
+        <option value="usb">usb</option>
+        <option value="wifi">wifi</option>
+      </ui-select>
+    </div>
+    <ui-input
+      v-if="data.mode === 'connect'"
+      :model-value="data.host"
+      label="WiFi host / serial"
+      class="w-full"
+      placeholder="192.168.1.3:5555"
+      @change="updateData({ host: $event, wifi: String($event).includes('.') })"
+    />
+    <template v-if="selectorModes.includes(data.mode)">
+      <label class="input-label">Selector JSON</label>
+      <ui-textarea
+        :model-value="data.selectorJson"
+        class="w-full font-mono"
+        rows="6"
+        spellcheck="false"
+        placeholder="{&quot;text&quot;:&quot;Login&quot;,&quot;clickable&quot;:true}"
+        @change="updateData({ selectorJson: $event })"
+      />
+    </template>
+    <template v-if="coordinateModes.includes(data.mode)">
+      <div class="grid grid-cols-2 gap-2">
+        <ui-input :model-value="data.x" label="X" type="number" class="w-full" @change="updateData({ x: Number($event) })" />
+        <ui-input :model-value="data.y" label="Y" type="number" class="w-full" @change="updateData({ y: Number($event) })" />
+      </div>
+    </template>
+    <template v-if="swipeModes.includes(data.mode)">
+      <div class="grid grid-cols-2 gap-2">
+        <ui-input :model-value="data.x1" label="X1" type="number" class="w-full" @change="updateData({ x1: Number($event) })" />
+        <ui-input :model-value="data.y1" label="Y1" type="number" class="w-full" @change="updateData({ y1: Number($event) })" />
+        <ui-input :model-value="data.x2" label="X2" type="number" class="w-full" @change="updateData({ x2: Number($event) })" />
+        <ui-input :model-value="data.y2" label="Y2" type="number" class="w-full" @change="updateData({ y2: Number($event) })" />
+      </div>
+      <ui-input
+        :model-value="data.durationMs"
+        label="Duration, ms"
+        class="w-full"
+        type="number"
+        @change="updateData({ durationMs: Number($event) })"
+      />
+    </template>
+    <template v-if="data.mode === 'inputText'">
+      <label class="input-label">Text</label>
+      <ui-textarea
+        :model-value="data.text"
+        class="w-full"
+        rows="4"
+        placeholder="Hello [[user_name]]"
+        @change="updateData({ text: $event })"
+      />
+      <ui-checkbox :model-value="data.clear" @change="updateData({ clear: $event })">
+        Clear field before input
+      </ui-checkbox>
+    </template>
+    <ui-input
+      v-if="data.mode === 'press'"
+      :model-value="data.key"
+      label="Key"
+      class="w-full"
+      placeholder="BACK"
+      @change="updateData({ key: $event })"
+    />
+    <ui-input
+      v-if="data.mode === 'wait'"
+      :model-value="data.seconds"
+      label="Seconds"
+      class="w-full"
+      type="number"
+      @change="updateData({ seconds: Number($event) })"
+    />
+    <template v-if="data.mode === 'shell'">
+      <label class="input-label">ADB shell command</label>
+      <ui-textarea
+        :model-value="data.shellCommand"
+        class="w-full font-mono"
+        rows="5"
+        spellcheck="false"
+        placeholder="getprop ro.build.version.release"
+        @change="updateData({ shellCommand: $event })"
+      />
+      <ui-checkbox :model-value="data.dryRun" @change="updateData({ dryRun: $event })">
+        Dry run
+      </ui-checkbox>
+    </template>
+    <template v-if="data.mode === 'app'">
+      <ui-select :model-value="data.appOperation" label="App operation" class="w-full" @change="updateData({ appOperation: $event })">
+        <option value="current">current</option>
+        <option value="start">start</option>
+        <option value="stop">stop</option>
+        <option value="clear">clear data</option>
+        <option value="install">install apk</option>
+        <option value="uninstall">uninstall</option>
+      </ui-select>
+      <ui-input :model-value="data.packageName" label="Package" class="w-full" placeholder="com.example.app" @change="updateData({ packageName: $event })" />
+      <ui-input :model-value="data.activity" label="Activity" class="w-full" placeholder=".MainActivity" @change="updateData({ activity: $event })" />
+      <ui-input :model-value="data.apkPath" label="APK path" class="w-full" placeholder="C:\\app.apk" @change="updateData({ apkPath: $event })" />
+    </template>
+    <template v-if="data.mode === 'buildAirtestScript'">
+      <ui-input :model-value="data.scriptName" label="Script name" class="w-full" @change="updateData({ scriptName: $event })" />
+      <label class="input-label">Airtest steps JSON</label>
+      <ui-textarea
+        :model-value="data.stepsJson"
+        class="w-full font-mono"
+        rows="8"
+        spellcheck="false"
+        @change="updateData({ stepsJson: $event })"
+      />
+    </template>
+    <template v-if="data.mode === 'parallelRun'">
+      <label class="input-label">Devices JSON</label>
+      <ui-textarea :model-value="data.devicesJson" class="w-full font-mono" rows="4" spellcheck="false" @change="updateData({ devicesJson: $event })" />
+      <label class="input-label">Tasks JSON</label>
+      <ui-textarea :model-value="data.tasksJson" class="w-full font-mono" rows="8" spellcheck="false" @change="updateData({ tasksJson: $event })" />
+      <ui-input :model-value="data.workers" label="Workers" type="number" class="w-full" @change="updateData({ workers: Number($event) })" />
+      <ui-checkbox :model-value="data.dryRun" @change="updateData({ dryRun: $event })">
+        Dry run plan only
+      </ui-checkbox>
+    </template>
+    <ui-input
+      :model-value="data.maxElements"
+      label="Max UI elements"
+      class="w-full"
+      type="number"
+      @change="updateData({ maxElements: Number($event) })"
+    />
+    <ui-checkbox :model-value="data.includeXml" @change="updateData({ includeXml: $event })">
+      Include raw UI XML
+    </ui-checkbox>
+    <ui-input
+      :model-value="data.returnPath"
+      label="Result path"
+      class="w-full"
+      placeholder="result"
+      @change="updateData({ returnPath: $event })"
+    />
+    <ui-checkbox :model-value="data.assignVariable" @change="updateData({ assignVariable: $event })">
+      Save result to Automa variable
+    </ui-checkbox>
+    <ui-input
+      v-if="data.assignVariable"
+      :model-value="data.variableName"
+      label="Variable name"
+      class="w-full"
+      placeholder="android_result"
+      @change="updateData({ variableName: $event })"
+    />
+  </div>
+</template>
+
+<script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({}),
+  },
+});
+const emit = defineEmits(['update:data']);
+
+const selectorModes = ['findElement', 'tap', 'longClick', 'inputText'];
+const coordinateModes = ['tap', 'longClick', 'inputText'];
+const swipeModes = ['swipe', 'drag'];
+
+const androidPresets = [
+  { key: 'devices', label: 'ADB devices', hint: 'scan', values: { mode: 'devices', returnPath: 'result.devices', variableName: 'android_devices' } },
+  { key: 'connect', label: 'Connect', hint: 'usb/wifi', values: { mode: 'connect', returnPath: 'result.deviceId', variableName: 'android_device' } },
+  { key: 'state', label: 'State', hint: 'screen', values: { mode: 'state', returnPath: 'result', variableName: 'android_state' } },
+  { key: 'uiTree', label: 'UI tree', hint: 'xml', values: { mode: 'uiTree', returnPath: 'result.elements', variableName: 'android_tree' } },
+  { key: 'analyze', label: 'Analyze', hint: 'labels', values: { mode: 'analyze', returnPath: 'result', variableName: 'android_analysis' } },
+  { key: 'findElement', label: 'Get element', hint: 'selector', values: { mode: 'findElement', returnPath: 'result.element', variableName: 'android_element' } },
+  { key: 'tap', label: 'Click / tap', hint: 'input', values: { mode: 'tap', returnPath: 'result', variableName: 'android_tap' } },
+  { key: 'longClick', label: 'Long click', hint: 'hold', values: { mode: 'longClick', durationMs: 900, returnPath: 'result', variableName: 'android_long_click' } },
+  { key: 'inputText', label: 'Input text', hint: 'type', values: { mode: 'inputText', returnPath: 'result', variableName: 'android_input' } },
+  { key: 'swipe', label: 'Swipe', hint: 'gesture', values: { mode: 'swipe', returnPath: 'result', variableName: 'android_swipe' } },
+  { key: 'drag', label: 'Drag', hint: 'move', values: { mode: 'drag', durationMs: 700, returnPath: 'result', variableName: 'android_drag' } },
+  { key: 'press', label: 'Press key', hint: 'back', values: { mode: 'press', key: 'BACK', returnPath: 'result', variableName: 'android_key' } },
+  { key: 'wait', label: 'Wait', hint: 'sleep', values: { mode: 'wait', seconds: 1, returnPath: 'result', variableName: 'android_wait' } },
+  { key: 'shell', label: 'ADB shell', hint: 'cmd', values: { mode: 'shell', shellCommand: 'getprop ro.build.version.release', returnPath: 'result.stdout', variableName: 'android_shell' } },
+  { key: 'screenshot', label: 'Screenshot', hint: 'png', values: { mode: 'screenshot', returnPath: 'result.path', variableName: 'android_screenshot' } },
+  { key: 'notifications', label: 'Notifications', hint: 'dumpsys', values: { mode: 'notifications', returnPath: 'result.text', variableName: 'android_notifications' } },
+  { key: 'app', label: 'App control', hint: 'apk', values: { mode: 'app', appOperation: 'current', returnPath: 'result', variableName: 'android_app' } },
+  { key: 'parallelRun', label: 'Multi-device', hint: 'threads', values: { mode: 'parallelRun', dryRun: true, returnPath: 'result', variableName: 'android_parallel' } },
+  { key: 'buildAirtestScript', label: 'Airtest script', hint: '.air', values: { mode: 'buildAirtestScript', returnPath: 'result.script', variableName: 'android_script' } },
+];
+
+function updateData(value) {
+  emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
+}
+</script>
