@@ -159,6 +159,76 @@ async function callBridge(data, refData, isPopup, body) {
   }
 }
 
+function callChromeApi(fn, ...args) {
+  return new Promise((resolve, reject) => {
+    try {
+      let settled = false;
+      const callback = (result) => {
+        if (settled) return;
+        settled = true;
+        const error = globalThis.chrome?.runtime?.lastError;
+        if (error) reject(new Error(error.message));
+        else resolve(result);
+      };
+      const maybePromise = fn(...args, callback);
+      if (maybePromise && typeof maybePromise.then === 'function') {
+        maybePromise.then(
+          (result) => {
+            if (!settled) {
+              settled = true;
+              resolve(result);
+            }
+          },
+          (error) => {
+            if (!settled) {
+              settled = true;
+              reject(error);
+            }
+          }
+        );
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+async function activeTabId(worker) {
+  if (worker.activeTab?.id) return worker.activeTab.id;
+  if (!globalThis.chrome?.tabs?.query) return null;
+  const tabs = await callChromeApi(
+    globalThis.chrome.tabs.query.bind(globalThis.chrome.tabs),
+    { active: true, currentWindow: true }
+  );
+  return Array.isArray(tabs) && tabs[0]?.id ? tabs[0].id : null;
+}
+
+async function executeInActiveTab(worker, func, args = []) {
+  const tabId = await activeTabId(worker);
+  if (!tabId || !globalThis.chrome?.scripting?.executeScript) {
+    return { ok: false, error: 'active tab or scripting API is not available' };
+  }
+  const target = { tabId };
+  if (Number.isInteger(worker.activeTab?.frameId) && worker.activeTab.frameId >= 0) {
+    target.frameIds = [worker.activeTab.frameId];
+  }
+  const results = await callChromeApi(
+    globalThis.chrome.scripting.executeScript.bind(globalThis.chrome.scripting),
+    { target, func, args }
+  );
+  return { ok: true, tabId, result: Array.isArray(results) ? results[0]?.result : results };
+}
+
+async function focusActiveTab(worker) {
+  const tabId = await activeTabId(worker);
+  if (!tabId || !globalThis.chrome?.tabs?.update) return { ok: false, error: 'active tab is not available' };
+  const tab = await callChromeApi(globalThis.chrome.tabs.update.bind(globalThis.chrome.tabs), tabId, { active: true });
+  if (tab?.windowId && globalThis.chrome?.windows?.update) {
+    await callChromeApi(globalThis.chrome.windows.update.bind(globalThis.chrome.windows), tab.windowId, { focused: true });
+  }
+  return { ok: true, tabId, url: tab?.url || '' };
+}
+
 async function finishBlock(worker, id, data, responseData, fallbackOutput) {
   const nextBlockId = worker.getBlockConnections(id);
   const returnData = data.returnPath
@@ -1033,6 +1103,132 @@ export async function manualIntervention({ id, data }, { refData }) {
   }
 }
 
+export async function userInteraction({ id, data }, { refData }) {
+  try {
+    const mode = data.mode || 'messageBox';
+    const title = await render(data.title || 'Silverback Coding', refData, this.engine.isPopup);
+    const message = await render(data.message || '', refData, this.engine.isPopup);
+    const defaultValue = await render(data.defaultValue || '', refData, this.engine.isPopup);
+    const inputName = await render(data.inputName || 'user_input', refData, this.engine.isPopup);
+    const code = await render(data.code || 'result = input.message;', refData, this.engine.isPopup);
+    const inputJson = parseJsonValue(
+      await render(data.inputJson || '{}', refData, this.engine.isPopup),
+      'inputJson'
+    );
+    let localResult = { mode, title, message };
+
+    if (mode === 'messageBox') {
+      const injected = await executeInActiveTab(this, (alertMessage) => {
+        window.alert(alertMessage);
+        return { shown: true };
+      }, [message || title]);
+      localResult = injected.ok
+        ? { ...localResult, shown: true, target: 'activeTab', tabId: injected.tabId }
+        : { ...localResult, shown: false, error: injected.error };
+      if (!localResult.shown && globalThis.chrome?.notifications?.create) {
+        await globalThis.chrome.notifications.create({
+          type: 'basic',
+          iconUrl: '/icon-128.png',
+          title,
+          message: message || title,
+        });
+        localResult = { ...localResult, shown: true, target: 'notification' };
+      }
+    } else if (mode === 'requestInput') {
+      const injected = await executeInActiveTab(this, (promptMessage, promptDefault) => {
+        return window.prompt(promptMessage, promptDefault);
+      }, [message || title, defaultValue]);
+      const value = injected.ok ? injected.result : defaultValue;
+      localResult = {
+        ...localResult,
+        inputName,
+        value,
+        cancelled: value === null,
+        target: injected.ok ? 'activeTab' : 'defaultValue',
+        tabId: injected.tabId,
+      };
+    } else if (mode === 'playSound') {
+      const injected = await executeInActiveTab(this, (frequency, durationMs, volume) => {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return { played: false, error: 'Web Audio API is not available' };
+        const audio = new AudioContext();
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        gain.gain.value = volume;
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+        oscillator.start();
+        window.setTimeout(() => {
+          oscillator.stop();
+          audio.close();
+        }, durationMs);
+        return { played: true, frequency, durationMs };
+      }, [Number(data.frequency || 880), Number(data.durationMs || 240), Number(data.volume || 0.18)]);
+      localResult = {
+        ...localResult,
+        played: Boolean(injected.result?.played),
+        target: injected.ok ? 'activeTab' : 'none',
+        tabId: injected.tabId,
+        error: injected.result?.error || injected.error,
+      };
+    } else if (mode === 'executeUiJs') {
+      const injected = await executeInActiveTab(this, (userCode, input) => {
+        const fn = new Function('input', `${userCode}\n; return typeof result !== 'undefined' ? result : undefined;`);
+        return fn(input);
+      }, [code, { ...inputJson, message, title }]);
+      localResult = injected.ok
+        ? { ...localResult, value: injected.result, target: 'activeTab', tabId: injected.tabId }
+        : { ...localResult, error: injected.error, target: 'none' };
+    } else if (mode === 'manualControl') {
+      const focused = await focusActiveTab(this);
+      localResult = {
+        ...localResult,
+        focused: Boolean(focused.ok),
+        tabId: focused.tabId,
+        url: focused.url,
+        instructions: await render(data.instructions || message, refData, this.engine.isPopup),
+      };
+    }
+
+    let responseData = {
+      ok: true,
+      action: 'user_interaction_local',
+      result: localResult,
+    };
+
+    if (data.logToBridge !== false) {
+      const bridgeResponse = await callBridge(data, refData, this.engine.isPopup, {
+        action: 'user_interaction',
+        payload: {
+          mode,
+          title,
+          message,
+          defaultValue,
+          inputName,
+          responseValue: localResult.value,
+          instructions: localResult.instructions,
+          createIntervention: mode === 'manualControl' ? data.createIntervention !== false : Boolean(data.createIntervention),
+          wait: Boolean(data.wait),
+          timeoutSeconds: Number(data.timeoutSeconds || 300),
+          localResult,
+          templateVariables: legacyTemplateVariables(refData),
+        },
+      });
+      responseData = {
+        ok: bridgeResponse.ok !== false,
+        action: 'user_interaction',
+        result: { ...localResult, bridge: bridgeResponse.result || bridgeResponse },
+      };
+    }
+
+    return finishBlock(this, id, data, responseData);
+  } catch (error) {
+    return fallbackOrThrow(this, id, error);
+  }
+}
+
 export async function resultTools({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'log';
@@ -1213,6 +1409,7 @@ export default function () {
     profileAction,
     networkRecorderImport,
     manualIntervention,
+    userInteraction,
     resultTools,
     httpClient,
     systemCommand,

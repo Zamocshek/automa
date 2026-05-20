@@ -186,6 +186,10 @@
         "name": "Manual Intervention",
         "description": "Detect captcha/security checks and create an operator pause/resume checkpoint"
       },
+      "user-interaction": {
+        "name": "User Interaction",
+        "description": "Show message boxes, request input, play sound, manual browser control and page JS"
+      },
       "result-tools": {
         "name": "Result / Log Tools",
         "description": "Create structured logs, messages and random values"

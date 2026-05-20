@@ -22,6 +22,7 @@ import EditResultTools from './EditResultTools.vue';
 import EditSystemCommand from './EditSystemCommand.vue';
 import EditTelegramMessage from './EditTelegramMessage.vue';
 import EditTelegramBotBuilder from './EditTelegramBotBuilder.vue';
+import EditUserInteraction from './EditUserInteraction.vue';
 import EditWaitTools from './EditWaitTools.vue';
 import EditVariableStore from './EditVariableStore.vue';
 
@@ -51,6 +52,7 @@ export default function () {
     EditSystemCommand,
     EditTelegramMessage,
     EditTelegramBotBuilder,
+    EditUserInteraction,
     EditWaitTools,
     EditVariableStore,
   };
