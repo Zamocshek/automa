@@ -2,44 +2,44 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
       <option value="range">range</option>
-      <option value="repeat">repeat item</option>
-      <option value="chunk">chunk list</option>
-      <option value="enumerate">enumerate list</option>
+      <option value="repeat">повтор элемента</option>
+      <option value="chunk">разбить список</option>
+      <option value="enumerate">нумеровать список</option>
     </ui-select>
     <div v-if="data.mode === 'range'" class="grid grid-cols-3 gap-2">
       <ui-input
         :model-value="data.start"
-        label="Start"
+        label="Старт"
         type="number"
         @change="updateData({ start: Number($event) })"
       />
       <ui-input
         :model-value="data.end"
-        label="End"
+        label="Конец"
         type="number"
         @change="updateData({ end: Number($event) })"
       />
       <ui-input
         :model-value="data.step"
-        label="Step"
+        label="Шаг"
         type="number"
         @change="updateData({ step: Number($event) })"
       />
@@ -49,10 +49,10 @@
       :model-value="data.inclusive"
       @change="updateData({ inclusive: $event })"
     >
-      Include end
+      Включить конец
     </ui-checkbox>
     <template v-if="data.mode === 'repeat'">
-      <label class="input-label">Item JSON</label>
+      <label class="input-label">JSON элемента</label>
       <ui-textarea
         :model-value="data.itemJson"
         class="w-full font-mono"
@@ -69,7 +69,7 @@
       />
     </template>
     <template v-if="['chunk', 'enumerate'].includes(data.mode)">
-      <label class="input-label">Items JSON</label>
+      <label class="input-label">JSON элементов</label>
       <ui-textarea
         :model-value="data.itemsJson"
         class="w-full font-mono"
@@ -80,7 +80,7 @@
       <ui-input
         v-if="data.mode === 'chunk'"
         :model-value="data.size"
-        label="Chunk size"
+        label="Размер чанка"
         class="w-full"
         type="number"
         @change="updateData({ size: Number($event) })"
@@ -88,7 +88,7 @@
       <ui-input
         v-if="data.mode === 'enumerate'"
         :model-value="data.start"
-        label="Start index"
+        label="Начальный индекс"
         class="w-full"
         type="number"
         @change="updateData({ start: Number($event) })"
@@ -96,7 +96,7 @@
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -104,12 +104,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

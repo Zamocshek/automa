@@ -27,7 +27,7 @@
 const props = defineProps({
   title: {
     type: String,
-    default: 'BAS actions',
+    default: 'BAS-действия',
   },
   description: {
     type: String,
@@ -35,7 +35,7 @@ const props = defineProps({
   },
   badge: {
     type: String,
-    default: 'preset',
+    default: 'пресет',
   },
   active: {
     type: String,

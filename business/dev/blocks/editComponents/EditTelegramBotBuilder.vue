@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
-      title="Telegram bot"
+      title="Telegram-бот"
       description="Готовые пресеты стартап-бота: polling, команды, MCP-демо, токен через resource."
       :actions="telegramPresets"
       :active="data.runtime"
@@ -9,20 +9,20 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.runtime"
-      label="Runtime"
+      label="Рантайм"
       class="w-full"
       @change="updateData({ runtime: $event })"
     >
@@ -31,25 +31,25 @@
     </ui-select>
     <ui-input
       :model-value="data.appName"
-      label="App name"
+      label="Имя приложения"
       class="w-full"
       placeholder="silverback-telegram-bot"
       @change="updateData({ appName: $event })"
     />
     <ui-input
       :model-value="data.tokenResource"
-      label="Token resource"
+      label="Ресурс токена"
       class="w-full"
       placeholder="telegram_bot_token"
       @change="updateData({ tokenResource: $event })"
     />
     <ui-input
       :model-value="data.startText"
-      label="Start text"
+      label="Стартовый текст"
       class="w-full"
       @change="updateData({ startText: $event })"
     />
-    <label class="input-label">Command handlers JSON</label>
+    <label class="input-label">JSON обработчиков команд</label>
     <ui-textarea
       :model-value="data.commandHandlersJson"
       class="w-full font-mono"
@@ -59,7 +59,7 @@
     />
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       placeholder="result.dir"
       @change="updateData({ returnPath: $event })"
@@ -68,12 +68,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign bot path to variable
+      Записать путь бота в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />
@@ -94,53 +94,53 @@ const emit = defineEmits(['update:data']);
 const telegramPresets = [
   {
     key: 'python-basic',
-    label: 'Python bot',
+    label: 'Python-бот',
     hint: 'polling',
     values: {
       runtime: 'python',
       appName: 'silverback-telegram-bot',
       tokenResource: 'telegram_bot_token',
-      startText: 'Silverback bot online',
+      startText: 'Silverback-бот запущен',
       commandHandlersJson: '[\n  { "command": "ping", "response": "pong" },\n  { "command": "status", "response": "bot is alive" }\n]',
       returnPath: 'result.dir',
     },
   },
   {
     key: 'python-mcp',
-    label: 'MCP demo bot',
+    label: 'MCP демо-бот',
     hint: 'status/upper',
     values: {
       runtime: 'python',
       appName: 'silverback-telegram-mcp-bot',
       tokenResource: 'telegram_bot_token',
-      startText: 'MCP bot online: /ping /status /upper text',
-      commandHandlersJson: '[\n  { "command": "ping", "response": "pong from MCP bridge" },\n  { "command": "status", "response": "MCP workflow is ready" },\n  { "command": "upper", "response": "Use MCP uppercase block in workflow" }\n]',
+      startText: 'MCP-бот запущен: /ping /status /upper текст',
+      commandHandlersJson: '[\n  { "command": "ping", "response": "pong от MCP-моста" },\n  { "command": "status", "response": "MCP workflow готов" },\n  { "command": "upper", "response": "Используйте MCP-блок uppercase в workflow" }\n]',
       returnPath: 'result.dir',
     },
   },
   {
     key: 'node-basic',
-    label: 'Node bot',
+    label: 'Node-бот',
     hint: 'telegraf',
     values: {
       runtime: 'node',
       appName: 'silverback-telegraf-bot',
       tokenResource: 'telegram_bot_token',
-      startText: 'Silverback Node bot online',
-      commandHandlersJson: '[\n  { "command": "ping", "response": "pong" },\n  { "command": "status", "response": "node bot is alive" }\n]',
+      startText: 'Silverback Node-бот запущен',
+      commandHandlersJson: '[\n  { "command": "ping", "response": "pong" },\n  { "command": "status", "response": "Node-бот работает" }\n]',
       returnPath: 'result.dir',
     },
   },
   {
     key: 'startup',
-    label: 'Startup bot',
-    hint: 'lead flow',
+    label: 'Бот для стартапа',
+    hint: 'лиды',
     values: {
       runtime: 'python',
       appName: 'silverback-startup-bot',
       tokenResource: 'telegram_bot_token',
-      startText: 'Send /lead to start',
-      commandHandlersJson: '[\n  { "command": "lead", "response": "Lead accepted. Workflow will process it." },\n  { "command": "help", "response": "Commands: /lead /status" }\n]',
+      startText: 'Отправьте /lead для старта',
+      commandHandlersJson: '[\n  { "command": "lead", "response": "Лид принят. Workflow обработает его." },\n  { "command": "help", "response": "Команды: /lead /status" }\n]',
       returnPath: 'result.dir',
     },
   },

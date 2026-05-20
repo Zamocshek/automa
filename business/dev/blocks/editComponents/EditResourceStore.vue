@@ -9,20 +9,20 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
@@ -34,25 +34,25 @@
     <ui-input
       v-if="data.mode !== 'list'"
       :model-value="data.resourceName"
-      label="Resource name"
+      label="Имя ресурса"
       class="w-full"
       @change="updateData({ resourceName: $event })"
     />
     <template v-if="data.mode === 'set'">
       <ui-input
         :model-value="data.resourceType"
-        label="Resource type"
+        label="Тип ресурса"
         class="w-full"
         placeholder="string, number, list, file, url, token"
         @change="updateData({ resourceType: $event })"
       />
       <ui-input
         :model-value="data.resourceDescription"
-        label="Resource description"
+        label="Описание ресурса"
         class="w-full"
         @change="updateData({ resourceDescription: $event })"
       />
-      <label class="input-label">Value JSON</label>
+      <label class="input-label">JSON значения</label>
       <ui-textarea
         :model-value="data.resourceValue"
         class="w-full font-mono"
@@ -63,7 +63,7 @@
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -71,12 +71,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />
@@ -95,7 +95,7 @@ const props = defineProps({
 const emit = defineEmits(['update:data']);
 
 const resourcePresets = [
-  { key: 'token', label: 'Создать токен', hint: 'secret', values: { mode: 'set', resourceName: 'telegram_bot_token', resourceType: 'secret', resourceDescription: 'Token is injected locally', resourceValue: '"<TOKEN>"', returnPath: 'result.name' } },
+  { key: 'token', label: 'Создать токен', hint: 'секрет', values: { mode: 'set', resourceName: 'telegram_bot_token', resourceType: 'secret', resourceDescription: 'Токен подставляется локально', resourceValue: '"<TOKEN>"', returnPath: 'result.name' } },
   { key: 'url', label: 'Создать URL', hint: 'api', values: { mode: 'set', resourceName: 'api_url', resourceType: 'url', resourceValue: '"https://example.com/api"', returnPath: 'result.name' } },
   { key: 'proxy', label: 'Создать прокси', hint: 'proxy', values: { mode: 'set', resourceName: 'proxy_url', resourceType: 'proxy', resourceValue: '"http://user:pass@host:port"', returnPath: 'result.name' } },
   { key: 'list', label: 'Создать список', hint: 'list', values: { mode: 'set', resourceName: 'items', resourceType: 'list', resourceValue: '["alpha", "beta"]', returnPath: 'result.name' } },

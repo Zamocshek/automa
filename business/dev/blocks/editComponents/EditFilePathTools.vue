@@ -9,55 +9,55 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Operation"
+      label="Операция"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
-      <option value="write">write file</option>
-      <option value="read">read file</option>
-      <option value="list">list folder</option>
-      <option value="exists">exists</option>
-      <option value="mkdir">make folder</option>
-      <option value="copy">copy file</option>
-      <option value="move">move file</option>
-      <option value="delete">delete file</option>
-      <option value="join">join path</option>
+      <option value="write">записать файл</option>
+      <option value="read">прочитать файл</option>
+      <option value="list">список папки</option>
+      <option value="exists">существует</option>
+      <option value="mkdir">создать папку</option>
+      <option value="copy">копировать файл</option>
+      <option value="move">переместить файл</option>
+      <option value="delete">удалить файл</option>
+      <option value="join">склеить путь</option>
       <option value="dirname">dirname</option>
       <option value="basename">basename</option>
       <option value="ext">extension</option>
       <option value="normalize">normalize</option>
       <option value="relative">relative</option>
-      <option value="isAbsolute">is absolute</option>
+      <option value="isAbsolute">абсолютный путь</option>
     </ui-select>
     <template v-if="['copy', 'move'].includes(data.mode)">
       <ui-input
         :model-value="data.source"
-        label="Source"
+        label="Источник"
         class="w-full"
         @change="updateData({ source: $event })"
       />
       <ui-input
         :model-value="data.target"
-        label="Target"
+        label="Назначение"
         class="w-full"
         @change="updateData({ target: $event })"
       />
     </template>
     <template v-else-if="data.mode === 'join'">
-      <label class="input-label">Parts JSON</label>
+      <label class="input-label">JSON частей</label>
       <ui-textarea
         :model-value="data.partsJson"
         class="w-full font-mono"
@@ -69,7 +69,7 @@
     <template v-else>
       <ui-input
         :model-value="data.path"
-        label="Path"
+        label="Путь"
         class="w-full"
         @change="updateData({ path: $event })"
       />
@@ -77,12 +77,12 @@
     <ui-input
       v-if="data.mode === 'relative'"
       :model-value="data.base"
-      label="Base"
+      label="База"
       class="w-full"
       @change="updateData({ base: $event })"
     />
     <template v-if="data.mode === 'write'">
-      <label class="input-label">Text</label>
+      <label class="input-label">Текст</label>
       <ui-textarea
         :model-value="data.text"
         class="w-full font-mono"
@@ -93,7 +93,7 @@
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -101,12 +101,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

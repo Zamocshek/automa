@@ -9,20 +9,20 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Operation"
+      label="Операция"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
@@ -50,7 +50,7 @@
       <option value="compare">compare</option>
       <option value="filterContains">filter contains</option>
     </ui-select>
-    <label class="input-label">Items JSON</label>
+    <label class="input-label">JSON элементов</label>
     <ui-textarea
       :model-value="data.itemsJson"
       class="w-full font-mono"
@@ -59,7 +59,7 @@
       @change="updateData({ itemsJson: $event })"
     />
     <template v-if="['append', 'insert', 'set', 'remove', 'contains', 'index'].includes(data.mode)">
-      <label class="input-label">Item JSON</label>
+      <label class="input-label">JSON элемента</label>
       <ui-textarea
         :model-value="data.itemJson"
         class="w-full font-mono"
@@ -71,7 +71,7 @@
     <ui-input
       v-if="['get', 'insert', 'set', 'remove'].includes(data.mode)"
       :model-value="data.index"
-      label="Index"
+      label="Индекс"
       class="w-full"
       type="number"
       @change="updateData({ index: Number($event) })"
@@ -79,20 +79,20 @@
     <div v-if="['slice', 'removeRange'].includes(data.mode)" class="grid grid-cols-2 gap-2">
       <ui-input
         :model-value="data.start"
-        label="Start"
+        label="Старт"
         type="number"
         @change="updateData({ start: Number($event) })"
       />
       <ui-input
         v-if="data.mode === 'slice'"
         :model-value="data.end"
-        label="End"
+        label="Конец"
         @change="updateData({ end: $event })"
       />
       <ui-input
         v-if="data.mode === 'removeRange'"
         :model-value="data.count"
-        label="Count"
+        label="Количество"
         type="number"
         @change="updateData({ count: Number($event) })"
       />
@@ -100,14 +100,14 @@
     <template v-if="['join', 'parse'].includes(data.mode)">
       <ui-input
         :model-value="data.separator"
-        label="Separator"
+        label="Разделитель"
         class="w-full"
         @change="updateData({ separator: $event })"
       />
       <ui-input
         v-if="data.mode === 'parse'"
         :model-value="data.text"
-        label="Text"
+        label="Текст"
         class="w-full"
         @change="updateData({ text: $event })"
       />
@@ -115,7 +115,7 @@
     <template v-if="['sort', 'filterContains'].includes(data.mode)">
       <ui-input
         :model-value="data.key"
-        label="Object key"
+        label="Ключ объекта"
         class="w-full"
         placeholder="name"
         @change="updateData({ key: $event })"
@@ -125,18 +125,18 @@
         :model-value="data.reverse"
         @change="updateData({ reverse: $event })"
       >
-        Reverse sort
+        Обратная сортировка
       </ui-checkbox>
       <ui-input
         v-if="data.mode === 'filterContains'"
         :model-value="data.text"
-        label="Contains text"
+        label="Содержит текст"
         class="w-full"
         @change="updateData({ text: $event })"
       />
     </template>
     <template v-if="data.mode === 'merge'">
-      <label class="input-label">Lists JSON</label>
+      <label class="input-label">JSON списков</label>
       <ui-textarea
         :model-value="data.listsJson"
         class="w-full font-mono"
@@ -148,16 +148,16 @@
     <template v-if="data.mode === 'compare'">
       <ui-select
         :model-value="data.compareMode"
-        label="Compare mode"
+        label="Режим сравнения"
         class="w-full"
         @change="updateData({ compareMode: $event })"
       >
-        <option value="equals">equals</option>
-        <option value="same_items">same items</option>
-        <option value="intersection">intersection</option>
-        <option value="difference">difference</option>
+        <option value="equals">равны</option>
+        <option value="same_items">те же элементы</option>
+        <option value="intersection">пересечение</option>
+        <option value="difference">разница</option>
       </ui-select>
-      <label class="input-label">Right list JSON</label>
+      <label class="input-label">JSON правого списка</label>
       <ui-textarea
         :model-value="data.rightJson"
         class="w-full font-mono"
@@ -168,7 +168,7 @@
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -176,12 +176,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

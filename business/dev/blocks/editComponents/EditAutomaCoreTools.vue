@@ -2,45 +2,45 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
-      <option value="getVariable">get variable</option>
-      <option value="setVariable">set variable</option>
-      <option value="pushVariable">push variable</option>
-      <option value="incrementVariable">increment variable</option>
-      <option value="setTableColumn">set table column</option>
-      <option value="getTable">get table</option>
-      <option value="setGlobalData">set global data</option>
-      <option value="getGlobalData">get global data</option>
-      <option value="getPrevBlockData">get previous block data</option>
-      <option value="snapshot">snapshot all core data</option>
+      <option value="getVariable">получить переменную</option>
+      <option value="setVariable">записать переменную</option>
+      <option value="pushVariable">добавить в переменную</option>
+      <option value="incrementVariable">увеличить переменную</option>
+      <option value="setTableColumn">записать колонку таблицы</option>
+      <option value="getTable">получить таблицу</option>
+      <option value="setGlobalData">записать globalData</option>
+      <option value="getGlobalData">получить globalData</option>
+      <option value="getPrevBlockData">данные прошлого блока</option>
+      <option value="snapshot">снимок всех данных</option>
     </ui-select>
     <ui-input
       v-if="usesName"
       :model-value="data.coreName"
-      label="Name"
+      label="Имя"
       class="w-full"
-      placeholder="counter or column name"
+      placeholder="counter или имя колонки"
       @change="updateData({ coreName: $event })"
     />
     <ui-input
       v-if="usesPath"
       :model-value="data.corePath"
-      label="Path"
+      label="Путь"
       class="w-full"
       placeholder="user.name or 0.email"
       @change="updateData({ corePath: $event })"
     />
     <template v-if="usesValue">
-      <label class="input-label">Value JSON</label>
+      <label class="input-label">JSON значения</label>
       <ui-textarea
         :model-value="data.valueJson"
         class="w-full font-mono"
@@ -52,13 +52,13 @@
     <ui-input
       v-if="data.mode === 'incrementVariable'"
       :model-value="data.delta"
-      label="Delta"
+      label="Дельта"
       class="w-full"
       type="number"
       @change="updateData({ delta: Number($event) })"
     />
     <template v-if="usesDefault">
-      <label class="input-label">Default JSON</label>
+      <label class="input-label">JSON по умолчанию</label>
       <ui-textarea
         :model-value="data.defaultJson"
         class="w-full font-mono"
@@ -69,7 +69,7 @@
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -77,12 +77,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Automa variable name"
+      label="Имя переменной Automa"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />
@@ -90,12 +90,12 @@
       :model-value="data.saveData"
       @change="updateData({ saveData: $event })"
     >
-      Save result to table column
+      Сохранить результат в колонку таблицы
     </ui-checkbox>
     <ui-input
       v-if="data.saveData"
       :model-value="data.dataColumn"
-      label="Table column"
+      label="Колонка таблицы"
       class="w-full"
       @change="updateData({ dataColumn: $event })"
     />

@@ -2,49 +2,49 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
-      <option value="schemaBuild">schema build</option>
-      <option value="schemaGet">schema get</option>
-      <option value="schemaList">schema list</option>
-      <option value="schemaValidate">schema validate</option>
-      <option value="parallelPlanBuild">parallel plan build</option>
-      <option value="parallelPlanRun">parallel plan run</option>
-      <option value="parallelPlanList">parallel plan list</option>
-      <option value="designAppBuild">design app build</option>
-      <option value="designAppVerify">design app verify</option>
+      <option value="schemaBuild">собрать схему</option>
+      <option value="schemaGet">получить схему</option>
+      <option value="schemaList">список схем</option>
+      <option value="schemaValidate">проверить схему</option>
+      <option value="parallelPlanBuild">собрать план</option>
+      <option value="parallelPlanRun">запустить план</option>
+      <option value="parallelPlanList">список планов</option>
+      <option value="designAppBuild">собрать приложение</option>
+      <option value="designAppVerify">проверить приложение</option>
     </ui-select>
     <ui-input
       v-if="usesSchemaName"
       :model-value="data.schemaName"
-      label="Schema name"
+      label="Имя схемы"
       class="w-full"
       @change="updateData({ schemaName: $event })"
     />
     <ui-input
       v-if="data.mode === 'schemaBuild'"
       :model-value="data.schemaTitle"
-      label="Schema title"
+      label="Заголовок схемы"
       class="w-full"
       @change="updateData({ schemaTitle: $event })"
     />
     <template v-if="usesFields">
-      <label class="input-label">Fields JSON</label>
+      <label class="input-label">JSON полей</label>
       <ui-textarea
         :model-value="data.fieldsJson"
         class="w-full font-mono"
@@ -65,7 +65,7 @@
       v-if="data.mode === 'schemaValidate'"
       class="input-label"
     >
-      Values JSON
+      JSON значений
     </label>
     <ui-textarea
       v-if="data.mode === 'schemaValidate'"
@@ -78,34 +78,34 @@
     <template v-if="usesPlan">
       <ui-input
         :model-value="data.planName"
-        label="Plan name"
+        label="Имя плана"
         class="w-full"
         @change="updateData({ planName: $event })"
       />
       <ui-select
         :model-value="data.planMode"
-        label="Plan mode"
+        label="Режим плана"
         class="w-full"
         @change="updateData({ planMode: $event })"
       >
-        <option value="thread">thread</option>
-        <option value="process">process</option>
+        <option value="thread">потоки</option>
+        <option value="process">процессы</option>
       </ui-select>
       <ui-input
         :model-value="data.workers"
-        label="Workers"
+        label="Воркеры"
         type="number"
         class="w-full"
         @change="updateData({ workers: Number($event) })"
       />
       <ui-input
         :model-value="data.repeats"
-        label="Repeats"
+        label="Повторы"
         type="number"
         class="w-full"
         @change="updateData({ repeats: Number($event) })"
       />
-      <label class="input-label">Tasks JSON</label>
+      <label class="input-label">JSON задач</label>
       <ui-textarea
         :model-value="data.tasksJson"
         class="w-full font-mono"
@@ -124,23 +124,23 @@
     <template v-if="usesApp">
       <ui-input
         :model-value="data.appName"
-        label="App name"
+        label="Имя приложения"
         class="w-full"
         @change="updateData({ appName: $event })"
       />
       <ui-input
         v-if="data.mode === 'designAppBuild'"
         :model-value="data.appTitle"
-        label="App title"
+        label="Заголовок приложения"
         class="w-full"
         @change="updateData({ appTitle: $event })"
       />
       <ui-input
         v-if="data.mode === 'designAppVerify'"
         :model-value="data.projectPath"
-        label="Project path"
+        label="Путь проекта"
         class="w-full"
-        placeholder="optional absolute path"
+        placeholder="необязательный абсолютный путь"
         @change="updateData({ projectPath: $event })"
       />
       <ui-checkbox
@@ -160,7 +160,7 @@
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -168,12 +168,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

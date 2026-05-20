@@ -1,4 +1,90 @@
 {
+  "home": {
+    "viewAll": "Показать все",
+    "communities": "Сообщества"
+  },
+  "welcome": {
+    "title": "Добро пожаловать в Silverback Coding!",
+    "text": "Начните с документации или откройте готовые workflow в каталоге Automa.",
+    "marketplace": "Каталог"
+  },
+  "packages": {
+    "name": "Пакет | Пакеты",
+    "add": "Добавить пакет",
+    "icon": "Иконка пакета",
+    "open": "Открыть пакеты",
+    "new": "Новый пакет",
+    "import": "Импортировать пакет",
+    "set": "Назначить пакетом",
+    "settings": {
+      "asBlock": "Использовать пакет как блок"
+    },
+    "categories": {
+      "my": "Мои пакеты",
+      "installed": "Установленные пакеты"
+    }
+  },
+  "scheduledWorkflow": {
+    "title": "Запланированные workflow",
+    "nextRun": "Следующий запуск",
+    "active": "Активно",
+    "refresh": "Обновить",
+    "schedule": {
+      "title": "Расписание",
+      "types": {
+        "everyDay": "Каждый день",
+        "general": "Каждые {time}",
+        "interval": "Каждые {time} минут"
+      }
+    }
+  },
+  "storage": {
+    "title": "Хранилище",
+    "table": {
+      "add": "Добавить таблицу",
+      "edit": "Редактировать таблицу",
+      "createdAt": "Создано",
+      "modifiedAt": "Изменено",
+      "rowsCount": "Количество строк",
+      "delete": "Удалить таблицу"
+    }
+  },
+  "credential": {
+    "title": "Учетные данные | Учетные данные",
+    "add": "Добавить учетные данные",
+    "use": {
+      "title": "Используемые учетные данные",
+      "description": "Этот workflow использует эти учетные данные"
+    }
+  },
+  "workflowPermissions": {
+    "title": "Разрешения workflow",
+    "description": "Этому workflow нужны разрешения для корректного запуска",
+    "contextMenus": {
+      "title": "Контекстное меню",
+      "description": "Для запуска workflow через контекстное меню"
+    },
+    "clipboardRead": {
+      "title": "Буфер обмена",
+      "description": "Для доступа к данным буфера обмена"
+    },
+    "notifications": {
+      "title": "Уведомления",
+      "description": "Для показа уведомлений"
+    },
+    "downloads": {
+      "title": "Загрузки",
+      "description": "Для сохранения ассетов страницы и переименования скачанных файлов"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "description": "Для чтения, записи или удаления cookies"
+    }
+  },
+  "updateMessage": {
+    "text1": "Automa обновлена до v{version},",
+    "text2": "посмотрите, что изменилось."
+  },
   "workflows": {
     "folder": {
       "new": "Новая папка",
@@ -7,8 +93,51 @@
       "rename": "Переименовать папку"
     }
   },
+  "auth": {
+    "title": "Авторизация",
+    "signIn": "Войти",
+    "username": "Сначала нужно задать имя пользователя",
+    "clickHere": "Нажмите здесь",
+    "text": "Для этого действия нужно войти в аккаунт"
+  },
+  "running": {
+    "start": "Запущено {date}",
+    "message": "Показываются только последние 5 логов"
+  },
   "settings": {
     "theme": "Тема",
+    "shortcuts": {
+      "duplicate": "Горячая клавиша уже используется в \"{name}\""
+    },
+    "editor": {
+      "title": "Заголовок",
+      "curvature": {
+        "title": "Изгиб линий",
+        "line": "Линия",
+        "reroute": "Обводка",
+        "rerouteFirstLast": "Обводить первую и последнюю точки"
+      },
+      "arrow": {
+        "title": "Стрелка линии",
+        "description": "Добавлять стрелку в конец линии"
+      },
+      "snapGrid": {
+        "title": "Привязка к сетке",
+        "description": "Привязывать блоки к сетке при перемещении"
+      },
+      "saveWhenExecute": {
+        "title": "Автосохранение при запуске workflow",
+        "description": "Изменения workflow будут сохранены перед запуском"
+      }
+    },
+    "deleteLog": {
+      "title": "Автоудаление логов workflow",
+      "after": "Удалять через",
+      "deleteAfter": {
+        "never": "Никогда",
+        "days": "{day} дней"
+      }
+    },
     "language": {
       "label": "Язык",
       "helpTranslate": "Не нашли язык? Помогите с переводом.",
@@ -21,34 +150,199 @@
       "editor": "Редактор",
       "shortcuts": "Горячие клавиши",
       "about": "О приложении"
+    },
+    "backupWorkflows": {
+      "title": "Локальный бэкап",
+      "invalidPassword": "Неверный пароль",
+      "workflowsAdded": "Добавлено workflow: {count}",
+      "name": "Бэкап workflow",
+      "needSignin": "Сначала нужно войти",
+      "backup": {
+        "button": "Создать бэкап",
+        "settings": "Настройки бэкапа",
+        "encrypt": "Зашифровать паролем",
+        "schedule": "Запланировать локальный бэкап"
+      },
+      "restore": {
+        "title": "Восстановить workflow",
+        "button": "Восстановить",
+        "update": "Обновлять существующие workflow"
+      },
+      "cloud": {
+        "buttons": {
+          "local": "Локально",
+          "cloud": "Облако"
+        },
+        "location": "Расположение",
+        "delete": "Удалить бэкап",
+        "title": "Облачный бэкап",
+        "sync": "Синхронизировать",
+        "lastSync": "Последняя синхронизация",
+        "lastBackup": "Последний бэкап",
+        "select": "Выбрать workflow",
+        "storedWorkflows": "Workflow, сохраненные в облаке",
+        "selected": "Выбрано",
+        "selectText": "Выберите workflow для бэкапа",
+        "selectAll": "Выбрать все",
+        "deselectAll": "Снять выбор",
+        "needSelectWorkflow": "Нужно выбрать workflow для бэкапа"
+      }
+    },
+    "profile": {
+      "title": "Профиль",
+      "loading": "Загрузка профиля...",
+      "signedInAs": "Вход выполнен как",
+      "signIn": "Войти",
+      "signInDesc": "Войдите, чтобы сохранять workflow и использовать облачные функции",
+      "signOut": "Выйти",
+      "signingOut": "Выходим...",
+      "signedOut": "Вы вышли из аккаунта",
+      "signOutConfirmTitle": "Вы уверены?",
+      "signOutConfirmMessage": "Выход удалит данные авторизации и локальную сессию. Workflow останутся на устройстве.",
+      "warningMessage": "Это действие выйдет из аккаунта только на этом устройстве.",
+      "signOutNote": "Вы сможете войти снова и вернуть доступ к облачным функциям.",
+      "notSignedIn": "Вы не вошли в аккаунт",
+      "teamsCount": "{count} команд",
+      "avatar": "Фото профиля",
+      "username": "Имя пользователя",
+      "email": "Email"
     }
   },
   "workflow": {
+    "events": {
+      "title": "События workflow",
+      "add-action": "Добавить действие",
+      "description": "Выполнять действия при наступлении события.",
+      "event": "Событие | События",
+      "action": "Действие",
+      "actions": {
+        "js-code": {
+          "title": "Выполнить JS-код"
+        },
+        "http-request": {
+          "title": "HTTP-запрос"
+        }
+      },
+      "types": {
+        "finish:success": {
+          "name": "Завершение успешно",
+          "description": "Workflow завершился успешно"
+        },
+        "finish:failed": {
+          "name": "Завершение с ошибкой",
+          "description": "Workflow завершился ошибкой"
+        }
+      }
+    },
+    "previewMode": {
+      "title": "Режим предпросмотра",
+      "description": "Вы в режиме предпросмотра: внесенные изменения не будут сохранены"
+    },
+    "pinWorkflow": {
+      "pin": "Закрепить проект",
+      "unpin": "Открепить проект",
+      "pinned": "Закрепленные проекты"
+    },
+    "parameters": {
+      "add": "Добавить параметр",
+      "preferInTab": "Предпочитать ввод параметров во вкладке"
+    },
     "my": "Мои проекты",
+    "testing": {
+      "title": "Режим тестирования",
+      "nextBlock": "Следующий блок",
+      "startRun": "Начать запуск с",
+      "disabled": "Сначала сохраните изменения"
+    },
     "import": "Импортировать проект",
     "new": "Новый проект",
     "delete": "Удалить проект",
     "browse": "Обзор проектов",
     "name": "Имя проекта",
     "rename": "Переименовать проект",
+    "backupCloud": "Резервная копия в облако",
     "add": "Добавить проект",
+    "clickToEnable": "Нажмите, чтобы включить",
     "toggleSidebar": "Переключить боковую панель",
+    "cantEdit": "Нельзя редактировать общий workflow",
     "undo": "Отменить",
     "redo": "Повторить",
-    "categories": {
-      "pinned": "Закрепленные блоки",
-      "interaction": "Веб-взаимодействие",
-      "browser": "Браузер",
-      "general": "Общее",
-      "onlineServices": "Онлайн-сервисы",
-      "data": "Данные",
-      "conditions": "Логика и поток",
-      "package": "Пакеты"
+    "autoAlign": {
+      "title": "Автовыравнивание"
+    },
+    "blocksFolder": {
+      "title": "Папка блоков",
+      "add": "Добавить блоки в папку",
+      "save": "Сохранить в папку"
+    },
+    "searchBlocks": {
+      "title": "Поиск блоков в редакторе"
+    },
+    "conditionBuilder": {
+      "title": "Конструктор условий",
+      "add": "Добавить условие",
+      "and": "И",
+      "or": "ИЛИ",
+      "topAwait": "Поддерживает top-level await и функцию automaRefData"
+    },
+    "host": {
+      "title": "Хост workflow",
+      "set": "Сделать хостом",
+      "id": "ID хоста",
+      "add": "Добавить хостовый workflow",
+      "sync": {
+        "title": "Синхронизация",
+        "description": "Синхронизировать с хостовым workflow"
+      },
+      "messages": {
+        "hostExist": "Этот хост уже добавлен",
+        "notFound": "Не удалось найти хостовый workflow с ID \"{id}\"",
+        "successAdded": "Хостовый workflow с ID \"{id}\" добавлен"
+      }
+    },
+    "type": {
+      "local": "Локальные",
+      "shared": "Общие",
+      "host": "Хост"
+    },
+    "unpublish": {
+      "title": "Снять workflow с публикации",
+      "button": "Снять с публикации",
+      "body": "Вы уверены, что хотите снять workflow \"{name}\" с публикации?"
+    },
+    "share": {
+      "url": "Ссылка для доступа",
+      "publish": "Опубликовать",
+      "sharedAs": "Опубликовано как \"{name}\"",
+      "title": "Поделиться workflow",
+      "download": "Сохранить workflow локально",
+      "edit": "Редактировать описание",
+      "fetchLocal": "Получить локальный workflow",
+      "update": "Обновить",
+      "unpublish": "Снять с публикации",
+      "linkCopied": "Ссылка скопирована в буфер обмена"
     },
     "variables": {
       "title": "Переменная | Переменные",
       "name": "Имя переменной",
       "assign": "Записать в переменную"
+    },
+    "protect": {
+      "title": "Защитить workflow",
+      "remove": "Снять защиту",
+      "button": "Защитить",
+      "note": "Этот пароль понадобится для редактирования или удаления workflow."
+    },
+    "locked": {
+      "title": "Workflow защищен",
+      "body": "Введите пароль, чтобы разблокировать",
+      "unlock": "Разблокировать",
+      "messages": {
+        "incorrect-password": "Неверный пароль"
+      }
+    },
+    "state": {
+      "executeBy": "Запущено: \"{name}\""
     },
     "table": {
       "title": "Таблица | Таблицы",
@@ -62,17 +356,6 @@
     "sidebar": {
       "workflowIcon": "Иконка workflow"
     },
-    "pinWorkflow": {
-      "pin": "Закрепить проект",
-      "unpin": "Открепить проект",
-      "pinned": "Закрепленные проекты"
-    },
-    "backupCloud": "Резервная копия в облако",
-    "type": {
-      "local": "Локальные",
-      "shared": "Общие",
-      "host": "Хост"
-    },
     "editor": {
       "zoomIn": "Приблизить",
       "zoomOut": "Отдалить",
@@ -83,30 +366,187 @@
       "group": "Сгруппировать блоки",
       "ungroup": "Разгруппировать"
     },
-    "conditionBuilder": {
-      "title": "Конструктор условий",
-      "add": "Добавить условие",
-      "and": "И",
-      "or": "ИЛИ",
-      "topAwait": "Поддерживает top-level await и функцию automaRefData"
-    },
     "settings": {
       "saveLog": "Сохранять лог workflow",
       "executedBlockOnWeb": "Показывать выполненный блок на странице",
+      "notification": {
+        "title": "Уведомление workflow",
+        "description": "Показывать статус workflow после выполнения",
+        "noPermission": "Для этой опции нужно разрешение \"notifications\""
+      },
+      "publicId": {
+        "title": "Публичный ID workflow",
+        "description": "Задайте публичный ID для запуска workflow через JavaScript-событие"
+      },
+      "aipower": {
+        "title": "Токен AI Power",
+        "description": "Задайте токен AI Power, чтобы запускать workflow через AI Power"
+      },
+      "defaultColumn": {
+        "title": "Вставлять в колонку по умолчанию",
+        "description": "Вставлять данные в колонку по умолчанию, если блок не выбрал колонку",
+        "name": "Имя колонки по умолчанию"
+      },
+      "autocomplete": {
+        "title": "Автозаполнение",
+        "description": "Включить автозаполнение в input-блоках; отключите, если Automa становится нестабильной"
+      },
+      "clearCache": {
+        "title": "Очистить кэш",
+        "description": "Очистить кэш workflow: состояние и индекс цикла",
+        "info": "Кэш workflow очищен",
+        "btn": "Очистить"
+      },
+      "reuseLastState": {
+        "title": "Использовать последнее состояние workflow",
+        "description": "Использовать таблицу, переменные и глобальные данные из последнего запуска workflow"
+      },
+      "debugMode": {
+        "title": "Режим отладки",
+        "description": "Запускать workflow через Chrome DevTools Protocol"
+      },
+      "restartWorkflow": {
+        "for": "Перезапускать",
+        "times": "раз",
+        "description": "Максимальное число перезапусков workflow"
+      },
+      "onError": {
+        "title": "При ошибке workflow",
+        "description": "Что делать, если workflow завершился ошибкой",
+        "items": {
+          "keepRunning": "Продолжать выполнение",
+          "stopWorkflow": "Остановить workflow",
+          "restartWorkflow": "Перезапустить workflow"
+        }
+      },
       "timeout": {
         "title": "Таймаут workflow (мс)"
       },
       "blockDelay": {
         "title": "Задержка между блоками (мс)",
         "description": "Добавляет задержку перед каждым блоком"
+      },
+      "tabLoadTimeout": {
+        "title": "Таймаут загрузки вкладки",
+        "description": "Максимальное время загрузки вкладки в миллисекундах; 0 отключает таймаут"
       }
+    },
+    "categories": {
+      "pinned": "Закрепленные блоки",
+      "interaction": "Веб-взаимодействие",
+      "browser": "Браузер",
+      "general": "Общее",
+      "onlineServices": "Онлайн-сервисы",
+      "data": "Данные",
+      "conditions": "Логика и поток",
+      "package": "Пакеты"
+    }
+  },
+  "collection": {
+    "description": "Выполняйте workflow последовательно",
+    "new": "Новая коллекция",
+    "delete": "Удалить коллекцию",
+    "add": "Добавить коллекцию",
+    "rename": "Переименовать коллекцию",
+    "flow": "Поток",
+    "dragDropText": "Перетащите workflow или блок сюда",
+    "options": {
+      "atOnce": {
+        "title": "Запустить все workflow коллекции одновременно",
+        "description": "При включении этой опции блоки коллекции не выполняются по очереди"
+      }
+    },
+    "globalData": {
+      "note": "Это перезапишет глобальные данные workflow"
     }
   },
   "log": {
+    "flowId": "ID потока",
+    "goBack": "Вернуться к логам \"{name}\"",
+    "goWorkflow": "Перейти к workflow",
     "startedDate": "Дата запуска",
     "duration": "Длительность",
     "selectAll": "Выбрать все",
     "deselectAll": "Снять выбор",
-    "deleteSelected": "Удалить выбранные логи"
+    "deleteSelected": "Удалить выбранные логи",
+    "clearLogs": {
+      "title": "Очистить логи",
+      "description": "Очистить все логи?"
+    },
+    "types": {
+      "stop": "Workflow остановлен",
+      "finish": "Завершение"
+    },
+    "messages": {
+      "url-empty": "URL пустой",
+      "invalid-url": "URL некорректный",
+      "conditions-empty": "Условия пустые",
+      "invalid-proxy-host": "Некорректный хост прокси",
+      "workflow-disabled": "Workflow отключен",
+      "selector-empty": "Селектор элемента пустой",
+      "invalid-body": "Тело запроса не является корректным JSON",
+      "invalid-active-tab": "\"{url}\" не является корректным URL",
+      "empty-spreadsheet-id": "ID таблицы пустой",
+      "invalid-loop-data": "Некорректные данные для цикла",
+      "empty-workflow": "Сначала выберите workflow",
+      "active-tab-removed": "Активная вкладка workflow была закрыта",
+      "empty-spreadsheet-range": "Диапазон таблицы пустой",
+      "stop-timeout": "Workflow остановлен из-за таймаута",
+      "no-file-access": "У Automa нет доступа к файлу",
+      "no-workflow": "Не найден workflow с ID \"{workflowId}\"",
+      "no-match-tab": "Не найдена вкладка по шаблону \"{pattern}\"",
+      "no-clipboard-acces": "Нет разрешения на доступ к буферу обмена",
+      "browser-not-supported": "Эта функция не поддерживается в браузере {browser}",
+      "element-not-found": "Не найден элемент по селектору \"{selector}\"",
+      "no-permission": "Нет разрешения \"{permission}\" для выполнения этого действия",
+      "not-iframe": "Элемент с селектором \"{selector}\" не является iframe",
+      "iframe-not-found": "Не найден iframe по селектору \"{selector}\"",
+      "workflow-infinite-loop": "Workflow не запущен, чтобы предотвратить бесконечный цикл",
+      "not-debug-mode": "Для корректной работы этого блока workflow должен запускаться в режиме отладки",
+      "no-iframe-id": "Не найден Frame ID для iframe с селектором \"{selector}\"",
+      "no-tab": "Не удалось подключиться к вкладке; используйте блок \"Новая вкладка\" или \"Активная вкладка\" перед блоком \"{name}\""
+    },
+    "description": {
+      "text": "{status} {date}, длительность {duration}",
+      "status": {
+        "success": "Успешно",
+        "error": "Ошибка",
+        "stopped": "Остановлено"
+      }
+    },
+    "delete": {
+      "title": "Удалить лог",
+      "description": "Вы уверены, что хотите удалить все выбранные логи?"
+    },
+    "exportData": {
+      "title": "Экспорт данных",
+      "types": {
+        "json": "JSON",
+        "csv": "CSV",
+        "plain-text": "Обычный текст"
+      }
+    },
+    "filter": {
+      "title": "Фильтр",
+      "byStatus": "По статусу",
+      "byDate": {
+        "title": "По дате",
+        "items": {
+          "lastDay": "Последний день",
+          "last7Days": "Последние семь дней",
+          "last30Days": "Последние тридцать дней"
+        }
+      }
+    }
+  },
+  "components": {
+    "pagination": {
+      "text1": "Показано",
+      "text2": "элементов из {count}",
+      "nextPage": "Следующая страница",
+      "currentPage": "Текущая страница",
+      "prevPage": "Предыдущая страница",
+      "of": "из {page}"
+    }
   }
 }

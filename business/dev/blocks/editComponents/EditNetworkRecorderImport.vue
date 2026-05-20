@@ -2,26 +2,26 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-input
       :model-value="data.workflowName"
-      label="Workflow name"
+      label="Имя workflow"
       class="w-full"
       @change="updateData({ workflowName: $event })"
     />
     <ui-select
       :model-value="data.browserEngine || 'chromium'"
-      label="Browser engine"
+      label="Движок браузера"
       class="w-full"
       @change="updateData({ browserEngine: $event })"
     >
@@ -32,13 +32,13 @@
     </ui-select>
     <ui-input
       :model-value="data.profileName"
-      label="Profile"
+      label="Профиль"
       class="w-full"
       @change="updateData({ profileName: $event })"
     />
     <ui-select
       :model-value="data.source"
-      label="Source"
+      label="Источник"
       class="w-full"
       @change="updateData({ source: $event })"
     >
@@ -64,7 +64,7 @@
     </template>
     <ui-input
       :model-value="data.limit"
-      label="Request limit"
+      label="Лимит запросов"
       class="w-full"
       type="number"
       @change="updateData({ limit: Number($event) })"
@@ -73,11 +73,11 @@
       :model-value="data.headless !== false"
       @change="updateData({ headless: $event })"
     >
-      Headless browser
+      Headless-браузер
     </ui-checkbox>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -85,12 +85,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

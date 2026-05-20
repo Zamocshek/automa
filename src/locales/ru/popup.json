@@ -9,7 +9,11 @@
       "button": "Записать",
       "name": "Имя workflow",
       "selectBlock": "Выберите стартовый блок",
-      "anotherBlock": "С этого блока нельзя стартовать"
+      "anotherBlock": "С этого блока нельзя стартовать",
+      "tabs": {
+        "new": "Новый workflow",
+        "existing": "Существующий workflow"
+      }
     },
     "elementSelector": {
       "name": "Селектор элемента",
@@ -18,7 +22,11 @@
     "workflow": {
       "new": "Новый workflow",
       "rename": "Переименовать workflow",
-      "delete": "Удалить workflow"
+      "delete": "Удалить workflow",
+      "type": {
+        "host": "Хост",
+        "local": "Локальный"
+      }
     }
   }
 }

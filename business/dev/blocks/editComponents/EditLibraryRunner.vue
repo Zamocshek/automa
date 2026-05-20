@@ -2,27 +2,27 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.runtime"
-      label="Runtime"
+      label="Рантайм"
       class="w-full"
       @change="updateData({ runtime: $event })"
     >
       <option value="python">python</option>
       <option value="node">node</option>
     </ui-select>
-    <label class="input-label">Packages JSON</label>
+    <label class="input-label">JSON пакетов</label>
     <ui-textarea
       :model-value="data.packagesJson"
       class="w-full font-mono"
@@ -30,7 +30,7 @@
       spellcheck="false"
       @change="updateData({ packagesJson: $event })"
     />
-    <label class="input-label">Code</label>
+    <label class="input-label">Код</label>
     <ui-textarea
       :model-value="data.code"
       class="w-full font-mono"
@@ -38,7 +38,7 @@
       spellcheck="false"
       @change="updateData({ code: $event })"
     />
-    <label class="input-label">Input JSON</label>
+    <label class="input-label">Входной JSON</label>
     <ui-textarea
       :model-value="data.inputJson"
       class="w-full font-mono"
@@ -48,21 +48,21 @@
     />
     <ui-input
       :model-value="data.executionTimeout"
-      label="Execution timeout seconds"
+      label="Таймаут выполнения, сек"
       class="w-full"
       type="number"
       @change="updateData({ executionTimeout: Number($event) })"
     />
     <ui-input
       :model-value="data.installTimeout"
-      label="Install timeout seconds"
+      label="Таймаут установки, сек"
       class="w-full"
       type="number"
       @change="updateData({ installTimeout: Number($event) })"
     />
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       placeholder="result"
       @change="updateData({ returnPath: $event })"
@@ -71,12 +71,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

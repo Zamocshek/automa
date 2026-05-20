@@ -9,30 +9,30 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Operation"
+      label="Операция"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
       <option value="sleep">sleep</option>
-      <option value="file">wait file</option>
-      <option value="http">wait HTTP</option>
-      <option value="selector">wait selector</option>
-      <option value="text">wait text</option>
-      <option value="try">try action</option>
-      <option value="retry">retry action</option>
+      <option value="file">ждать файл</option>
+      <option value="http">ждать HTTP</option>
+      <option value="selector">ждать селектор</option>
+      <option value="text">ждать текст</option>
+      <option value="try">try-действие</option>
+      <option value="retry">retry-действие</option>
     </ui-select>
     <ui-input
       v-if="data.mode === 'sleep'"
@@ -45,27 +45,27 @@
     <template v-if="data.mode === 'file'">
       <ui-input
         :model-value="data.path"
-        label="Path"
+        label="Путь"
         class="w-full"
         @change="updateData({ path: $event })"
       />
       <ui-select
         :model-value="data.fileMode || 'exists'"
-        label="File condition"
+        label="Условие файла"
         class="w-full"
         @change="updateData({ fileMode: $event })"
       >
-        <option value="exists">exists</option>
-        <option value="not_exists">not exists</option>
-        <option value="changed">changed</option>
-        <option value="contains">contains text</option>
+        <option value="exists">существует</option>
+        <option value="not_exists">не существует</option>
+        <option value="changed">изменен</option>
+        <option value="contains">содержит текст</option>
       </ui-select>
     </template>
     <template v-if="['http', 'selector', 'text'].includes(data.mode)">
       <ui-select
         v-if="['selector', 'text'].includes(data.mode)"
         :model-value="data.browserEngine || 'chromium'"
-        label="Browser engine"
+        label="Движок браузера"
         class="w-full"
         @change="updateData({ browserEngine: $event })"
       >
@@ -84,37 +84,37 @@
     <ui-input
       v-if="data.mode === 'selector'"
       :model-value="data.selector"
-      label="Selector"
+      label="Селектор"
       class="w-full"
       @change="updateData({ selector: $event })"
     />
     <ui-input
       v-if="['file', 'http', 'text'].includes(data.mode)"
       :model-value="data.text"
-      label="Text"
+      label="Текст"
       class="w-full"
       @change="updateData({ text: $event })"
     />
     <ui-select
       v-if="['selector', 'text'].includes(data.mode)"
       :model-value="data.state || 'visible'"
-      label="State"
+      label="Состояние"
       class="w-full"
       @change="updateData({ state: $event })"
     >
-      <option value="visible">visible</option>
-      <option value="attached">attached</option>
-      <option value="hidden">hidden</option>
-      <option value="detached">detached</option>
+      <option value="visible">видимый</option>
+      <option value="attached">прикреплен</option>
+      <option value="hidden">скрыт</option>
+      <option value="detached">откреплен</option>
     </ui-select>
     <template v-if="['try', 'retry'].includes(data.mode)">
       <ui-input
         :model-value="data.retryAction"
-        label="Action"
+        label="Действие"
         class="w-full"
         @change="updateData({ retryAction: $event })"
       />
-      <label class="input-label">Payload JSON</label>
+      <label class="input-label">JSON-параметры</label>
       <ui-textarea
         :model-value="data.actionPayloadJson"
         class="w-full font-mono"
@@ -125,7 +125,7 @@
       <ui-input
         v-if="data.mode === 'retry'"
         :model-value="data.attempts"
-        label="Attempts"
+        label="Попытки"
         class="w-full"
         type="number"
         @change="updateData({ attempts: Number($event) })"
@@ -133,7 +133,7 @@
       <ui-input
         v-if="data.mode === 'retry'"
         :model-value="data.delaySeconds"
-        label="Delay seconds"
+        label="Задержка, сек"
         class="w-full"
         type="number"
         @change="updateData({ delaySeconds: Number($event) })"
@@ -142,7 +142,7 @@
     <ui-input
       v-if="data.mode !== 'sleep'"
       :model-value="data.timeoutSeconds"
-      label="Timeout seconds"
+      label="Таймаут, сек"
       class="w-full"
       type="number"
       @change="updateData({ timeoutSeconds: Number($event) })"
@@ -150,7 +150,7 @@
     <ui-input
       v-if="['file', 'http'].includes(data.mode)"
       :model-value="data.interval"
-      label="Interval seconds"
+      label="Интервал, сек"
       class="w-full"
       type="number"
       @change="updateData({ interval: Number($event) })"
@@ -160,11 +160,11 @@
       :model-value="data.headless !== false"
       @change="updateData({ headless: $event })"
     >
-      Headless browser
+      Headless-браузер
     </ui-checkbox>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -172,12 +172,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />
@@ -196,13 +196,13 @@ const props = defineProps({
 const emit = defineEmits(['update:data']);
 
 const waitPresets = [
-  { key: 'sleep', label: 'Спать', hint: 'seconds', values: { mode: 'sleep', seconds: 1, returnPath: 'result' } },
+  { key: 'sleep', label: 'Пауза', hint: 'seconds', values: { mode: 'sleep', seconds: 1, returnPath: 'result' } },
   { key: 'http', label: 'Ждать URL', hint: 'HTTP 200', values: { mode: 'http', url: 'https://example.com', timeoutSeconds: 30, interval: 1, returnPath: 'result' } },
   { key: 'selector', label: 'Ждать CSS', hint: 'selector', values: { mode: 'selector', url: 'https://example.com', selector: 'h1', state: 'visible', returnPath: 'result' } },
-  { key: 'text', label: 'Ждать текст', hint: 'page text', values: { mode: 'text', url: 'https://example.com', text: 'Example', returnPath: 'result' } },
-  { key: 'file', label: 'Ждать файл', hint: 'file exists', values: { mode: 'file', path: 'demo/file.txt', fileMode: 'exists', timeoutSeconds: 30, interval: 1, returnPath: 'result' } },
-  { key: 'retry', label: 'Retry действие', hint: 'try again', values: { mode: 'retry', retryAction: 'http_request', attempts: 3, delaySeconds: 1, returnPath: 'result' } },
-  { key: 'try', label: 'Try/Catch', hint: 'safe run', values: { mode: 'try', retryAction: 'http_request', returnPath: 'result' } },
+  { key: 'text', label: 'Ждать текст', hint: 'текст страницы', values: { mode: 'text', url: 'https://example.com', text: 'Example', returnPath: 'result' } },
+  { key: 'file', label: 'Ждать файл', hint: 'файл найден', values: { mode: 'file', path: 'demo/file.txt', fileMode: 'exists', timeoutSeconds: 30, interval: 1, returnPath: 'result' } },
+  { key: 'retry', label: 'Повтор действия', hint: 'повторить', values: { mode: 'retry', retryAction: 'http_request', attempts: 3, delaySeconds: 1, returnPath: 'result' } },
+  { key: 'try', label: 'Try/Catch', hint: 'безопасный запуск', values: { mode: 'try', retryAction: 'http_request', returnPath: 'result' } },
 ];
 
 function updateData(value) {

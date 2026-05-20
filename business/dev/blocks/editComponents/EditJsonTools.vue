@@ -9,20 +9,20 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Operation"
+      label="Операция"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
@@ -40,15 +40,15 @@
     <ui-select
       v-if="data.mode === 'create'"
       :model-value="data.shape"
-      label="Shape"
+      label="Форма"
       class="w-full"
       @change="updateData({ shape: $event })"
     >
-      <option value="object">object</option>
-      <option value="array">array</option>
+      <option value="object">объект</option>
+      <option value="array">массив</option>
     </ui-select>
     <template v-if="!['parse', 'valid'].includes(data.mode)">
-      <label class="input-label">Data JSON</label>
+      <label class="input-label">JSON данных</label>
       <ui-textarea
         :model-value="data.dataJson"
         class="w-full font-mono"
@@ -59,14 +59,14 @@
       <ui-input
         v-if="data.mode !== 'create'"
         :model-value="data.path"
-        label="Path"
+        label="Путь"
         class="w-full"
         placeholder="user.name"
         @change="updateData({ path: $event })"
       />
     </template>
     <template v-if="data.mode === 'set'">
-      <label class="input-label">Value JSON</label>
+      <label class="input-label">JSON значения</label>
       <ui-textarea
         :model-value="data.valueJson"
         class="w-full font-mono"
@@ -76,7 +76,7 @@
       />
     </template>
     <template v-if="['parse', 'valid'].includes(data.mode)">
-      <label class="input-label">JSON text</label>
+      <label class="input-label">JSON-текст</label>
       <ui-textarea
         :model-value="data.text"
         class="w-full font-mono"
@@ -88,14 +88,14 @@
     <ui-input
       v-if="data.mode === 'stringify'"
       :model-value="data.indent"
-      label="Indent"
+      label="Отступ"
       class="w-full"
       type="number"
       @change="updateData({ indent: Number($event) })"
     />
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -103,12 +103,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

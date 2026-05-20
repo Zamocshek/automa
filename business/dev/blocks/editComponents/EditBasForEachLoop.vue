@@ -9,18 +9,18 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
-    <label class="input-label">Items JSON</label>
+    <label class="input-label">JSON элементов</label>
     <ui-textarea
       :model-value="data.itemsJson"
       class="w-full font-mono"
@@ -31,26 +31,26 @@
     <div class="grid grid-cols-3 gap-2">
       <ui-input
         :model-value="data.start"
-        label="Start index"
+        label="Начальный индекс"
         type="number"
         @change="updateData({ start: Number($event) })"
       />
       <ui-input
         :model-value="data.indexName"
-        label="Index variable"
+        label="Переменная индекса"
         placeholder="index"
         @change="updateData({ indexName: $event })"
       />
       <ui-input
         :model-value="data.itemName"
-        label="Item variable"
+        label="Переменная элемента"
         placeholder="item"
         @change="updateData({ itemName: $event })"
       />
     </div>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -58,12 +58,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />
@@ -83,8 +83,8 @@ const emit = defineEmits(['update:data']);
 
 const foreachPresets = [
   { key: 'commands', label: 'Команды бота', hint: 'start/ping/status', values: { itemsJson: '[\n  "start",\n  "ping",\n  "status"\n]', indexName: 'index', itemName: 'command' } },
-  { key: 'leads', label: 'Лиды', hint: 'lead items', values: { itemsJson: '[\n  "lead_1",\n  "lead_2",\n  "lead_3"\n]', indexName: 'index', itemName: 'lead' } },
-  { key: 'urls', label: 'URL список', hint: 'scan pages', values: { itemsJson: '[\n  "https://example.com",\n  "https://example.com/pricing"\n]', indexName: 'index', itemName: 'url' } },
+  { key: 'leads', label: 'Лиды', hint: 'элементы лидов', values: { itemsJson: '[\n  "lead_1",\n  "lead_2",\n  "lead_3"\n]', indexName: 'index', itemName: 'lead' } },
+  { key: 'urls', label: 'URL список', hint: 'скан страниц', values: { itemsJson: '[\n  "https://example.com",\n  "https://example.com/pricing"\n]', indexName: 'index', itemName: 'url' } },
   { key: 'tasks', label: 'Задачи', hint: 'scan/parse/build', values: { itemsJson: '[\n  "scan",\n  "parse",\n  "build"\n]', indexName: 'index', itemName: 'task' } },
 ];
 

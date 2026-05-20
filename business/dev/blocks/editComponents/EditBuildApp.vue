@@ -2,25 +2,25 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-input
       :model-value="data.appName"
-      label="App name"
+      label="Имя приложения"
       class="w-full"
       placeholder="silverback-coding-demo"
       @change="updateData({ appName: $event })"
     />
-    <label class="input-label">Actions JSON</label>
+    <label class="input-label">JSON действий</label>
     <ui-textarea
       :model-value="data.actionsJson"
       class="w-full font-mono"
@@ -30,7 +30,7 @@
     />
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       placeholder="result.dir"
       @change="updateData({ returnPath: $event })"
@@ -39,12 +39,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign build output to variable
+      Записать путь сборки в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

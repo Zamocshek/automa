@@ -2,31 +2,31 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Operation"
+      label="Операция"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
       <option value="log">log</option>
       <option value="message">message</option>
-      <option value="random">random number</option>
+      <option value="random">случайное число</option>
     </ui-select>
     <ui-select
       v-if="data.mode === 'log'"
       :model-value="data.level || 'info'"
-      label="Level"
+      label="Уровень"
       class="w-full"
       @change="updateData({ level: $event })"
     >
@@ -38,12 +38,12 @@
     <ui-input
       v-if="data.mode !== 'random'"
       :model-value="data.message"
-      label="Message"
+      label="Сообщение"
       class="w-full"
       @change="updateData({ message: $event })"
     />
     <template v-if="data.mode === 'log'">
-      <label class="input-label">Data JSON</label>
+      <label class="input-label">JSON данных</label>
       <ui-textarea
         :model-value="data.dataJson"
         class="w-full font-mono"
@@ -55,14 +55,14 @@
     <template v-if="data.mode === 'random'">
       <ui-input
         :model-value="data.min"
-        label="Min"
+        label="Мин"
         class="w-full"
         type="number"
         @change="updateData({ min: Number($event) })"
       />
       <ui-input
         :model-value="data.max"
-        label="Max"
+        label="Макс"
         class="w-full"
         type="number"
         @change="updateData({ max: Number($event) })"
@@ -71,12 +71,12 @@
         :model-value="data.integer !== false"
         @change="updateData({ integer: $event })"
       >
-        Integer
+        Целое число
       </ui-checkbox>
     </template>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -84,12 +84,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

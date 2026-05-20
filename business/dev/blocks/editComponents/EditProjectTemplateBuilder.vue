@@ -2,20 +2,20 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
@@ -24,7 +24,7 @@
     </ui-select>
     <ui-select
       :model-value="data.template"
-      label="Template"
+      label="Шаблон"
       class="w-full"
       @change="updateData({ template: $event })"
     >
@@ -33,56 +33,56 @@
     </ui-select>
     <ui-input
       :model-value="data.projectName"
-      label="Project name"
+      label="Имя проекта"
       class="w-full"
       placeholder="private-vpn-lab-generated"
       @change="updateData({ projectName: $event })"
     />
     <ui-input
       :model-value="data.brandName"
-      label="Brand name"
+      label="Название бренда"
       class="w-full"
       placeholder="GOY VPN"
       @change="updateData({ brandName: $event })"
     />
     <ui-input
       :model-value="data.botUsername"
-      label="Bot username"
+      label="Username бота"
       class="w-full"
       placeholder="goy_vpn_robot"
       @change="updateData({ botUsername: $event })"
     />
     <ui-input
       :model-value="data.supportUsername"
-      label="Support username"
+      label="Username поддержки"
       class="w-full"
       placeholder="@support"
       @change="updateData({ supportUsername: $event })"
     />
     <ui-input
       :model-value="data.domain"
-      label="Public domain"
+      label="Публичный домен"
       class="w-full"
       placeholder="vpn.example.com"
       @change="updateData({ domain: $event })"
     />
     <ui-input
       :model-value="data.subscriptionRoutePrefix"
-      label="Subscription route prefix"
+      label="Префикс подписок"
       class="w-full"
       placeholder="sub"
       @change="updateData({ subscriptionRoutePrefix: $event })"
     />
     <ui-input
       :model-value="data.deviceLimit"
-      label="Device limit"
+      label="Лимит устройств"
       type="number"
       class="w-full"
       @change="updateData({ deviceLimit: Number($event) })"
     />
     <ui-select
       :model-value="data.runMode"
-      label="Run mode"
+      label="Режим запуска"
       class="w-full"
       @change="updateData({ runMode: $event })"
     >
@@ -92,7 +92,7 @@
     </ui-select>
     <ui-select
       :model-value="data.deploymentProfile"
-      label="Deployment profile"
+      label="Профиль деплоя"
       class="w-full"
       @change="updateData({ deploymentProfile: $event })"
     >
@@ -101,21 +101,21 @@
     </ui-select>
     <ui-input
       :model-value="data.httpPort"
-      label="HTTP port"
+      label="HTTP-порт"
       type="number"
       class="w-full"
       @change="updateData({ httpPort: Number($event) })"
     />
     <ui-input
       :model-value="data.genericEventPath"
-      label="Generic event path"
+      label="Путь общих событий"
       class="w-full"
       placeholder="/events"
       @change="updateData({ genericEventPath: $event })"
     />
     <ui-input
       :model-value="data.startupEventPath"
-      label="Startup event path"
+      label="Путь startup-событий"
       class="w-full"
       placeholder="/startup"
       @change="updateData({ startupEventPath: $event })"
@@ -124,17 +124,17 @@
       :model-value="data.includeNginx"
       @change="updateData({ includeNginx: $event })"
     >
-      Include Nginx config
+      Добавить конфиг Nginx
     </ui-checkbox>
     <ui-checkbox
       :model-value="data.overwrite"
       @change="updateData({ overwrite: $event })"
     >
-      Overwrite existing generated project
+      Перезаписать существующий проект
     </ui-checkbox>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       placeholder="result.dir"
       @change="updateData({ returnPath: $event })"
@@ -143,12 +143,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign project output to variable
+      Записать проект в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

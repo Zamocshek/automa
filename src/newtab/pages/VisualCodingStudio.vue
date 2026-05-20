@@ -4,16 +4,16 @@
       <div class="vc-brand-row">
         <span class="vc-brand-mark">SB</span>
         <div>
-          <p class="vc-kicker">Automa-native development environment</p>
+          <p class="vc-kicker">Среда разработки на базе Automa</p>
           <h1>Silverback Coding</h1>
           <p class="vc-subtitle">
-            AI workflow studio for Automa, MCP, Python/Node runtimes and production builders.
+            AI-студия workflow для Automa, MCP, Python/Node рантаймов и сборки production-проектов.
           </p>
         </div>
       </div>
       <div class="vc-header-actions">
-        <ui-button @click="safeRun(refreshAll)">Refresh</ui-button>
-        <ui-button variant="accent" @click="safeRun(runFullDemo)">Run full demo</ui-button>
+        <ui-button @click="safeRun(refreshAll)">Обновить</ui-button>
+        <ui-button variant="accent" @click="safeRun(runFullDemo)">Запустить полное демо</ui-button>
       </div>
     </header>
 
@@ -21,29 +21,29 @@
       <div class="vc-status-card">
         <span class="vc-dot" :class="bridgeState"></span>
         <div>
-          <p>Bridge</p>
+          <p>Мост</p>
           <strong>{{ bridgeLabel }}</strong>
         </div>
       </div>
       <div class="vc-status-card">
         <span class="vc-dot" :class="mcpState"></span>
         <div>
-          <p>MCP tools</p>
+          <p>MCP-инструменты</p>
           <strong>{{ mcpLabel }}</strong>
         </div>
       </div>
       <div class="vc-status-card">
         <span class="vc-dot" :class="skillState"></span>
         <div>
-          <p>Skill</p>
+          <p>Скилл</p>
           <strong>{{ skillLabel }}</strong>
         </div>
       </div>
       <div class="vc-status-card">
         <span class="vc-dot ok"></span>
         <div>
-          <p>Studio</p>
-          <strong>Automa workspace</strong>
+          <p>Студия</p>
+          <strong>Рабочее пространство Automa</strong>
         </div>
       </div>
     </section>
@@ -51,13 +51,13 @@
     <section class="vc-grid">
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Bridge Action Runner</h2>
+          <h2>Запуск действий моста</h2>
           <span>/run</span>
         </div>
         <div class="vc-form-grid">
           <ui-select
             :model-value="selectedAction"
-            label="Action"
+            label="Действие"
             block
             @change="selectAction"
           >
@@ -70,7 +70,7 @@
             </option>
           </ui-select>
           <label>
-            Payload JSON
+            JSON-параметры
             <ui-textarea
               :model-value="actionPayload"
               spellcheck="false"
@@ -80,67 +80,67 @@
           </label>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(runAction)">Run action</ui-button>
-          <ui-button @click="selectAction('echo')">Echo</ui-button>
-          <ui-button @click="selectAction('json_get')">JSON get</ui-button>
-          <ui-button @click="selectAction('logic_compare')">Logic</ui-button>
-          <ui-button @click="selectAction('variable_set')">Variable</ui-button>
-          <ui-button @click="selectAction('loop_range')">Loop range</ui-button>
-          <ui-button @click="selectAction('list_shuffle')">List shuffle</ui-button>
-          <ui-button @click="selectAction('file_write')">File write</ui-button>
-          <ui-button @click="selectAction('wait_file')">Wait file</ui-button>
-          <ui-button @click="selectAction('retry_action')">Retry</ui-button>
-          <ui-button @click="selectAction('build_app')">Build app payload</ui-button>
-          <ui-button @click="selectAction('python_script_exec')">Python library</ui-button>
-          <ui-button @click="selectAction('node_script_exec')">Node library</ui-button>
-          <ui-button @click="selectAction('telegram_bot_build')">Telegram bot</ui-button>
-          <ui-button @click="selectAction('bot_service_build')">Bot service</ui-button>
-          <ui-button @click="selectAction('resource_schema_build')">Resource fields</ui-button>
-          <ui-button @click="selectAction('parallel_plan_build')">Parallel plan</ui-button>
-          <ui-button @click="selectAction('design_app_build')">Design app</ui-button>
+          <ui-button variant="accent" @click="safeRun(runAction)">Запустить действие</ui-button>
+          <ui-button @click="selectAction('echo')">Эхо</ui-button>
+          <ui-button @click="selectAction('json_get')">JSON: получить</ui-button>
+          <ui-button @click="selectAction('logic_compare')">Логика</ui-button>
+          <ui-button @click="selectAction('variable_set')">Переменная</ui-button>
+          <ui-button @click="selectAction('loop_range')">Диапазон цикла</ui-button>
+          <ui-button @click="selectAction('list_shuffle')">Перемешать список</ui-button>
+          <ui-button @click="selectAction('file_write')">Запись файла</ui-button>
+          <ui-button @click="selectAction('wait_file')">Ждать файл</ui-button>
+          <ui-button @click="selectAction('retry_action')">Повтор</ui-button>
+          <ui-button @click="selectAction('build_app')">Payload сборки app</ui-button>
+          <ui-button @click="selectAction('python_script_exec')">Python-библиотека</ui-button>
+          <ui-button @click="selectAction('node_script_exec')">Node-библиотека</ui-button>
+          <ui-button @click="selectAction('telegram_bot_build')">Telegram-бот</ui-button>
+          <ui-button @click="selectAction('bot_service_build')">Бот-сервис</ui-button>
+          <ui-button @click="selectAction('resource_schema_build')">Поля ресурса</ui-button>
+          <ui-button @click="selectAction('parallel_plan_build')">Параллельный план</ui-button>
+          <ui-button @click="selectAction('design_app_build')">Дизайн-приложение</ui-button>
           <ui-button @click="selectAction('private_vpn_project_build')">Private VPN</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Data / Logic Toolkit</h2>
-          <span>JSON + lists + variables + loops</span>
+          <h2>Данные и логика</h2>
+          <span>JSON + списки + переменные + циклы</span>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(runJsonToolkit)">JSON keys</ui-button>
-          <ui-button @click="safeRun(runListToolkit)">List dedupe</ui-button>
-          <ui-button @click="safeRun(runLogicToolkit)">Logic compare</ui-button>
-          <ui-button @click="safeRun(runVariableToolkit)">Variable set</ui-button>
-          <ui-button @click="safeRun(runLoopToolkit)">Loop range</ui-button>
-          <ui-button @click="safeRun(composeDataWorkflow)">Compose data workflow</ui-button>
+          <ui-button variant="accent" @click="safeRun(runJsonToolkit)">Ключи JSON</ui-button>
+          <ui-button @click="safeRun(runListToolkit)">Убрать дубли</ui-button>
+          <ui-button @click="safeRun(runLogicToolkit)">Сравнение</ui-button>
+          <ui-button @click="safeRun(runVariableToolkit)">Записать переменную</ui-button>
+          <ui-button @click="safeRun(runLoopToolkit)">Диапазон цикла</ui-button>
+          <ui-button @click="safeRun(composeDataWorkflow)">Собрать data workflow</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Article Block Toolkit</h2>
-          <span>files + waits + profiles + recorder</span>
+          <h2>Блоки из статьи</h2>
+          <span>файлы + ожидания + профили + recorder</span>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(runFileToolkit)">File write/copy</ui-button>
-          <ui-button @click="safeRun(runPathToolkit)">Path relative</ui-button>
-          <ui-button @click="safeRun(runWaitToolkit)">Wait file</ui-button>
-          <ui-button @click="safeRun(runRetryToolkit)">Retry HTTP</ui-button>
-          <ui-button @click="safeRun(runProfileToolkit)">Profile metadata</ui-button>
-          <ui-button @click="safeRun(runRecorderToolkit)">Recorder import</ui-button>
-          <ui-button @click="safeRun(runResultToolkit)">Result/random</ui-button>
-          <ui-button @click="safeRun(composeArticleWorkflow)">Compose article workflow</ui-button>
+          <ui-button variant="accent" @click="safeRun(runFileToolkit)">Файл: запись/копия</ui-button>
+          <ui-button @click="safeRun(runPathToolkit)">Относительный путь</ui-button>
+          <ui-button @click="safeRun(runWaitToolkit)">Ждать файл</ui-button>
+          <ui-button @click="safeRun(runRetryToolkit)">Повтор HTTP</ui-button>
+          <ui-button @click="safeRun(runProfileToolkit)">Метаданные профиля</ui-button>
+          <ui-button @click="safeRun(runRecorderToolkit)">Импорт recorder</ui-button>
+          <ui-button @click="safeRun(runResultToolkit)">Результат/random</ui-button>
+          <ui-button @click="safeRun(composeArticleWorkflow)">Собрать workflow по статье</ui-button>
         </div>
       </article>
 
       <article class="vc-panel">
         <div class="vc-panel-head">
-          <h2>Python Exec</h2>
-          <span>process</span>
+          <h2>Выполнение Python</h2>
+          <span>процессы</span>
         </div>
         <label>
-          Code
+          Код
           <ui-textarea
             :model-value="pythonCode"
             spellcheck="false"
@@ -149,7 +149,7 @@
           />
         </label>
         <label>
-          Input JSON
+          Входной JSON
           <ui-textarea
             :model-value="pythonInput"
             spellcheck="false"
@@ -157,39 +157,39 @@
             @change="pythonInput = $event"
           />
         </label>
-        <ui-button variant="accent" @click="safeRun(runPython)">Run Python</ui-button>
+        <ui-button variant="accent" @click="safeRun(runPython)">Запустить Python</ui-button>
       </article>
 
       <article class="vc-panel">
         <div class="vc-panel-head">
-          <h2>Parallel Runner</h2>
-          <span>thread/process</span>
+          <h2>Параллельный запуск</h2>
+          <span>потоки/процессы</span>
         </div>
         <div class="vc-inline">
           <ui-select
             :model-value="batchMode"
-            label="Mode"
+            label="Режим"
             block
             @change="batchMode = $event"
           >
-            <option value="thread">thread</option>
-            <option value="process">process</option>
+            <option value="thread">потоки</option>
+            <option value="process">процессы</option>
           </ui-select>
           <ui-input
             :model-value="batchWorkers"
-            label="Workers"
+            label="Воркеры"
             type="number"
             @change="batchWorkers = Number($event)"
           />
           <ui-input
             :model-value="batchRepeats"
-            label="Repeats"
+            label="Повторы"
             type="number"
             @change="batchRepeats = Number($event)"
           />
         </div>
         <label>
-          Tasks JSON
+          JSON задач
           <ui-textarea
             :model-value="batchTasks"
             spellcheck="false"
@@ -197,21 +197,21 @@
             @change="batchTasks = $event"
           />
         </label>
-        <ui-button variant="accent" @click="safeRun(runBatch)">Run batch</ui-button>
+        <ui-button variant="accent" @click="safeRun(runBatch)">Запустить пачку</ui-button>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Build App</h2>
-          <span>inside Automa UI</span>
+          <h2>Сборка приложения</h2>
+          <span>внутри UI Automa</span>
         </div>
         <ui-input
           :model-value="appName"
-          label="App name"
+          label="Имя приложения"
           @change="appName = $event"
         />
         <label>
-          Actions JSON
+          JSON действий
           <ui-textarea
             :model-value="appActions"
             spellcheck="false"
@@ -219,45 +219,45 @@
             @change="appActions = $event"
           />
         </label>
-        <ui-button variant="accent" @click="safeRun(buildApp)">Generate app</ui-button>
+        <ui-button variant="accent" @click="safeRun(buildApp)">Сгенерировать приложение</ui-button>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Resource / Design Builder</h2>
-          <span>fields + workers + UI</span>
+          <h2>Ресурсы и дизайн</h2>
+          <span>поля + воркеры + UI</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
             <ui-input
               :model-value="resourceSchemaName"
-              label="Schema name"
+              label="Имя схемы"
               @change="resourceSchemaName = $event"
             />
             <ui-input
               :model-value="resourceSchemaTitle"
-              label="Schema title"
+              label="Заголовок схемы"
               @change="resourceSchemaTitle = $event"
             />
             <ui-input
               :model-value="designAppName"
-              label="Design app"
+              label="Дизайн-приложение"
               @change="designAppName = $event"
             />
             <ui-input
               :model-value="designAppTitle"
-              label="App title"
+              label="Заголовок приложения"
               @change="designAppTitle = $event"
             />
             <ui-input
               :model-value="parallelPlanName"
-              label="Parallel plan"
+              label="Параллельный план"
               @change="parallelPlanName = $event"
             />
           </div>
           <div class="vc-stack">
             <label>
-              Fields JSON
+              JSON полей
               <ui-textarea
                 :model-value="resourceFieldsJson"
                 spellcheck="false"
@@ -266,7 +266,7 @@
               />
             </label>
             <label>
-              Values JSON
+              JSON значений
               <ui-textarea
                 :model-value="resourceValuesJson"
                 spellcheck="false"
@@ -277,81 +277,81 @@
           </div>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(buildResourceSchema)">Build fields schema</ui-button>
-          <ui-button @click="safeRun(validateResourceSchema)">Validate values</ui-button>
-          <ui-button @click="safeRun(buildParallelPlan)">Build parallel plan</ui-button>
-          <ui-button @click="safeRun(runParallelPlan)">Run parallel plan</ui-button>
-          <ui-button @click="safeRun(buildDesignAppProject)">Build design app</ui-button>
-          <ui-button @click="safeRun(verifyDesignAppProject)">Verify design app</ui-button>
-          <ui-button @click="safeRun(composeDesignAppWorkflow)">Compose design workflow</ui-button>
+          <ui-button variant="accent" @click="safeRun(buildResourceSchema)">Собрать схему полей</ui-button>
+          <ui-button @click="safeRun(validateResourceSchema)">Проверить значения</ui-button>
+          <ui-button @click="safeRun(buildParallelPlan)">Собрать параллельный план</ui-button>
+          <ui-button @click="safeRun(runParallelPlan)">Запустить параллельный план</ui-button>
+          <ui-button @click="safeRun(buildDesignAppProject)">Собрать дизайн-приложение</ui-button>
+          <ui-button @click="safeRun(verifyDesignAppProject)">Проверить дизайн-приложение</ui-button>
+          <ui-button @click="safeRun(composeDesignAppWorkflow)">Собрать design workflow</ui-button>
           <ui-button @click="selectMcpTool('design.app.build')">MCP design app</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Benchmark Builder</h2>
+          <h2>Benchmark-сборщик</h2>
           <span>private-vpn-lab</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
             <ui-input
               :model-value="benchmarkProjectName"
-              label="Project name"
+              label="Имя проекта"
               @change="benchmarkProjectName = $event"
             />
             <ui-input
               :model-value="benchmarkBrandName"
-              label="Brand"
+              label="Бренд"
               @change="benchmarkBrandName = $event"
             />
             <ui-input
               :model-value="benchmarkDomain"
-              label="Domain"
+              label="Домен"
               @change="benchmarkDomain = $event"
             />
           </div>
           <div class="vc-stack">
             <ui-input
               :model-value="benchmarkBotUsername"
-              label="Bot username"
+              label="Username бота"
               @change="benchmarkBotUsername = $event"
             />
             <ui-input
               :model-value="benchmarkSupportUsername"
-              label="Support"
+              label="Поддержка"
               @change="benchmarkSupportUsername = $event"
             />
             <ui-input
               :model-value="benchmarkDeviceLimit"
-              label="Device limit"
+              label="Лимит устройств"
               type="number"
               @change="benchmarkDeviceLimit = Number($event)"
             />
           </div>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(buildPrivateVpnBenchmark)">Build benchmark project</ui-button>
-          <ui-button @click="safeRun(verifyPrivateVpnBenchmark)">Verify generated</ui-button>
-          <ui-button @click="safeRun(buildBotServiceProject)">Build bot service</ui-button>
-          <ui-button @click="safeRun(verifyBotServiceProject)">Verify bot service</ui-button>
-          <ui-button @click="safeRun(composeBotServiceWorkflow)">Compose bot workflow</ui-button>
-          <ui-button @click="safeRun(composePrivateVpnWorkflow)">Compose VPN workflow</ui-button>
-          <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">MCP args</ui-button>
-          <ui-button @click="selectMcpTool('bots.service.build')">MCP bot service</ui-button>
+          <ui-button variant="accent" @click="safeRun(buildPrivateVpnBenchmark)">Собрать benchmark-проект</ui-button>
+          <ui-button @click="safeRun(verifyPrivateVpnBenchmark)">Проверить генерацию</ui-button>
+          <ui-button @click="safeRun(buildBotServiceProject)">Собрать бот-сервис</ui-button>
+          <ui-button @click="safeRun(verifyBotServiceProject)">Проверить бот-сервис</ui-button>
+          <ui-button @click="safeRun(composeBotServiceWorkflow)">Собрать bot workflow</ui-button>
+          <ui-button @click="safeRun(composePrivateVpnWorkflow)">Собрать VPN workflow</ui-button>
+          <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">MCP-аргументы</ui-button>
+          <ui-button @click="selectMcpTool('bots.service.build')">MCP: бот-сервис</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Library Runtime Builder</h2>
+          <h2>Python/Node рантайм</h2>
           <span>pip/npm + Telegram</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
             <ui-select
               :model-value="libraryRuntime"
-              label="Runtime"
+              label="Рантайм"
               block
               @change="switchLibraryRuntime"
             >
@@ -359,7 +359,7 @@
               <option value="node">node</option>
             </ui-select>
             <label>
-              Packages JSON
+              JSON пакетов
               <ui-textarea
                 :model-value="libraryPackages"
                 spellcheck="false"
@@ -368,7 +368,7 @@
               />
             </label>
             <label>
-              Input JSON
+              Входной JSON
               <ui-textarea
                 :model-value="libraryInput"
                 spellcheck="false"
@@ -378,7 +378,7 @@
             </label>
           </div>
           <label>
-            Code
+            Код
             <ui-textarea
               :model-value="libraryCode"
               spellcheck="false"
@@ -388,14 +388,14 @@
           </label>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(runLibraryCode)">Run library code</ui-button>
-          <ui-button @click="safeRun(buildTelegramBot)">Build Telegram Bot</ui-button>
-          <ui-button @click="safeRun(dryRunTelegramMessage)">Dry-run Telegram message</ui-button>
+          <ui-button variant="accent" @click="safeRun(runLibraryCode)">Запустить код библиотеки</ui-button>
+          <ui-button @click="safeRun(buildTelegramBot)">Собрать Telegram-бота</ui-button>
+          <ui-button @click="safeRun(dryRunTelegramMessage)">Тест Telegram-сообщения</ui-button>
         </div>
         <div class="vc-inline">
           <ui-select
             :model-value="telegramRuntime"
-            label="Bot runtime"
+            label="Рантайм бота"
             block
             @change="telegramRuntime = $event"
           >
@@ -404,17 +404,17 @@
           </ui-select>
           <ui-input
             :model-value="telegramAppName"
-            label="Bot app"
+            label="Приложение бота"
             @change="telegramAppName = $event"
           />
           <ui-input
             :model-value="telegramTokenResource"
-            label="Token resource"
+            label="Ресурс токена"
             @change="telegramTokenResource = $event"
           />
         </div>
         <label>
-          Bot command handlers JSON
+          JSON обработчиков команд
           <ui-textarea
             :model-value="telegramHandlersJson"
             spellcheck="false"
@@ -426,13 +426,13 @@
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>MCP Control Plane</h2>
+          <h2>Панель управления MCP</h2>
           <span>/mcp/call</span>
         </div>
         <div class="vc-form-grid">
           <ui-select
             :model-value="selectedMcpTool"
-            label="Tool"
+            label="Инструмент"
             block
             @change="selectMcpTool"
           >
@@ -445,7 +445,7 @@
             </option>
           </ui-select>
           <label>
-            Arguments JSON
+            JSON аргументов
             <ui-textarea
               :model-value="mcpArgs"
               spellcheck="false"
@@ -455,29 +455,29 @@
           </label>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(runMcpTool)">Call tool</ui-button>
-          <ui-button @click="selectMcpTool('bridge.health')">Bridge health</ui-button>
-          <ui-button @click="selectMcpTool('skill.status')">Skill status</ui-button>
-          <ui-button @click="selectMcpTool('mcp.server.status')">MCP server</ui-button>
-          <ui-button @click="selectMcpTool('files.tool')">Files</ui-button>
-          <ui-button @click="selectMcpTool('wait.tool')">Wait</ui-button>
+          <ui-button variant="accent" @click="safeRun(runMcpTool)">Вызвать инструмент</ui-button>
+          <ui-button @click="selectMcpTool('bridge.health')">Здоровье моста</ui-button>
+          <ui-button @click="selectMcpTool('skill.status')">Статус скилла</ui-button>
+          <ui-button @click="selectMcpTool('mcp.server.status')">MCP-сервер</ui-button>
+          <ui-button @click="selectMcpTool('files.tool')">Файлы</ui-button>
+          <ui-button @click="selectMcpTool('wait.tool')">Ожидание</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
-          <ui-button @click="selectMcpTool('resources.schema.build')">Fields</ui-button>
-          <ui-button @click="selectMcpTool('parallel.plan.build')">Plan</ui-button>
-          <ui-button @click="selectMcpTool('design.app.build')">Design app</ui-button>
-          <ui-button @click="selectMcpTool('bots.service.build')">Bot service</ui-button>
+          <ui-button @click="selectMcpTool('resources.schema.build')">Поля</ui-button>
+          <ui-button @click="selectMcpTool('parallel.plan.build')">План</ui-button>
+          <ui-button @click="selectMcpTool('design.app.build')">Дизайн-приложение</ui-button>
+          <ui-button @click="selectMcpTool('bots.service.build')">Бот-сервис</ui-button>
           <ui-button @click="selectMcpTool('benchmark.private_vpn.build')">VPN benchmark</ui-button>
-          <ui-button @click="safeRun(loadPatchTemplate)">AI patch template</ui-button>
+          <ui-button @click="safeRun(loadPatchTemplate)">Шаблон AI patch</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>AI Workflow Composer</h2>
-          <span>prompt -> Local workflow project</span>
+          <h2>AI-композер workflow</h2>
+          <span>prompt -> локальный workflow-проект</span>
         </div>
         <label>
-          Intent
+          Замысел
           <ui-textarea
             :model-value="composerPrompt"
             spellcheck="false"
@@ -487,43 +487,43 @@
         </label>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(composeWorkflow)">
-            Create project + open editor
+            Создать проект и открыть редактор
           </ui-button>
           <ui-button @click="safeRun(composeWorkflowPatch)">
-            Compose workflow patch
+            Собрать workflow patch
           </ui-button>
           <ui-button @click="composerPrompt = sampleComposerPrompt">
-            BAS-style sample
+            Пример в стиле BAS
           </ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Workflow Utility Builder</h2>
-          <span>save into Automa</span>
+          <h2>Утилиты workflow</h2>
+          <span>сохранение в Automa</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
             <ui-input
               :model-value="utilityName"
-              label="Workflow name"
+              label="Имя workflow"
               @change="utilityName = $event"
             />
             <ui-input
               :model-value="resourceName"
-              label="Resource name"
+              label="Имя ресурса"
               @change="resourceName = $event"
             />
             <ui-input
               :model-value="resourceType"
-              label="Resource type"
+              label="Тип ресурса"
               @change="resourceType = $event"
             />
           </div>
           <div class="vc-stack">
             <label>
-              Workflow prompt
+              Prompt workflow
               <ui-textarea
                 :model-value="utilityPrompt"
                 spellcheck="false"
@@ -532,7 +532,7 @@
               />
             </label>
             <label>
-              HTTP requests JSON
+              JSON HTTP-запросов
               <ui-textarea
                 :model-value="httpRequestsJson"
                 spellcheck="false"
@@ -541,7 +541,7 @@
               />
             </label>
             <label>
-              Resource value JSON
+              JSON значения ресурса
               <ui-textarea
                 :model-value="resourceValue"
                 spellcheck="false"
@@ -553,25 +553,25 @@
         </div>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(buildUtilityWorkflow)">
-            Build + open project
+            Собрать и открыть проект
           </ui-button>
-          <ui-button @click="safeRun(buildUtilityArtifact)">Build importable workflow</ui-button>
-          <ui-button @click="safeRun(buildHttpWorkflow)">HTTP requests workflow</ui-button>
-          <ui-button @click="safeRun(saveResource)">Save resource</ui-button>
-          <ui-button @click="safeRun(listResources)">List resources</ui-button>
+          <ui-button @click="safeRun(buildUtilityArtifact)">Собрать workflow для импорта</ui-button>
+          <ui-button @click="safeRun(buildHttpWorkflow)">Workflow из HTTP-запросов</ui-button>
+          <ui-button @click="safeRun(saveResource)">Сохранить ресурс</ui-button>
+          <ui-button @click="safeRun(listResources)">Список ресурсов</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Browser Scanner</h2>
-          <span>engine + selectors</span>
+          <h2>Сканер браузера</h2>
+          <span>движок + селекторы</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
             <ui-select
               :model-value="browserEngine"
-              label="Browser engine"
+              label="Движок браузера"
               block
               @change="browserEngine = $event"
             >
@@ -582,7 +582,7 @@
             </ui-select>
             <ui-input
               :model-value="browserProfileName"
-              label="Browser profile"
+              label="Профиль браузера"
               @change="browserProfileName = $event"
             />
             <ui-input
@@ -592,12 +592,12 @@
             />
             <ui-input
               :model-value="browserSelector"
-              label="CSS / XPath selector"
+              label="CSS / XPath селектор"
               @change="browserSelector = $event"
             />
             <ui-input
               :model-value="selectorHint"
-              label="Selector hint"
+              label="Подсказка селектора"
               @change="selectorHint = $event"
             />
           </div>
@@ -613,22 +613,22 @@
         </div>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(scanBrowserUrl)">
-            Scan URL
+            Сканировать URL
           </ui-button>
-          <ui-button @click="safeRun(scanBrowserHtml)">Scan HTML</ui-button>
-          <ui-button @click="safeRun(queryBrowserSelector)">Query selector</ui-button>
-          <ui-button @click="safeRun(suggestBrowserSelectors)">Suggest selectors</ui-button>
-          <ui-button @click="safeRun(checkBrowserEngines)">Engine status</ui-button>
-          <ui-button @click="safeRun(createBrowserProfile)">Create profile</ui-button>
-          <ui-button @click="safeRun(listBrowserProfiles)">List profiles</ui-button>
+          <ui-button @click="safeRun(scanBrowserHtml)">Сканировать HTML</ui-button>
+          <ui-button @click="safeRun(queryBrowserSelector)">Проверить селектор</ui-button>
+          <ui-button @click="safeRun(suggestBrowserSelectors)">Предложить селекторы</ui-button>
+          <ui-button @click="safeRun(checkBrowserEngines)">Статус движка</ui-button>
+          <ui-button @click="safeRun(createBrowserProfile)">Создать профиль</ui-button>
+          <ui-button @click="safeRun(listBrowserProfiles)">Список профилей</ui-button>
         </div>
       </article>
     </section>
 
     <section class="vc-panel vc-output-panel">
       <div class="vc-panel-head">
-        <h2>Output</h2>
-        <ui-button @click="output = '{}'">Clear</ui-button>
+        <h2>Вывод</h2>
+        <ui-button @click="output = '{}'">Очистить</ui-button>
       </div>
       <pre>{{ output }}</pre>
     </section>
@@ -646,11 +646,11 @@ const BRIDGE_URL = 'http://127.0.0.1:8765';
 const router = useRouter();
 const workflowStore = useWorkflowStore();
 
-const bridgeLabel = ref('checking');
+const bridgeLabel = ref('проверка');
 const bridgeState = ref('muted');
-const mcpLabel = ref('checking');
+const mcpLabel = ref('проверка');
 const mcpState = ref('muted');
-const skillLabel = ref('checking');
+const skillLabel = ref('проверка');
 const skillState = ref('muted');
 const actions = ref([]);
 const mcpTools = ref([]);
@@ -693,16 +693,16 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Scan a page with Playwright, collect CSS selectors, capture HTTP recorder requests, manage a browser profile with cookies, wait and retry on failures, write files and paths, run an HTTP API request, build resource fields/schema, generate a designed UI app, use variables, JSON, lists, logic and loops, run Python and Node libraries, process tasks in parallel with multiprocessing worker plan, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, then build a small app.';
+const sampleComposerPrompt = 'Просканируй страницу через Playwright, собери CSS-селекторы, импортируй HTTP-запросы recorder, управляй браузерным профилем с cookies, добавь ожидания и повторы при ошибках, работай с файлами и путями, выполни HTTP API-запрос, собери поля/схему ресурсов, сгенерируй UI-приложение, используй переменные, JSON, списки, логику и циклы, запусти Python и Node библиотеки, обработай задачи параллельно через multiprocessing worker plan, собери Telegram bot service с polling, webhook HTTP receiver и Nginx, сгенерируй private VPN Marzban проект, затем собери маленькое приложение.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
 const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
-const browserHtml = ref('<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>');
+const browserHtml = ref('<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>');
 const utilityName = ref('silverback-coding-full-utility');
-const utilityPrompt = ref('Scan page with Playwright selectors, capture recorder requests, manage profiles and cookies, wait and retry, write files and paths, run an HTTP request, build resource fields/schema, generate a designed UI app, use variables, JSON, lists, logic and loops, run Python and Node libraries, build a Telegram bot service with polling, webhook HTTP receiver and Nginx, generate a private VPN Marzban project, process tasks in parallel with worker plan, then build an app.');
+const utilityPrompt = ref('Просканировать страницу Playwright-селекторами, импортировать recorder-запросы, управлять профилями и cookies, ждать и повторять действия, писать файлы и пути, выполнить HTTP-запрос, собрать поля/схему ресурсов, сгенерировать UI-приложение, использовать переменные, JSON, списки, логику и циклы, запускать Python и Node библиотеки, собрать Telegram bot service с polling, webhook HTTP receiver и Nginx, сгенерировать private VPN Marzban проект, обработать задачи параллельно через worker plan, затем собрать приложение.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -710,10 +710,10 @@ const resourceName = ref('api_url');
 const resourceType = ref('url');
 const resourceValue = ref('"https://example.com"');
 const resourceSchemaName = ref('startup-intake-fields');
-const resourceSchemaTitle = ref('Startup Intake Fields');
+const resourceSchemaTitle = ref('Поля заявки стартапа');
 const resourceFieldsJson = ref(`[
   {"name":"api_url","label":"API URL","type":"url","required":true,"default":"https://example.com/api"},
-  {"name":"token","label":"Token","type":"secret","required":false},
+  {"name":"token","label":"Токен","type":"secret","required":false},
   {"name":"workers","label":"Workers","type":"number","default":4,"min":1,"max":32},
   {"name":"mode","label":"Mode","type":"select","default":"startup","options":["startup","production"]},
   {"name":"brand_color","label":"Brand color","type":"color","default":"#7c3aed"}
@@ -803,13 +803,13 @@ const examples = {
   wait_http: { url: 'http://127.0.0.1:8765/health', status: 200, timeout: 5, interval: 0.25 },
   wait_selector: {
     browserEngine: 'chromium',
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button></main>',
     selector: 'button#run',
     state: 'visible',
   },
   wait_text: {
     browserEngine: 'chromium',
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button></main>',
     text: 'Silverback Coding Demo',
     state: 'visible',
   },
@@ -822,7 +822,7 @@ const examples = {
   },
   random_number: { min: 1, max: 9, integer: true },
   result_log: { level: 'info', message: 'Automa Studio checkpoint', data: { ok: true } },
-  result_message: { title: 'Silverback Coding', message: 'Workflow checkpoint', kind: 'info' },
+  result_message: { title: 'Silverback Coding', message: 'Контрольная точка workflow', kind: 'info' },
   python_install_packages: { packages: ['requests'], timeout: 180 },
   python_script_exec: {
     packages: [],
@@ -845,14 +845,14 @@ const examples = {
   telegram_send_message: {
     tokenResource: 'telegram_bot_token',
     chatId: '123456',
-    text: 'Hello from Silverback Coding',
+    text: 'Привет от Silverback Coding',
     dryRun: true,
   },
   telegram_bot_build: {
     runtime: 'python',
     name: 'silverback-telegram-bot',
     tokenResource: 'telegram_bot_token',
-    startText: 'Hello from Silverback Coding bot',
+    startText: 'Привет, это бот Silverback Coding',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
   bot_service_build: {
@@ -888,7 +888,7 @@ const examples = {
   browser_profile_create: {
     name: 'demo-browser-profile',
     browserEngine: 'chromium',
-    description: 'Persistent profile for cookies and user-data',
+    description: 'Постоянный профиль для cookies и пользовательских данных',
   },
   browser_profile_list: {},
   browser_profile_delete: { name: 'demo-browser-profile', force: true },
@@ -898,7 +898,7 @@ const examples = {
   browser_profile_copy: { source: 'demo-browser-profile', target: 'demo-browser-profile-copy', overwrite: true },
   browser_profile_set_metadata: {
     name: 'demo-browser-profile',
-    notes: 'Created from Automa Studio',
+    notes: 'Создано из Automa Studio',
     locale: 'en-US',
     timezoneId: 'UTC',
   },
@@ -908,14 +908,14 @@ const examples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   browser_query_selector: {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
@@ -923,7 +923,7 @@ const examples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
   },
@@ -946,7 +946,7 @@ const examples = {
   resource_delete: { name: 'api_url' },
   resource_schema_build: {
     name: 'startup-intake-fields',
-    title: 'Startup Intake Fields',
+    title: 'Поля заявки стартапа',
     fields: JSON.parse(resourceFieldsJson.value),
   },
   resource_schema_get: { name: 'startup-intake-fields' },
@@ -1017,7 +1017,7 @@ const mcpExamples = {
   'browser.profiles.create': {
     name: 'demo-browser-profile',
     browserEngine: 'chromium',
-    description: 'Persistent profile for cookies and user-data',
+    description: 'Постоянный профиль для cookies и пользовательских данных',
   },
   'browser.profiles.delete': { name: 'demo-browser-profile', force: true },
   'browser.profiles.lock': { name: 'demo-browser-profile', browserEngine: 'chromium', owner: 'studio', ttlSeconds: 300 },
@@ -1026,7 +1026,7 @@ const mcpExamples = {
   'browser.profiles.copy': { source: 'demo-browser-profile', target: 'demo-browser-profile-copy', overwrite: true },
   'browser.profiles.metadata': {
     name: 'demo-browser-profile',
-    notes: 'Created from Automa Studio',
+    notes: 'Создано из Automa Studio',
     locale: 'en-US',
     timezoneId: 'UTC',
   },
@@ -1036,14 +1036,14 @@ const mcpExamples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>',
     maxElements: 40,
   },
   'browser.query_selector': {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>',
     selector: 'button#run',
     limit: 10,
   },
@@ -1051,7 +1051,7 @@ const mcpExamples = {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
     autoCreateProfile: true,
-    html: '<main><h1>Silverback Coding Demo</h1><button id="run">Run</button><input name="email" placeholder="Email"></main>',
+    html: '<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>',
     hint: 'run',
     maxElements: 40,
   },
@@ -1070,7 +1070,7 @@ const mcpExamples = {
   'resources.delete': { name: 'api_url' },
   'resources.schema.build': {
     name: 'startup-intake-fields',
-    title: 'Startup Intake Fields',
+    title: 'Поля заявки стартапа',
     fields: JSON.parse(resourceFieldsJson.value),
   },
   'resources.schema.get': { name: 'startup-intake-fields' },
@@ -1160,14 +1160,14 @@ const mcpExamples = {
   'telegram.send_message': {
     tokenResource: 'telegram_bot_token',
     chatId: '123456',
-    text: 'Hello from Silverback Coding',
+    text: 'Привет от Silverback Coding',
     dryRun: true,
   },
   'telegram.build_bot': {
     runtime: 'python',
     name: 'silverback-telegram-bot',
     tokenResource: 'telegram_bot_token',
-    startText: 'Hello from Silverback Coding bot',
+    startText: 'Привет, это бот Silverback Coding',
     commandHandlers: [{ command: 'ping', response: 'pong' }],
   },
   'bots.service.build': {
@@ -1271,7 +1271,7 @@ async function refreshMcp() {
   try {
     const data = await getJson('/mcp/tools');
     mcpTools.value = data.tools;
-    mcpLabel.value = `${data.tools.length} tools`;
+    mcpLabel.value = `${data.tools.length} инструментов`;
     mcpState.value = 'ok';
   } catch (error) {
     mcpLabel.value = error.message;
@@ -1282,7 +1282,7 @@ async function refreshMcp() {
 async function refreshSkill() {
   try {
     const data = await callMcp('skill.status');
-    skillLabel.value = data.installed ? 'installed' : 'packaged only';
+    skillLabel.value = data.installed ? 'установлен' : 'только пакет';
     skillState.value = data.ok ? 'ok' : 'bad';
   } catch (error) {
     skillLabel.value = error.message;
@@ -1408,7 +1408,7 @@ async function runProfileToolkit() {
   const create = await callMcp('browser.profiles.create', {
     name: browserProfileName.value.trim() || 'demo-browser-profile',
     browserEngine: browserEngine.value,
-    description: 'Created from Article Block Toolkit',
+    description: 'Создано через Article Block Toolkit',
   });
   const metadata = await callMcp('browser.profiles.metadata', {
     name: browserProfileName.value.trim() || 'demo-browser-profile',
@@ -1420,7 +1420,7 @@ async function runProfileToolkit() {
     name: browserProfileName.value.trim() || 'demo-browser-profile',
     cookies: [],
   });
-  print('Profile Toolkit', { create, metadata, cookies });
+  print('Инструменты профиля', { create, metadata, cookies });
 }
 
 async function runRecorderToolkit() {
@@ -1615,14 +1615,14 @@ async function verifyBotServiceProject() {
 
 async function composeBotServiceWorkflow() {
   const data = await callMcp('workflow.compose_from_prompt', {
-    prompt: 'Build a Telegram bot service with polling for startup, webhook HTTP receiver for production, Nginx reverse proxy, generic POST /events receiver, Docker, systemd and logic routing.',
+    prompt: 'Собери Telegram bot service с polling для стартапа, webhook HTTP receiver для production, Nginx reverse proxy, универсальным POST /events receiver, Docker, systemd и маршрутизацией логики.',
   });
   print('Bot Service Workflow Composer', data);
 }
 
 async function composePrivateVpnWorkflow() {
   const data = await callMcp('workflow.compose_from_prompt', {
-    prompt: 'Generate a private VPN Marzban VLESS REALITY Telegram bot project like private-vpn-lab with SQLite, payments, webhooks, activation codes, Docker, systemd and ops verification.',
+    prompt: 'Сгенерируй private VPN Marzban VLESS REALITY Telegram bot project как private-vpn-lab с SQLite, платежами, webhooks, кодами активации, Docker, systemd и ops-проверкой.',
   });
   print('Private VPN Workflow Composer', data);
 }
@@ -1655,7 +1655,7 @@ async function buildTelegramBot() {
     runtime: telegramRuntime.value,
     name: telegramAppName.value,
     tokenResource: telegramTokenResource.value,
-    startText: 'Hello from Silverback Coding bot',
+    startText: 'Привет, это бот Silverback Coding',
     commandHandlers: JSON.parse(telegramHandlersJson.value || '[]'),
   });
   print('Telegram Bot Builder', data);
@@ -1665,7 +1665,7 @@ async function dryRunTelegramMessage() {
   const data = await callMcp('telegram.send_message', {
     tokenResource: telegramTokenResource.value,
     chatId: '123456',
-    text: 'Hello from Silverback Coding',
+    text: 'Привет от Silverback Coding',
     dryRun: true,
   });
   print('Telegram Message Dry Run', data);
@@ -1692,7 +1692,7 @@ async function composeWorkflow() {
     prompt: composerPrompt.value,
   });
   await saveWorkflowProject(data.result.workflow, {
-    label: 'AI Automa Project',
+    label: 'AI-проект Automa',
     source: data,
     openEditor: true,
   });
@@ -1753,7 +1753,7 @@ async function createBrowserProfile() {
   const data = await callMcp('browser.profiles.create', {
     name: browserProfileName.value.trim() || 'demo-browser-profile',
     browserEngine: browserEngine.value,
-    description: 'Created from Automa Silverback Coding Studio',
+    description: 'Создано в Automa Silverback Coding Studio',
   });
   print('Browser Profile Created', data);
 }
@@ -1792,7 +1792,7 @@ async function saveWorkflowProject(workflow, { label, source, openEditor = false
     edgeCount: inserted[workflowId]?.drawflow?.edges?.length ?? 0,
   };
 
-  print(label || 'Saved Automa Workflow Project', result);
+  print(label || 'Сохраненный Automa workflow project', result);
   if (openEditor && workflowId) {
     await router.push(editorRoute);
   }
@@ -1805,7 +1805,7 @@ async function buildUtilityArtifact() {
     prompt: utilityPrompt.value,
   });
   const inserted = await saveWorkflowToAutoma(data.result.workflow);
-  print('Saved Automa Workflow', {
+  print('Сохраненный Automa workflow', {
     ...data,
     insertedWorkflowIds: Object.keys(inserted),
     editorRoute: `/workflows/${Object.keys(inserted)[0]}`,
@@ -1818,7 +1818,7 @@ async function buildUtilityWorkflow() {
     prompt: utilityPrompt.value,
   });
   await saveWorkflowProject(data.result.workflow, {
-    label: 'Saved Automa Workflow Project',
+    label: 'Сохраненный Automa workflow project',
     source: data,
     openEditor: true,
   });
@@ -1830,7 +1830,7 @@ async function buildHttpWorkflow() {
     requests: JSON.parse(httpRequestsJson.value),
   });
   await saveWorkflowProject(data.result.workflow, {
-    label: 'Saved HTTP Workflow Project',
+    label: 'Сохраненный HTTP workflow project',
     source: data,
     openEditor: true,
   });
@@ -1859,7 +1859,7 @@ async function safeRun(task) {
   try {
     await task();
   } catch (error) {
-    print('Error', error.data || { ok: false, error: error.message });
+    print('Ошибка', error.data || { ok: false, error: error.message });
   }
 }
 

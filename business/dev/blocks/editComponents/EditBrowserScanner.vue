@@ -2,30 +2,30 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
-      <option value="scan">scan page</option>
-      <option value="query">query selector</option>
-      <option value="suggest">suggest selectors</option>
+      <option value="scan">скан страницы</option>
+      <option value="query">проверка селектора</option>
+      <option value="suggest">подбор селекторов</option>
     </ui-select>
     <ui-select
       :model-value="data.browserEngine || 'chromium'"
-      label="Browser engine"
+      label="Движок браузера"
       class="w-full"
       @change="updateData({ browserEngine: $event })"
     >
@@ -36,7 +36,7 @@
     </ui-select>
     <ui-input
       :model-value="data.profileName"
-      label="Browser profile"
+      label="Профиль браузера"
       class="w-full"
       placeholder="account-01"
       @change="updateData({ profileName: $event })"
@@ -45,17 +45,17 @@
       :model-value="data.autoCreateProfile !== false"
       @change="updateData({ autoCreateProfile: $event })"
     >
-      Auto-create profile
+      Автоматически создавать профиль
     </ui-checkbox>
     <ui-checkbox
       :model-value="data.headless !== false"
       @change="updateData({ headless: $event })"
     >
-      Headless browser
+      Headless-браузер
     </ui-checkbox>
     <ui-select
       :model-value="data.source"
-      label="Source"
+      label="Источник"
       class="w-full"
       @change="updateData({ source: $event })"
     >
@@ -82,20 +82,20 @@
     <ui-input
       v-if="data.mode === 'query'"
       :model-value="data.selector"
-      label="CSS / XPath selector"
+      label="CSS / XPath селектор"
       class="w-full"
       @change="updateData({ selector: $event })"
     />
     <ui-input
       v-if="data.mode === 'suggest'"
       :model-value="data.hint"
-      label="Selector hint"
+      label="Подсказка селектора"
       class="w-full"
       @change="updateData({ hint: $event })"
     />
     <ui-input
       :model-value="data.maxElements"
-      label="Max elements"
+      label="Максимум элементов"
       class="w-full"
       type="number"
       @change="updateData({ maxElements: Number($event) })"
@@ -104,11 +104,11 @@
       :model-value="data.captureNetwork"
       @change="updateData({ captureNetwork: $event })"
     >
-      Capture network events
+      Захватывать сетевые события
     </ui-checkbox>
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -116,12 +116,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

@@ -9,20 +9,20 @@
     />
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-select
       :model-value="data.mode"
-      label="Mode"
+      label="Режим"
       class="w-full"
       @change="updateData({ mode: $event })"
     >
@@ -35,13 +35,13 @@
     <ui-input
       v-if="data.mode !== 'list'"
       :model-value="data.variableStoreName"
-      label="Variable store name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableStoreName: $event })"
     />
     <ui-input
       :model-value="data.variableScope"
-      label="Scope"
+      label="Область"
       class="w-full"
       placeholder="project or workflow"
       @change="updateData({ variableScope: $event })"
@@ -49,7 +49,7 @@
     <template v-if="data.mode === 'set'">
       <ui-select
         :model-value="data.variableType"
-        label="Type"
+        label="Тип"
         class="w-full"
         @change="updateData({ variableType: $event })"
       >
@@ -63,11 +63,11 @@
       </ui-select>
       <ui-input
         :model-value="data.variableDescription"
-        label="Variable description"
+        label="Описание переменной"
         class="w-full"
         @change="updateData({ variableDescription: $event })"
       />
-      <label class="input-label">Value JSON</label>
+      <label class="input-label">JSON значения</label>
       <ui-textarea
         :model-value="data.valueJson"
         class="w-full font-mono"
@@ -79,14 +79,14 @@
     <ui-input
       v-if="data.mode === 'increment'"
       :model-value="data.delta"
-      label="Delta"
+      label="Дельта"
       class="w-full"
       type="number"
       @change="updateData({ delta: Number($event) })"
     />
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       @change="updateData({ returnPath: $event })"
     />
@@ -94,12 +94,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Automa variable name"
+      label="Имя переменной Automa"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />

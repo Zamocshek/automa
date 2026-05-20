@@ -2,25 +2,25 @@
   <div class="space-y-2">
     <ui-textarea
       :model-value="data.description"
-      placeholder="Description"
+      placeholder="Описание"
       class="w-full"
       @change="updateData({ description: $event })"
     />
     <ui-input
       :model-value="data.bridgeUrl"
-      label="Bridge URL"
+      label="URL моста"
       class="w-full"
       placeholder="http://127.0.0.1:8765/run"
       @change="updateData({ bridgeUrl: $event })"
     />
     <ui-input
       :model-value="data.action"
-      label="Action"
+      label="Действие"
       class="w-full"
       placeholder="echo, uppercase, python_exec, json_get"
       @change="updateData({ action: $event })"
     />
-    <label class="input-label">Payload JSON</label>
+    <label class="input-label">JSON-параметры</label>
     <ui-textarea
       :model-value="data.payload"
       class="w-full font-mono"
@@ -30,14 +30,14 @@
     />
     <ui-input
       :model-value="data.returnPath"
-      label="Return path"
+      label="Путь результата"
       class="w-full"
       placeholder="result"
       @change="updateData({ returnPath: $event })"
     />
     <ui-input
       :model-value="data.timeout"
-      label="Timeout ms"
+      label="Таймаут, мс"
       class="w-full"
       type="number"
       @change="updateData({ timeout: Number($event) })"
@@ -46,12 +46,12 @@
       :model-value="data.assignVariable"
       @change="updateData({ assignVariable: $event })"
     >
-      Assign result to variable
+      Записать результат в переменную
     </ui-checkbox>
     <ui-input
       v-if="data.assignVariable"
       :model-value="data.variableName"
-      label="Variable name"
+      label="Имя переменной"
       class="w-full"
       @change="updateData({ variableName: $event })"
     />
@@ -59,12 +59,12 @@
       :model-value="data.saveData"
       @change="updateData({ saveData: $event })"
     >
-      Save result to data column
+      Сохранить результат в колонку данных
     </ui-checkbox>
     <ui-input
       v-if="data.saveData"
       :model-value="data.dataColumn"
-      label="Data column"
+      label="Колонка данных"
       class="w-full"
       @change="updateData({ dataColumn: $event })"
     />

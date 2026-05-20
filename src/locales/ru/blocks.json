@@ -1,40 +1,79 @@
 {
+  "collection": {
+    "blocks": {
+      "export-result": {
+        "name": "Экспорт результата",
+        "description": "Экспортировать результат коллекции в JSON"
+      }
+    }
+  },
   "workflow": {
-    "categories": {
-      "pinned": "Закрепленные блоки",
-      "interaction": "Веб-взаимодействие",
-      "browser": "Браузер",
-      "general": "Общее",
-      "onlineServices": "Онлайн-сервисы",
-      "data": "Данные",
-      "conditions": "Логика и поток",
-      "package": "Пакеты"
-    },
     "blocks": {
       "base": {
         "title": "Блоки",
+        "moveToGroup": "Переместить блок в группу",
         "selector": "Селектор элемента",
+        "selectorOptions": "Опции селектора",
         "timeout": "Таймаут (мс)",
+        "noPermission": "У Automa недостаточно разрешений для этого действия",
+        "grantPermission": "Выдать разрешение",
         "action": "Действие",
+        "element": {
+          "select": "Выбрать элемент",
+          "verify": "Проверить селектор"
+        },
+        "settings": {
+          "title": "Настройки блока",
+          "blockTimeout": {
+            "title": "Таймаут выполнения блока (мс)",
+            "description": "Максимальное время выполнения блока, 0 отключает таймаут"
+          },
+          "line": {
+            "title": "Линии",
+            "label": "Метка",
+            "animated": "Анимированная",
+            "select": "Выбрать линию",
+            "to": "Линия к блоку {name}",
+            "lineColor": "Цвет"
+          }
+        },
         "toggle": {
           "enable": "Включить блок",
           "disable": "Отключить блок"
         },
         "onError": {
+          "info": "Эти правила применяются, когда в блоке возникает ошибка",
           "button": "При ошибке",
           "title": "Если блок завершился ошибкой",
           "retry": "Повторить действие",
           "fallbackTitle": "Выполняется, если блок завершился ошибкой",
+          "times": {
+            "name": "Попытки",
+            "description": "Сколько раз повторить действие"
+          },
+          "interval": {
+            "name": "Интервал",
+            "description": "Пауза между попытками",
+            "second": "секунда"
+          },
           "toDo": {
             "error": "Выдать ошибку",
             "continue": "Продолжить поток",
             "fallback": "Выполнить запасной выход",
             "restart": "Перезапустить поток"
+          },
+          "insertData": {
+            "name": "Вставить данные"
           }
         },
         "table": {
           "checkbox": "Записать в таблицу",
-          "select": "Выберите колонку"
+          "select": "Выберите колонку",
+          "extraRow": {
+            "checkbox": "Добавить дополнительную строку",
+            "placeholder": "Значение",
+            "title": "Значение дополнительной строки"
+          }
         },
         "findElement": {
           "placeholder": "Найти элемент по",
@@ -44,263 +83,28 @@
           }
         },
         "markElement": {
+          "title": "Элемент не будет выбран повторно, если он уже был выбран раньше",
           "text": "Пометить элемент"
         },
         "multiple": {
+          "title": "Выбрать несколько элементов",
           "text": "Несколько элементов"
         },
         "waitSelector": {
           "title": "Ждать селектор",
           "timeout": "Таймаут селектора (мс)"
+        },
+        "downloads": {
+          "onConflict": {
+            "uniquify": "Сделать уникальным",
+            "overwrite": "Перезаписать",
+            "prompt": "Спросить"
+          }
         }
       },
-      "trigger": {
-        "name": "Триггер",
-        "description": "Стартовый блок workflow"
-      },
       "ai-workflow": {
-        "name": "AI Workflow",
+        "name": "AI workflow",
         "description": "Workflow, созданный AI"
-      },
-      "execute-workflow": {
-        "name": "Выполнить workflow",
-        "description": "Запустить другой workflow как функцию"
-      },
-      "active-tab": {
-        "name": "Активная вкладка",
-        "description": "Сделать текущую вкладку активной"
-      },
-      "new-tab": {
-        "name": "Новая вкладка",
-        "description": "Открыть новую вкладку"
-      },
-      "switch-tab": {
-        "name": "Переключить вкладку",
-        "description": "Перейти на другую вкладку"
-      },
-      "new-window": {
-        "name": "Новое окно",
-        "description": "Открыть новое окно браузера"
-      },
-      "proxy": {
-        "name": "Прокси",
-        "description": "Установить прокси браузера"
-      },
-      "go-back": {
-        "name": "Назад",
-        "description": "Вернуться на предыдущую страницу"
-      },
-      "forward-page": {
-        "name": "Вперед",
-        "description": "Перейти на следующую страницу"
-      },
-      "close-tab": {
-        "name": "Закрыть вкладку/окно",
-        "description": "Закрыть вкладку или окно"
-      },
-      "reload-tab": {
-        "name": "Обновить вкладку",
-        "description": "Перезагрузить активную вкладку"
-      },
-      "take-screenshot": {
-        "name": "Скриншот",
-        "description": "Сделать скриншот активной вкладки"
-      },
-      "browser-event": {
-        "name": "Событие браузера",
-        "description": "Ждать событие браузера"
-      },
-      "event-click": {
-        "name": "Клик по элементу",
-        "description": "Найти элемент и кликнуть по нему"
-      },
-      "delay": {
-        "name": "Задержка",
-        "description": "Подождать перед следующим блоком"
-      },
-      "get-text": {
-        "name": "Получить текст",
-        "description": "Получить текст элемента"
-      },
-      "export-data": {
-        "name": "Экспорт данных",
-        "description": "Экспортировать данные workflow"
-      },
-      "element-scroll": {
-        "name": "Прокрутка элемента",
-        "description": "Прокрутить элемент или страницу"
-      },
-      "link": {
-        "name": "Ссылка",
-        "description": "Открыть ссылку из элемента"
-      },
-      "attribute-value": {
-        "name": "Атрибут элемента",
-        "description": "Получить или установить атрибут элемента"
-      },
-      "forms": {
-        "name": "Формы",
-        "description": "Работа с input, select, checkbox и radio"
-      },
-      "repeat-task": {
-        "name": "Повторить задачу",
-        "description": "Повторить блоки заданное число раз"
-      },
-      "javascript-code": {
-        "name": "JavaScript-код",
-        "description": "Выполнить JavaScript на странице или в фоне"
-      },
-      "trigger-event": {
-        "name": "Вызвать событие",
-        "description": "Сгенерировать DOM-событие"
-      },
-      "conditions": {
-        "name": "Условия",
-        "description": "Логическая развилка"
-      },
-      "element-exists": {
-        "name": "Элемент существует",
-        "description": "Проверить наличие элемента"
-      },
-      "webhook": {
-        "name": "HTTP-запрос",
-        "description": "Выполнить HTTP-запрос"
-      },
-      "while-loop": {
-        "name": "Цикл while",
-        "description": "Выполнять блоки, пока условие истинно"
-      },
-      "loop-data": {
-        "name": "Цикл по данным",
-        "description": "Итерироваться по таблице, переменной или своим данным"
-      },
-      "loop-elements": {
-        "name": "Цикл по элементам",
-        "description": "Итерироваться по найденным элементам"
-      },
-      "loop-breakpoint": {
-        "name": "Точка выхода из цикла",
-        "description": "Место, где цикл должен остановиться"
-      },
-      "insert-data": {
-        "name": "Вставить данные",
-        "description": "Записать данные в таблицу или переменную"
-      },
-      "delete-data": {
-        "name": "Удалить данные",
-        "description": "Удалить данные таблицы или переменной"
-      },
-      "data-mapping": {
-        "name": "Маппинг данных",
-        "description": "Преобразовать данные таблицы или переменной"
-      },
-      "sort-data": {
-        "name": "Сортировка данных",
-        "description": "Отсортировать данные"
-      },
-      "slice-variable": {
-        "name": "Срез переменной",
-        "description": "Вырезать часть значения переменной"
-      },
-      "increase-variable": {
-        "name": "Увеличить переменную",
-        "description": "Увеличить числовую переменную"
-      },
-      "regex-variable": {
-        "name": "RegEx переменной",
-        "description": "Проверить или заменить значение по регулярному выражению"
-      },
-      "workflow-state": {
-        "name": "Состояние workflow",
-        "description": "Управлять состоянием workflow"
-      },
-      "notification": {
-        "name": "Уведомление",
-        "description": "Показать уведомление"
-      },
-      "log-data": {
-        "name": "Получить лог",
-        "description": "Получить последний лог workflow"
-      },
-      "wait-connections": {
-        "name": "Ждать соединения",
-        "description": "Ждать все входящие соединения перед продолжением"
-      },
-      "blocks-group": {
-        "name": "Группа блоков",
-        "description": "Сгруппировать блоки"
-      },
-      "blocks-group-2": {
-        "name": "Группа блоков 2",
-        "description": "Сгруппировать блоки"
-      },
-      "clipboard": {
-        "name": "Буфер обмена",
-        "description": "Прочитать или записать текст в буфер обмена"
-      },
-      "cookie": {
-        "name": "Cookie",
-        "description": "Получить, установить или удалить cookie"
-      },
-      "handle-download": {
-        "name": "Обработать загрузку",
-        "description": "Обработать скачанный файл"
-      },
-      "upload-file": {
-        "name": "Загрузить файл",
-        "description": "Загрузить файл через input[type=file]"
-      },
-      "save-assets": {
-        "name": "Сохранить ассеты",
-        "description": "Сохранить изображение, видео, аудио или файл"
-      },
-      "create-element": {
-        "name": "Создать элемент",
-        "description": "Создать и вставить HTML-элемент"
-      },
-      "hover-element": {
-        "name": "Навести на элемент",
-        "description": "Навести курсор на элемент"
-      },
-      "press-key": {
-        "name": "Нажать клавишу",
-        "description": "Нажать клавишу или комбинацию"
-      },
-      "handle-dialog": {
-        "name": "Обработать диалог",
-        "description": "Принять или закрыть alert, confirm, prompt"
-      },
-      "tab-url": {
-        "name": "URL вкладки",
-        "description": "Получить URL вкладки"
-      },
-      "switch-to": {
-        "name": "Переключить фрейм",
-        "description": "Переключиться между страницей и iframe"
-      },
-      "parameter-prompt": {
-        "name": "Параметры запуска",
-        "description": "Запросить параметры перед запуском"
-      },
-      "google-sheets": {
-        "name": "Google Sheets",
-        "description": "Читать или обновлять Google Sheets"
-      },
-      "google-sheets-drive": {
-        "name": "Google Sheets (Drive)",
-        "description": "Читать Google Sheets через Drive"
-      },
-      "google-drive": {
-        "name": "Google Drive",
-        "description": "Загрузить файлы в Google Drive"
-      },
-      "block-package": {
-        "name": "Пакет блоков",
-        "description": "Пакет блоков"
-      },
-      "note": {
-        "name": "Заметка",
-        "description": "Текстовая заметка на холсте"
       },
       "python-bridge": {
         "name": "Python-мост",
@@ -355,12 +159,12 @@
         "description": "Генерация диапазонов и списков для циклов Automa"
       },
       "bas-for-loop": {
-        "name": "\u0426\u0438\u043a\u043b For (BAS)",
-        "description": "\u0421\u043e\u0431\u0440\u0430\u0442\u044c \u0441\u0442\u0440\u043e\u043a\u0438 For-\u0446\u0438\u043a\u043b\u0430 \u0441 \u0438\u043d\u0434\u0435\u043a\u0441\u043d\u043e\u0439 \u043f\u0435\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0439"
+        "name": "Цикл For (BAS)",
+        "description": "Собрать строки For-цикла с индексной переменной"
       },
       "bas-foreach-loop": {
-        "name": "\u0426\u0438\u043a\u043b For Each (BAS)",
-        "description": "\u0421\u043e\u0431\u0440\u0430\u0442\u044c Foreach-\u0441\u0442\u0440\u043e\u043a\u0438 \u0438\u0437 \u043c\u0430\u0441\u0441\u0438\u0432\u0430"
+        "name": "Цикл For Each (BAS)",
+        "description": "Собрать Foreach-строки из массива"
       },
       "file-path-tools": {
         "name": "Файлы / Пути",
@@ -393,7 +197,728 @@
       "telegram-bot-builder": {
         "name": "Telegram-бот",
         "description": "Сгенерировать Python или Node Telegram-бота"
+      },
+      "wait-connections": {
+        "name": "Ждать соединения",
+        "description": "Ждать все входящие соединения перед продолжением",
+        "specificFlow": "Продолжать только конкретный поток",
+        "selectFlow": "Выбрать поток"
+      },
+      "cookie": {
+        "name": "Cookie",
+        "description": "Получить, установить или удалить cookie",
+        "types": {
+          "get": "Получить cookies",
+          "set": "Установить cookie",
+          "remove": "Удалить cookies",
+          "getAll": "Получить все cookies"
+        },
+        "useJson": "Использовать JSON-формат"
+      },
+      "note": {
+        "name": "Заметка",
+        "description": "Текстовая заметка на холсте"
+      },
+      "slice-variable": {
+        "name": "Срез переменной",
+        "description": "Вырезать часть значения переменной",
+        "start": "Начальный индекс",
+        "end": "Конечный индекс"
+      },
+      "workflow-state": {
+        "name": "Состояние workflow",
+        "description": "Управлять состоянием workflow",
+        "actions": {
+          "stop": "Остановить workflow"
+        },
+        "error": {
+          "throwError": "Выдать ошибку",
+          "message": "Текст ошибки"
+        }
+      },
+      "regex-variable": {
+        "name": "RegEx переменной",
+        "description": "Проверить или заменить значение по регулярному выражению"
+      },
+      "data-mapping": {
+        "source": "Источник",
+        "destination": "Назначение",
+        "name": "Маппинг данных",
+        "edit": "Редактировать карту данных",
+        "dataSource": "Источник данных",
+        "description": "Преобразовать данные таблицы или переменной",
+        "addSource": "Добавить источник",
+        "addDestination": "Добавить назначение"
+      },
+      "sort-data": {
+        "name": "Сортировка данных",
+        "description": "Отсортировать данные",
+        "property": "Сортировать по свойству элемента",
+        "addProperty": "Добавить свойство"
+      },
+      "increase-variable": {
+        "name": "Увеличить переменную",
+        "description": "Увеличить числовую переменную",
+        "increase": "Увеличить на"
+      },
+      "notification": {
+        "name": "Уведомление",
+        "description": "Показать уведомление",
+        "title": "Заголовок",
+        "message": "Сообщение",
+        "imageUrl": "URL изображения (необязательно)",
+        "iconUrl": "URL иконки (необязательно)"
+      },
+      "delete-data": {
+        "name": "Удалить данные",
+        "description": "Удалить данные таблицы или переменной",
+        "from": "Данные из",
+        "allColumns": "[Все колонки]"
+      },
+      "log-data": {
+        "name": "Получить лог",
+        "description": "Получить последний лог workflow",
+        "data": "Данные для лога"
+      },
+      "tab-url": {
+        "name": "URL вкладки",
+        "description": "Получить URL вкладки",
+        "select": "Выбрать вкладку",
+        "types": {
+          "active-tab": "Активная вкладка",
+          "all": "Все вкладки"
+        },
+        "query": {
+          "title": "Запрос",
+          "matchPatterns": "@:workflow.blocks.switch-tab.matchPattern (необязательно)",
+          "tabTitle": "Заголовок вкладки (необязательно)"
+        }
+      },
+      "reload-tab": {
+        "name": "Обновить вкладку",
+        "description": "Перезагрузить активную вкладку"
+      },
+      "press-key": {
+        "name": "Нажать клавишу",
+        "description": "Нажать клавишу или комбинацию",
+        "target": "Целевой элемент (необязательно)",
+        "key": "Key",
+        "detect": "Определить клавишу",
+        "actions": {
+          "press-key": "Нажать клавишу",
+          "multiple-keys": "Нажать несколько клавиш"
+        },
+        "press-time": "Время нажатия (мс)"
+      },
+      "save-assets": {
+        "name": "Сохранить ассеты",
+        "description": "Сохранить изображение, видео, аудио или файл",
+        "filename": "Имя файла (необязательно)",
+        "saveDownloadIds": "Сохранить ID загрузок",
+        "contentTypes": {
+          "title": "Тип",
+          "element": "Медиаэлемент (изображение, аудио или видео)",
+          "url": "URL"
+        }
+      },
+      "handle-dialog": {
+        "name": "Обработать диалог",
+        "description": "Принять или закрыть alert, confirm, prompt",
+        "accept": "Принять диалог",
+        "promptText": {
+          "label": "Текст prompt (необязательно)",
+          "description": "Текст, который будет введен в prompt перед подтверждением"
+        }
+      },
+      "handle-download": {
+        "name": "Обработать загрузку",
+        "description": "Обработать скачанный файл",
+        "timeout": "Таймаут (мс)",
+        "noPermission": "Нет разрешения на доступ к загрузкам",
+        "onConflict": "При конфликте",
+        "waitFile": "Ждать завершения загрузки файла",
+        "downloadId": "ID загрузки файла (необязательно)",
+        "filePath": "Путь к файлу"
+      },
+      "insert-data": {
+        "name": "Вставить данные",
+        "description": "Записать данные в таблицу или переменную"
+      },
+      "clipboard": {
+        "name": "Буфер обмена",
+        "description": "Прочитать или записать текст в буфер обмена",
+        "data": "Данные буфера обмена",
+        "noPermission": "Нет разрешения на доступ к буферу обмена",
+        "grantPermission": "Выдать разрешение",
+        "copySelection": "Копировать выделенный текст со страницы",
+        "types": {
+          "get": "Получить данные буфера обмена",
+          "insert": "Вставить текст в буфер обмена"
+        }
+      },
+      "hover-element": {
+        "name": "Навести на элемент",
+        "description": "Навести курсор на элемент"
+      },
+      "create-element": {
+        "name": "Создать элемент",
+        "description": "Создать и вставить HTML-элемент",
+        "edit": "Редактировать элемент",
+        "wrap": "Обернуть элемент внутрь",
+        "insertEl": {
+          "title": "Вставить элемент",
+          "items": {
+            "before": "Как первый дочерний элемент",
+            "after": "Как последний дочерний элемент",
+            "next-sibling": "Как следующий соседний элемент",
+            "prev-sibling": "Как предыдущий соседний элемент",
+            "replace": "Заменить целевой элемент"
+          }
+        }
+      },
+      "upload-file": {
+        "name": "Загрузить файл",
+        "description": "Загрузить файл через input[type=file]",
+        "filePath": "URL или путь к файлу",
+        "addFile": "Добавить файл",
+        "onlyURL": "В Firefox поддерживается загрузка файлов только по URL",
+        "requirement": "Перед использованием блока прочитайте требования",
+        "noFileAccess": "У Automa нет доступа к файлам"
+      },
+      "browser-event": {
+        "name": "Событие браузера",
+        "description": "Ждать событие браузера",
+        "events": "События",
+        "timeout": "Таймаут (мс)",
+        "activeTabLoaded": "Активная вкладка",
+        "setAsActiveTab": "Сделать активной вкладкой"
+      },
+      "blocks-group-2": {
+        "name": "Группа блоков 2",
+        "description": "Сгруппировать блоки"
+      },
+      "blocks-group": {
+        "name": "Группа блоков",
+        "groupName": "Имя группы",
+        "description": "Сгруппировать блоки",
+        "dropText": "Перетащите блок сюда",
+        "cantAdd": "Нельзя добавить блок \"{blockName}\" в группу"
+      },
+      "trigger": {
+        "name": "Триггер",
+        "description": "Стартовый блок workflow",
+        "addTime": "Добавить время",
+        "selectDay": "Выберите день",
+        "timeExist": "Триггер уже добавлен на {time} в {day}",
+        "fixedDelay": "Фиксированная задержка",
+        "contextMenus": {
+          "noPermission": "Для этого триггера нужно разрешение \"contextMenus\"",
+          "grantPermission": "Выдать разрешение",
+          "appearIn": "Появится в",
+          "contextName": "Имя workflow в контекстном меню"
+        },
+        "days": [
+          "Воскресенье",
+          "Понедельник",
+          "Вторник",
+          "Среда",
+          "Четверг",
+          "Пятница",
+          "Суббота"
+        ],
+        "useRegex": "Использовать regex",
+        "shortcut": {
+          "tooltip": "Записать горячую клавишу",
+          "stopRecord": "Остановить запись",
+          "checkboxTitle": "Запускать shortcut даже внутри поля ввода",
+          "checkbox": "Активно внутри input",
+          "note": "Примечание: горячая клавиша работает только на веб-странице"
+        },
+        "forms": {
+          "triggerWorkflow": "Запустить workflow",
+          "interval": "Интервал (минуты)",
+          "delay": "Задержка (минуты)",
+          "date": "Дата",
+          "time": "Время",
+          "url": "URL или Regex",
+          "shortcut": "Горячая клавиша",
+          "cron-expression": "Cron-выражение"
+        },
+        "element-change": {
+          "target": "Целевой элемент для наблюдения",
+          "optionsInfo": "Какая мутация элемента запустит workflow",
+          "targetWebsite": "Match Pattern сайта, где находится целевой элемент",
+          "baseEl": {
+            "title": "Базовый элемент (необязательно)",
+            "description": "Automa перезапустит наблюдение за целевым элементом при изменении этого элемента"
+          },
+          "subtree": {
+            "title": "Включить поддерево",
+            "description": "Расширить наблюдение на все поддерево целевого элемента"
+          },
+          "childList": {
+            "title": "Дочерние элементы",
+            "description": "Следить за добавлением и удалением дочерних элементов"
+          },
+          "attributes": {
+            "title": "Атрибуты",
+            "description": "Следить за изменением значений атрибутов целевого элемента"
+          },
+          "attributeFilter": {
+            "title": "Фильтр атрибутов",
+            "separate": "Разделяйте имена атрибутов запятыми (,)",
+            "description": "Следить только за выбранными атрибутами; пустое поле означает все атрибуты"
+          },
+          "characterData": {
+            "title": "Текстовые данные",
+            "description": "Следить за изменением текста внутри целевого элемента"
+          }
+        },
+        "items": {
+          "manual": "Вручную",
+          "interval": "Интервал",
+          "cron-job": "Cron-задача",
+          "date": "В конкретную дату",
+          "context-menu": "Контекстное меню",
+          "element-change": "При изменении элемента",
+          "specific-day": "В конкретный день",
+          "visit-web": "При посещении сайта",
+          "on-startup": "При запуске браузера",
+          "keyboard-shortcut": "Горячая клавиша"
+        }
+      },
+      "execute-workflow": {
+        "name": "Выполнить workflow",
+        "overwriteNote": "Это перезапишет globalData выбранного workflow",
+        "select": "Выбрать workflow",
+        "executeId": "ID запуска (необязательно)",
+        "description": "Запустить другой workflow как функцию",
+        "insertAllVars": "Использовать все переменные текущего workflow",
+        "insertVars": "Передать переменные текущего workflow",
+        "useCommas": "Разделяйте имена переменных запятыми",
+        "insertAllGlobalData": "Использовать все globalData текущего workflow"
+      },
+      "google-sheets-drive": {
+        "name": "Google Sheets (Drive)",
+        "description": "Читать Google Sheets через Drive",
+        "connected": "Подключенные таблицы",
+        "select": "Выбрать таблицу",
+        "connect": "Подключить таблицу"
+      },
+      "google-drive": {
+        "name": "Google Drive",
+        "description": "Загрузить файлы в Google Drive",
+        "actions": {
+          "upload": "Загрузить файлы"
+        }
+      },
+      "google-sheets": {
+        "name": "Google Sheets",
+        "description": "Читать или обновлять Google Sheets",
+        "previewData": "Предпросмотр данных",
+        "firstRow": "Использовать первую строку как ключи",
+        "keysAsFirstRow": "Использовать ключи как первую строку",
+        "insertData": "Вставить данные",
+        "valueInputOption": "Режим ввода значений",
+        "insertDataOption": "Режим вставки данных",
+        "rangeToSearch": "Диапазон начала поиска",
+        "dataFrom": {
+          "label": "Данные из",
+          "options": {
+            "data-columns": "Таблица",
+            "custom": "Вручную"
+          }
+        },
+        "refKey": {
+          "label": "Ключ ссылки (необязательно)",
+          "placeholder": "Имя ключа"
+        },
+        "spreadsheetId": {
+          "label": "ID таблицы",
+          "link": "Как получить ID таблицы",
+          "required": "ID таблицы обязателен"
+        },
+        "range": {
+          "label": "Диапазон",
+          "link": "Показать больше примеров",
+          "required": "Диапазон обязателен"
+        },
+        "select": {
+          "get": "Получить значения ячеек таблицы",
+          "getRange": "Получить диапазон таблицы",
+          "update": "Обновить значения ячеек таблицы",
+          "append": "Добавить значения ячеек таблицы",
+          "clear": "Очистить значения ячеек таблицы",
+          "create": "Создать таблицу",
+          "add-sheet": "Добавить лист"
+        }
+      },
+      "active-tab": {
+        "name": "Активная вкладка",
+        "description": "Сделать текущую вкладку активной"
+      },
+      "proxy": {
+        "name": "Прокси",
+        "description": "Установить прокси браузера",
+        "clear": "Очистить все прокси",
+        "bypass": {
+          "label": "Список исключений",
+          "note": "Разделяйте URL запятыми (,)"
+        }
+      },
+      "new-window": {
+        "name": "Новое окно",
+        "description": "Открыть новое окно браузера",
+        "top": "Top",
+        "left": "Слева",
+        "height": "Высота",
+        "width": "Ширина",
+        "note": "Примечание: 0 отключает параметр",
+        "position": "Позиция окна",
+        "size": "Размер окна",
+        "windowState": {
+          "placeholder": "Состояние окна",
+          "options": {
+            "normal": "Обычное",
+            "minimized": "Свернутое",
+            "maximized": "Развернутое",
+            "fullscreen": "Полный экран"
+          }
+        },
+        "incognito": {
+          "text": "Открыть как окно инкогнито",
+          "note": "Сначала включите \"Разрешить в инкогнито\" для этого расширения"
+        }
+      },
+      "go-back": {
+        "name": "Назад",
+        "description": "Вернуться на предыдущую страницу"
+      },
+      "forward-page": {
+        "name": "Вперед",
+        "description": "Перейти на следующую страницу"
+      },
+      "close-tab": {
+        "name": "Закрыть вкладку/окно",
+        "description": "Закрыть вкладку или окно",
+        "url": "Match Patterns",
+        "activeTab": "Закрыть активную вкладку",
+        "allWindows": "Закрыть все окна"
+      },
+      "event-click": {
+        "name": "Клик по элементу",
+        "description": "Найти элемент и кликнуть по нему"
+      },
+      "delay": {
+        "name": "Задержка",
+        "description": "Подождать перед следующим блоком",
+        "input": {
+          "title": "Задержка в миллисекундах",
+          "placeholder": "(миллисекунды)"
+        }
+      },
+      "parameter-prompt": {
+        "name": "Параметры запуска",
+        "description": "Запросить параметры перед запуском"
+      },
+      "get-text": {
+        "name": "Получить текст",
+        "description": "Получить текст элемента",
+        "checkbox": "Вставить в таблицу",
+        "includeTags": "Включить HTML-теги",
+        "prefixText": {
+          "placeholder": "Префикс текста",
+          "title": "Добавить префикс к тексту"
+        },
+        "suffixText": {
+          "placeholder": "Суффикс текста",
+          "title": "Добавить суффикс к тексту"
+        }
+      },
+      "export-data": {
+        "name": "Экспорт данных",
+        "description": "Экспортировать данные workflow",
+        "exportAs": "Экспортировать как",
+        "refKey": "Ключ ссылки",
+        "bomHeader": "Add UTF-8 BOM",
+        "dataToExport": {
+          "placeholder": "Данные для экспорта",
+          "options": {
+            "data-columns": "Таблица",
+            "google-sheets": "Google Sheets",
+            "variable": "Переменная"
+          }
+        }
+      },
+      "element-scroll": {
+        "name": "Прокрутка элемента",
+        "description": "Прокрутить элемент или страницу",
+        "scrollY": "Вертикальная прокрутка",
+        "scrollX": "Горизонтальная прокрутка",
+        "intoView": "Прокрутить к элементу",
+        "smooth": "Плавная прокрутка",
+        "incScrollX": "Увеличить горизонтальную прокрутку",
+        "incScrollY": "Увеличить вертикальную прокрутку"
+      },
+      "switch-tab": {
+        "name": "Переключить вкладку",
+        "description": "Перейти на другую вкладку",
+        "matchPattern": "Match Patterns",
+        "url": "New tab URL",
+        "createIfNoMatch": "Создать, если совпадений нет"
+      },
+      "new-tab": {
+        "name": "Новая вкладка",
+        "description": "Открыть новую вкладку",
+        "url": "New tab URL",
+        "tab-zoom": "Масштаб вкладки",
+        "customUserAgent": "Использовать свой User-Agent",
+        "activeTab": "Сделать активной вкладкой",
+        "tabToGroup": "Добавить вкладку в группу",
+        "waitTabLoaded": "Ждать загрузки вкладки",
+        "updatePrevTab": {
+          "title": "Использовать ранее открытую новую вкладку вместо создания новой",
+          "text": "Обновить ранее открытую вкладку"
+        }
+      },
+      "link": {
+        "name": "Ссылка",
+        "description": "Открыть ссылку из элемента",
+        "openInNewTab": "Открыть в новой вкладке"
+      },
+      "attribute-value": {
+        "name": "Атрибут элемента",
+        "description": "Получить или установить атрибут элемента",
+        "forms": {
+          "name": "Имя атрибута",
+          "checkbox": "Вставить в таблицу",
+          "column": "Выбрать колонку",
+          "value": "Значение атрибута",
+          "action": {
+            "get": "Получить значение атрибута",
+            "set": "Задать значение атрибута"
+          },
+          "extraRow": {
+            "checkbox": "Добавить дополнительную строку",
+            "placeholder": "Значение",
+            "title": "Значение дополнительной строки"
+          }
+        }
+      },
+      "forms": {
+        "name": "Формы",
+        "description": "Работа с input, select, checkbox и radio",
+        "selected": "Выбрано",
+        "type": "Тип формы",
+        "getValue": "Получить значение формы",
+        "text-field": {
+          "name": "Текстовое поле",
+          "value": "Значение",
+          "clearValue": "Очистить значение формы",
+          "delay": {
+            "placeholder": "Задержка",
+            "label": "Задержка набора текста (мс, 0 отключает)"
+          }
+        },
+        "select": {
+          "name": "Список выбора"
+        },
+        "radio": {
+          "name": "Radio"
+        },
+        "checkbox": {
+          "name": "Checkbox"
+        }
+      },
+      "repeat-task": {
+        "name": "Повторить задачу",
+        "description": "Повторить блоки заданное число раз",
+        "times": "раз",
+        "repeatFrom": "Повторять с"
+      },
+      "javascript-code": {
+        "name": "JavaScript-код",
+        "description": "Выполнить JavaScript на странице или в фоне",
+        "availabeFuncs": "Доступные функции:",
+        "removeAfterExec": "Удалить после выполнения блока",
+        "everyNewTab": "Выполнять в каждой новой вкладке",
+        "context": {
+          "name": "Контекст выполнения",
+          "items": {
+            "website": "Активная вкладка",
+            "background": "Фон"
+          }
+        },
+        "modal": {
+          "tabs": {
+            "code": "JavaScript-код",
+            "preloadScript": "Предзагружаемый скрипт"
+          }
+        },
+        "timeout": {
+          "placeholder": "Таймаут (мс)",
+          "title": "Таймаут выполнения JavaScript-кода"
+        }
+      },
+      "trigger-event": {
+        "name": "Вызвать событие",
+        "description": "Сгенерировать DOM-событие",
+        "selectEvent": "Выбрать событие"
+      },
+      "conditions": {
+        "name": "Условия",
+        "add": "Добавить путь",
+        "retryConditions": "Повторить, если ни одно условие не выполнено",
+        "description": "Логическая развилка",
+        "refresh": "Обновить связи условий",
+        "fallbackTitle": "Выполняется, когда все сравнения не проходят",
+        "equals": "Равно",
+        "gt": "Больше",
+        "gte": "Больше или равно",
+        "lt": "Меньше",
+        "lte": "Меньше или равно",
+        "ne": "Не равно",
+        "contains": "Содержит"
+      },
+      "element-exists": {
+        "name": "Элемент существует",
+        "description": "Проверить наличие элемента",
+        "selector": "Селектор элемента",
+        "fallbackTitle": "Выполняется, если элемент не существует",
+        "throwError": "Выбросить ошибку, если элемента нет",
+        "tryFor": {
+          "title": "Сколько раз проверять наличие элемента",
+          "label": "Try for"
+        },
+        "timeout": {
+          "label": "Таймаут (мс)",
+          "title": "Таймаут каждой попытки"
+        }
+      },
+      "webhook": {
+        "name": "HTTP-запрос",
+        "description": "Выполнить HTTP-запрос",
+        "contentType": "Тип содержимого",
+        "method": "Метод запроса",
+        "url": "URL запроса",
+        "fallback": "Выполняется, если HTTP-запрос завершился ошибкой",
+        "buttons": {
+          "header": "Добавить заголовок"
+        },
+        "timeout": {
+          "placeholder": "Таймаут",
+          "title": "Таймаут HTTP-запроса (мс)"
+        },
+        "tabs": {
+          "headers": "Заголовки",
+          "body": "Тело",
+          "response": "Ответ"
+        }
+      },
+      "while-loop": {
+        "name": "Цикл while",
+        "description": "Выполнять блоки, пока условие истинно",
+        "editCondition": "Редактировать условие",
+        "fallback": "Выполняется, если условие ложно"
+      },
+      "loop-elements": {
+        "name": "Цикл по элементам",
+        "description": "Итерироваться по найденным элементам",
+        "loadMore": "Загрузить еще элементы",
+        "scrollToBottom": "Прокрутить вниз",
+        "scrollToTop": "Прокрутить вверх",
+        "actions": {
+          "none": "Нет",
+          "click-element": "Кликнуть элемент",
+          "scroll": "Прокрутить вниз",
+          "click-link": "Кликнуть ссылку",
+          "scroll-up": "Прокрутить вверх"
+        }
+      },
+      "loop-data": {
+        "name": "Цикл по данным",
+        "description": "Итерироваться по таблице, переменной или своим данным",
+        "loopId": "ID цикла",
+        "refKey": "Ключ ссылки",
+        "startIndex": "Начать с индекса",
+        "resumeLastWorkflow": "Продолжить последний workflow",
+        "reverse": "Обратный порядок цикла",
+        "modal": {
+          "fileTooLarge": "Файл слишком большой для редактирования",
+          "maxFile": "Максимальный размер файла 1 МБ",
+          "options": {
+            "firstRow": "Использовать первую строку как ключи"
+          }
+        },
+        "buttons": {
+          "clear": "Очистить данные",
+          "insert": "Вставить данные",
+          "import": "Импортировать файл"
+        },
+        "maxLoop": {
+          "title": "Максимальное число элементов цикла",
+          "label": "Максимум данных для цикла (0 отключает)"
+        },
+        "loopThrough": {
+          "placeholder": "Итерироваться по",
+          "fromNumber": "От числа",
+          "toNumber": "До числа",
+          "options": {
+            "numbers": "Числа",
+            "variable": "Переменная",
+            "data-columns": "Таблица",
+            "table": "Таблица",
+            "custom-data": "Свои данные",
+            "google-sheets": "Google Sheets",
+            "elements": "Элементы"
+          }
+        }
+      },
+      "loop-breakpoint": {
+        "name": "Точка выхода из цикла",
+        "description": "Место, где цикл должен остановиться"
+      },
+      "take-screenshot": {
+        "name": "Скриншот",
+        "fullPage": "Сделать скриншот всей страницы",
+        "description": "Сделать скриншот активной вкладки",
+        "imageQuality": "Качество изображения",
+        "saveToColumn": "Вставить скриншот в таблицу",
+        "saveToComputer": "Сохранить скриншот на компьютер",
+        "types": {
+          "title": "Сделать скриншот",
+          "page": "Страница",
+          "fullpage": "Вся страница",
+          "element": "Элемент"
+        }
+      },
+      "switch-to": {
+        "name": "Переключить фрейм",
+        "description": "Переключиться между страницей и iframe",
+        "iframeSelector": "Селектор элемента",
+        "windowTypes": {
+          "main": "Основное окно",
+          "iframe": "Iframe"
+        }
+      },
+      "debugMode": {
+        "title": "Режим отладки",
+        "description": "Выполнять блок через Chrome DevTools Protocol"
+      },
+      "block-package": {
+        "name": "Пакет блоков",
+        "description": "Пакет блоков"
       }
+    },
+    "categories": {
+      "pinned": "Закрепленные блоки",
+      "interaction": "Веб-взаимодействие",
+      "browser": "Браузер",
+      "general": "Общее",
+      "onlineServices": "Онлайн-сервисы",
+      "data": "Данные",
+      "conditions": "Логика и поток",
+      "package": "Пакеты"
     }
   }
 }
