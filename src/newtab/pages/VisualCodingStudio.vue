@@ -426,6 +426,78 @@
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
+          <h2>Production Control Center</h2>
+          <span>release + queues + audit</span>
+        </div>
+        <section class="vc-metric-grid">
+          <div class="vc-mini-card">
+            <p>Release</p>
+            <strong>{{ productionReadyLabel }}</strong>
+          </div>
+          <div class="vc-mini-card">
+            <p>Sessions</p>
+            <strong>{{ dashboardSummary.sessions.total }} total / {{ dashboardSummary.sessions.failed }} failed</strong>
+          </div>
+          <div class="vc-mini-card">
+            <p>Browser jobs</p>
+            <strong>{{ dashboardSummary.browserJobs.queued }} queued</strong>
+          </div>
+          <div class="vc-mini-card">
+            <p>Manual gates</p>
+            <strong>{{ dashboardSummary.manualInterventions.open }} open</strong>
+          </div>
+        </section>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(refreshProductionDashboard)">Refresh dashboard</ui-button>
+          <ui-button @click="safeRun(runReleasePreflight)">Release preflight</ui-button>
+          <ui-button @click="safeRun(writeReleaseManifest)">Release manifest</ui-button>
+          <ui-button @click="safeRun(copyMcpJson)">Copy MCP JSON</ui-button>
+          <ui-button @click="safeRun(runProductionSession)">Run sample session</ui-button>
+          <ui-button @click="safeRun(enqueueBrowserJob)">Queue browser job</ui-button>
+          <ui-button @click="safeRun(runNextBrowserJob)">Run next browser job</ui-button>
+          <ui-button @click="safeRun(createManualCheckpoint)">Create manual gate</ui-button>
+          <ui-button @click="safeRun(resolveLatestManualCheckpoint)">Resolve latest gate</ui-button>
+          <ui-button @click="safeRun(planRecipePermissions)">Plan permissions</ui-button>
+        </div>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Project Recipes</h2>
+          <span>one-click startup workflows</span>
+        </div>
+        <div class="vc-recipe-grid">
+          <button
+            v-for="recipe in projectRecipes"
+            :key="recipe.id"
+            type="button"
+            class="vc-recipe-card"
+            :class="{ active: recipe.id === selectedRecipeId }"
+            @click="selectProjectRecipe(recipe)"
+          >
+            <strong>{{ recipe.title || recipe.name }}</strong>
+            <span>{{ recipe.summary }}</span>
+          </button>
+        </div>
+        <label>
+          Extra requirements for selected recipe
+          <ui-textarea
+            :model-value="recipeExtraPrompt"
+            spellcheck="false"
+            class="vc-code-input vc-small-code"
+            @change="recipeExtraPrompt = $event"
+          />
+        </label>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(buildSelectedRecipeAndOpen)">Build recipe + open editor</ui-button>
+          <ui-button @click="safeRun(buildSelectedRecipeArtifact)">Build recipe artifact</ui-button>
+          <ui-button @click="loadSelectedRecipeIntoComposer">Load into composer</ui-button>
+          <ui-button @click="safeRun(loadProjectRecipes)">Refresh recipes</ui-button>
+        </div>
+      </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
           <h2>Панель управления MCP</h2>
           <span>/mcp/call</span>
         </div>
@@ -655,6 +727,11 @@ const skillState = ref('muted');
 const actions = ref([]);
 const mcpTools = ref([]);
 const output = ref('{}');
+const productionDashboard = ref(null);
+const projectRecipes = ref([]);
+const selectedRecipeId = ref('saas-intake-agent');
+const recipeExtraPrompt = ref('');
+const mcpJsonString = ref('');
 
 const selectedAction = ref('uppercase');
 const actionPayload = ref('{}');
@@ -1200,10 +1277,34 @@ const mcpExamples = {
     name: 'silverback-private-vpn-benchmark',
   },
   'benchmark.private_vpn.capabilities': {},
+  'production.dashboard': { limit: 8, includePreflight: true },
+  'project.recipes.list': {},
+  'project.recipe.build': {
+    id: 'saas-intake-agent',
+    projectName: 'silverback-saas-intake-agent',
+    extraPrompt: 'Add manual approval before production run.',
+  },
   'demo.run': {},
 };
 
 const hasBridge = computed(() => bridgeState.value === 'ok');
+const dashboardSummary = computed(() => productionDashboard.value?.summary || {
+  sessions: { total: 0, failed: 0, blocked: 0, running: 0 },
+  browserJobs: { total: 0, queued: 0, running: 0, failed: 0 },
+  manualInterventions: { total: 0, open: 0, resolved: 0 },
+  permissionAudit: 0,
+  packageAudit: 0,
+  recipes: projectRecipes.value.length,
+});
+const productionReadyLabel = computed(() => {
+  const ready = productionDashboard.value?.preflight?.ready;
+  if (ready === true) return `ready v${productionDashboard.value.version}`;
+  if (ready === false) return 'needs attention';
+  return 'not checked';
+});
+const selectedProjectRecipe = computed(
+  () => projectRecipes.value.find((recipe) => recipe.id === selectedRecipeId.value) || projectRecipes.value[0] || null,
+);
 
 function pretty(value) {
   return JSON.stringify(value, null, 2);
@@ -1850,6 +1951,168 @@ async function listResources() {
   print('Resources', data);
 }
 
+async function refreshProductionDashboard() {
+  const data = await callMcp('production.dashboard', { limit: 8, includePreflight: true });
+  productionDashboard.value = data.result;
+  if (Array.isArray(data.result?.recipes)) projectRecipes.value = data.result.recipes;
+  print('Production Dashboard', data);
+}
+
+async function runReleasePreflight() {
+  const data = await callMcp('release.preflight', { runQuickChecks: false });
+  productionDashboard.value = {
+    ...(productionDashboard.value || {}),
+    preflight: data.result,
+    version: data.result?.version || productionDashboard.value?.version,
+  };
+  print('Release Preflight', data);
+}
+
+async function writeReleaseManifest() {
+  const data = await callMcp('release.manifest', {
+    name: 'silverback-coding-production-ui',
+    runQuickChecks: false,
+  });
+  print('Release Manifest', data);
+  await refreshProductionDashboard();
+}
+
+async function copyMcpJson() {
+  const data = await callMcp('mcp.server.config');
+  mcpJsonString.value = data.jsonString || data.result?.jsonString || '';
+  let copied = false;
+  if (navigator.clipboard && mcpJsonString.value) {
+    try {
+      await navigator.clipboard.writeText(mcpJsonString.value);
+      copied = true;
+    } catch (error) {
+      copied = false;
+    }
+  }
+  print('MCP JSON', { ok: true, copied, jsonString: mcpJsonString.value, source: data });
+}
+
+async function runProductionSession() {
+  const data = await callMcp('sessions.run', {
+    name: 'studio-production-session',
+    tasks: [
+      { action: 'uppercase', payload: { text: 'production session' } },
+      { action: 'logic_compare', payload: { left: 'silverback coding', operator: 'contains', right: 'coding' } },
+    ],
+    retries: 1,
+  });
+  print('Production Session', data);
+  await refreshProductionDashboard();
+}
+
+async function enqueueBrowserJob() {
+  const data = await callMcp('browser.jobs.enqueue', {
+    name: 'studio-selector-check',
+    tool: 'browser.query_selector',
+    arguments: {
+      browserEngine: browserEngine.value,
+      profileName: browserProfileName.value,
+      autoCreateProfile: true,
+      html: browserHtml.value,
+      selector: browserSelector.value,
+      limit: 5,
+    },
+  });
+  print('Queued Browser Job', data);
+  await refreshProductionDashboard();
+}
+
+async function runNextBrowserJob() {
+  const data = await callMcp('browser.jobs.run_next', {});
+  print('Run Browser Job', data);
+  await refreshProductionDashboard();
+}
+
+async function createManualCheckpoint() {
+  const data = await callMcp('manual.intervention.create', {
+    title: 'Studio manual approval',
+    reason: 'operator_review',
+    instructions: 'Review the generated workflow or external page, then resume.',
+    timeoutSeconds: 300,
+  });
+  print('Manual Gate Created', data);
+  await refreshProductionDashboard();
+}
+
+async function resolveLatestManualCheckpoint() {
+  const openGate = (productionDashboard.value?.manualInterventions || []).find((item) => item.status === 'open');
+  if (!openGate) {
+    print('Manual Gate', { ok: false, error: 'no open manual gate' });
+    return;
+  }
+  const data = await callMcp('manual.intervention.respond', {
+    id: openGate.id,
+    decision: 'approve',
+    note: 'approved from Silverback Studio',
+  });
+  print('Manual Gate Resolved', data);
+  await refreshProductionDashboard();
+}
+
+async function planRecipePermissions() {
+  const recipe = selectedProjectRecipe.value;
+  const data = await callMcp('permissions.plan', {
+    prompt: `${recipe?.prompt || utilityPrompt.value}\n${recipeExtraPrompt.value}`,
+  });
+  print('Recipe Permission Plan', data);
+}
+
+async function loadProjectRecipes() {
+  const data = await callMcp('project.recipes.list', {});
+  projectRecipes.value = data.result.recipes || [];
+  if (!projectRecipes.value.find((recipe) => recipe.id === selectedRecipeId.value) && projectRecipes.value[0]) {
+    selectedRecipeId.value = projectRecipes.value[0].id;
+  }
+  print('Project Recipes', data);
+}
+
+function selectProjectRecipe(recipe) {
+  selectedRecipeId.value = recipe.id;
+  utilityName.value = recipe.id;
+  composerPrompt.value = recipe.prompt;
+  utilityPrompt.value = recipe.prompt;
+}
+
+function loadSelectedRecipeIntoComposer() {
+  const recipe = selectedProjectRecipe.value;
+  if (!recipe) return;
+  selectProjectRecipe(recipe);
+  print('Recipe Loaded', { ok: true, recipe });
+}
+
+async function buildSelectedRecipe(openEditor = true) {
+  const recipe = selectedProjectRecipe.value;
+  const data = await callMcp('project.recipe.build', {
+    id: recipe?.id || selectedRecipeId.value,
+    projectName: utilityName.value || recipe?.id || 'silverback-project-recipe',
+    extraPrompt: recipeExtraPrompt.value,
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'Recipe workflow project',
+    source: data,
+    openEditor,
+  });
+}
+
+async function buildSelectedRecipeAndOpen() {
+  await buildSelectedRecipe(true);
+}
+
+async function buildSelectedRecipeArtifact() {
+  const recipe = selectedProjectRecipe.value;
+  const data = await callMcp('project.recipe.build', {
+    id: recipe?.id || selectedRecipeId.value,
+    projectName: utilityName.value || recipe?.id || 'silverback-project-recipe',
+    extraPrompt: recipeExtraPrompt.value,
+  });
+  print('Recipe Artifact', data);
+}
+
 async function runFullDemo() {
   const data = await callMcp('demo.run');
   print('Full Automa Silverback Coding Demo', data);
@@ -1867,6 +2130,8 @@ onMounted(async () => {
   selectAction(selectedAction.value);
   selectMcpTool(selectedMcpTool.value);
   await safeRun(refreshAll);
+  await safeRun(loadProjectRecipes);
+  await safeRun(refreshProductionDashboard);
   if (hasBridge.value) await safeRun(runFullDemo);
 });
 </script>
@@ -2055,6 +2320,57 @@ onMounted(async () => {
   gap: 16px;
 }
 
+.vc-metric-grid,
+.vc-recipe-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.vc-mini-card,
+.vc-recipe-card {
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  border-radius: 8px;
+  background: #0b0712;
+}
+
+.vc-mini-card {
+  min-height: 74px;
+  padding: 14px;
+}
+
+.vc-mini-card p,
+.vc-recipe-card span {
+  margin: 0;
+  color: #a99fbb;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.vc-mini-card strong,
+.vc-recipe-card strong {
+  display: block;
+  margin-top: 5px;
+  color: #f7f2ff;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.vc-recipe-card {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  min-height: 112px;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vc-recipe-card.active {
+  border-color: rgba(196, 181, 253, 0.78);
+  background: #1d1230;
+}
+
 .vc-stack {
   display: grid;
   align-content: start;
@@ -2145,6 +2461,14 @@ pre {
 
   .vc-form-grid {
     grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .vc-metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .vc-recipe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
