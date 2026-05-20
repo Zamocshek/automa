@@ -1,7 +1,7 @@
 {
-  "name": "automa",
+  "name": "silverback-visual-coding",
   "version": "1.30.00",
-  "description": "An extension for automating your browser by connecting blocks",
+  "description": "Silverback Visual Coding extension for programming with editable workflow blocks",
   "repository": {
     "type": "git",
     "url": "https://github.com/AutomaApp/automa.git"

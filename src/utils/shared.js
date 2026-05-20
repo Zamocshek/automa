@@ -1531,6 +1531,12 @@ export const categories = {
     border: 'border-lime-200 dark:border-lime-300',
     color: 'bg-lime-200 dark:bg-lime-300 fill-lime-200 dark:fill-lime-300',
   },
+  android: {
+    name: 'Android',
+    border: 'border-emerald-200 dark:border-emerald-300',
+    color:
+      'bg-emerald-200 dark:bg-emerald-300 fill-emerald-200 dark:fill-emerald-300',
+  },
   conditions: {
     name: 'Control flow',
     border: 'border-blue-200 dark:border-blue-300',

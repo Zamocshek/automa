@@ -15,24 +15,35 @@
         v-for="block in blocks"
         :key="block.id"
         :title="getBlockTitle(block)"
+        :data-block-id="block.id"
         draggable="true"
         class="bg-input group relative cursor-move select-none rounded-lg p-4 transition"
-        @dragstart="$event.dataTransfer.setData('block', JSON.stringify(block))"
+        @dragstart="onBlockDragStart($event, block)"
+        @dblclick="$emit('add', block)"
       >
         <div
-          class="invisible absolute right-2 top-2 flex items-center text-gray-600 group-hover:visible dark:text-gray-300"
+          class="absolute right-2 top-2 flex items-center text-gray-600 dark:text-gray-300"
         >
+          <button
+            :title="`Add ${getBlockName(block)}`"
+            :data-add-block-id="block.id"
+            class="cursor-pointer rounded bg-white/80 p-0.5 opacity-100 shadow-sm transition dark:bg-gray-900/80"
+            @click.stop="$emit('add', block)"
+          >
+            <v-remixicon name="riAddLine" size="18" />
+          </button>
           <a
             :href="`https://docs.extension.automa.site/blocks/${block.id}.html`"
             :title="t('common.docs')"
             target="_blank"
             rel="noopener"
+            class="invisible group-hover:visible"
           >
             <v-remixicon name="riInformationLine" size="18" />
           </a>
           <span
             :title="`${pinned.includes(block.id) ? 'Unpin' : 'Pin'} block`"
-            class="ml-1 cursor-pointer"
+            class="invisible ml-1 cursor-pointer group-hover:visible"
             @click="$emit('pin', block)"
           >
             <v-remixicon
@@ -88,7 +99,7 @@ defineProps({
     default: () => [],
   },
 });
-defineEmits(['pin']);
+defineEmits(['pin', 'add']);
 
 const { t, te } = useI18n();
 const blocksDetail = getBlocks();
@@ -123,5 +134,10 @@ function getIconPath(path) {
   }
 
   return '';
+}
+function onBlockDragStart(event, block) {
+  event.dataTransfer.effectAllowed = 'copy';
+  event.dataTransfer.setData('block', JSON.stringify(block));
+  event.dataTransfer.setData('text/plain', block.id);
 }
 </script>

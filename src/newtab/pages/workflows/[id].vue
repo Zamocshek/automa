@@ -26,6 +26,7 @@
         v-else
         :workflow="workflow"
         @update="updateWorkflow"
+        @add-block="addBlockFromSidebar"
       />
       <!-- drag-element -->
       <div ref="sidebarRef" class="custom-drag" @mousedown="startDrag"></div>
@@ -767,6 +768,9 @@ function startRecording({ nodeId, handleId }) {
   });
 }
 function goToBlock(blockId) {
+  focusNodeOnCanvas(blockId);
+}
+function focusNodeOnCanvas(blockId, delay = 200) {
   if (!editor.value) return;
 
   const block = editor.value.getNode.value(blockId);
@@ -775,15 +779,16 @@ function goToBlock(blockId) {
   editor.value.addSelectedNodes([block]);
   setTimeout(() => {
     const editorContainer = document.querySelector('.vue-flow');
+    if (!editorContainer) return;
     const { height, width } = editorContainer.getBoundingClientRect();
     const { x, y } = block.position;
 
     editor.value.setTransform({
       y: -(y - height / 2),
-      x: -(x - width / 2) - 200,
+      x: -(x - width / 2),
       zoom: 1,
     });
-  }, 200);
+  }, delay);
 }
 function goToPkgBlock(blockId) {
   state.activeTab = 'editor';
@@ -1333,7 +1338,7 @@ function onDropInEditor({ dataTransfer, clientX, clientY, target }) {
   const newNode = {
     position,
     label: block.id,
-    data: block.data,
+    data: cloneDeep(block.data),
     type: block.component,
     id: block.id === 'blocks-group-2' ? `group-${nodeId}` : nodeId,
   };
@@ -1363,6 +1368,75 @@ function onDropInEditor({ dataTransfer, clientX, clientY, target }) {
   }
 
   state.dataChanged = true;
+  focusNodeOnCanvas(newNode.id, 80);
+}
+function getEditorCenterPosition() {
+  const viewport = editor.value?.viewportRef?.value;
+  const rect = viewport?.getBoundingClientRect?.();
+
+  if (!rect || !editor.value?.project) {
+    return { x: 360, y: 240 };
+  }
+
+  return editor.value.project({
+    x: rect.width / 2,
+    y: rect.height / 2,
+  });
+}
+function addBlockFromSidebar(block) {
+  if (!editor.value || !block || block.fromBlockBasic) return;
+
+  if (block.id === 'trigger') {
+    const isTriggerExists = editor.value.getNodes.value.some(
+      (node) => node.label === 'trigger'
+    );
+    if (isTriggerExists || isPackage) return;
+  }
+
+  const selectedNodes = editor.value.getSelectedNodes.value || [];
+  const selectedNode = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  const nodeId = nanoid();
+  const position = selectedNode
+    ? {
+        x: selectedNode.position.x + 280,
+        y: selectedNode.position.y,
+      }
+    : getEditorCenterPosition();
+
+  selectedNodes.forEach((node) => {
+    node.selected = false;
+  });
+  (editor.value.getSelectedEdges.value || []).forEach((edge) => {
+    edge.selected = false;
+  });
+
+  const newNode = {
+    position,
+    label: block.id,
+    data: cloneDeep(block.data),
+    type: block.component,
+    id: block.id === 'blocks-group-2' ? `group-${nodeId}` : nodeId,
+    selected: true,
+  };
+
+  editor.value.addNodes([newNode]);
+
+  const selectedBlockOutputs = blocks[selectedNode?.label]?.outputs ?? 0;
+  const newBlockInputs = block.inputs ?? 1;
+  if (selectedNode && selectedBlockOutputs > 0 && newBlockInputs > 0) {
+    editor.value.addEdges([
+      {
+        source: selectedNode.id,
+        target: newNode.id,
+        sourceHandle: `${selectedNode.id}-output-1`,
+        targetHandle: `${newNode.id}-input-1`,
+        id: `edge-${nanoid()}`,
+      },
+    ]);
+  }
+
+  state.dataChanged = true;
+  focusNodeOnCanvas(newNode.id, 80);
 }
 function copyElements(nodes, edges, initialPos) {
   const newIds = new Map();

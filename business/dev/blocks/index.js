@@ -8,6 +8,109 @@ const baseBridgeData = {
   timeout: 30000,
 };
 
+const androidRefDataKeys = [
+  'bridgeUrl',
+  'adbPath',
+  'deviceId',
+  'host',
+  'selectorJson',
+  'xpath',
+  'text',
+  'packageName',
+  'proxy',
+  'remotePath',
+  'variableName',
+];
+
+const androidQuickBaseData = {
+  disableBlock: false,
+  description: '',
+  adbPath: 'adb',
+  deviceId: '',
+  connection: 'auto',
+  host: '',
+  wifi: false,
+  packageName: '',
+  activity: '',
+  apkPath: '',
+  selectorJson: '{\n  "text": "Login",\n  "clickable": true\n}',
+  xpath: ".//node[@clickable='true']",
+  text: 'Hello [[user_name]]',
+  key: 'BACK',
+  shellCommand: 'getprop ro.build.version.release',
+  intentAction: 'android.intent.action.VIEW',
+  dataUri: 'https://example.com',
+  component: '',
+  extrasJson: '{\n  "source": "silverback"\n}',
+  proxyOperation: 'set',
+  proxy: '127.0.0.1:8080',
+  latitude: 52.3676,
+  longitude: 4.9041,
+  permissionOperation: 'list',
+  permission: 'android.permission.POST_NOTIFICATIONS',
+  fileOperation: 'list',
+  remotePath: '/sdcard/Download',
+  localPath: '',
+  templatePath: '',
+  threshold: 0.86,
+  color: '#FFFFFF',
+  profileOperation: 'build',
+  profileName: 'silverback-android-profile',
+  brand: 'Google',
+  manufacturer: 'Google',
+  model: 'Pixel 7',
+  imei: '',
+  phoneNumber: '',
+  wifiSsid: '',
+  events: 100,
+  x: 300,
+  y: 600,
+  x1: 300,
+  y1: 900,
+  x2: 300,
+  y2: 300,
+  durationMs: 450,
+  seconds: 1,
+  clear: false,
+  tapBefore: true,
+  includeXml: false,
+  maxElements: 200,
+  appOperation: 'current',
+  scriptName: 'silverback-android-script',
+  stepsJson:
+    '[\n  {"action":"tap","x":300,"y":600},\n  {"action":"text","text":"Hello from Silverback"},\n  {"action":"press","key":"BACK"}\n]',
+  devicesJson: '[]',
+  tasksJson: '[\n  {"action":"android_state","payload":{"maxElements":20}}\n]',
+  workers: 4,
+  dryRun: false,
+  executionTimeout: 30,
+};
+
+function androidActionBlock(name, mode, variableName, extraData = {}) {
+  return {
+    name,
+    description: `Android / ZennoDroid block: ${name}`,
+    icon: 'riAndroidLine',
+    component: 'BlockBasicWithFallback',
+    editComponent: 'EditAndroidAutomation',
+    category: 'android',
+    inputs: 1,
+    outputs: 2,
+    allowedInputs: true,
+    maxConnection: 1,
+    refDataKeys: androidRefDataKeys,
+    autocomplete: ['variableName', 'deviceId', 'packageName', 'profileName'],
+    data: {
+      ...androidQuickBaseData,
+      ...baseBridgeData,
+      mode,
+      returnPath: 'result',
+      variableName,
+      ...extraData,
+    },
+  };
+}
+
 export default function () {
   return {
     'python-bridge': {
@@ -727,6 +830,91 @@ export default function () {
         variableName: 'android_result',
       },
     },
+    'android-devices': androidActionBlock('ADB Devices', 'devices', 'android_devices', {
+      returnPath: 'result.devices',
+    }),
+    'android-connect': androidActionBlock('ADB Connect', 'connect', 'android_device', {
+      returnPath: 'result.deviceId',
+    }),
+    'android-state': androidActionBlock('Android State', 'state', 'android_state'),
+    'android-ui-tree': androidActionBlock('UI Tree', 'uiTree', 'android_tree', {
+      returnPath: 'result.elements',
+    }),
+    'android-analyze': androidActionBlock('Analyze UI', 'analyze', 'android_analysis'),
+    'android-find-element': androidActionBlock('Find Element', 'findElement', 'android_element', {
+      returnPath: 'result.element',
+    }),
+    'android-wait-element': androidActionBlock('Wait Element', 'waitElement', 'android_wait_element', {
+      returnPath: 'result.element',
+    }),
+    'android-element-at': androidActionBlock('Element At Point', 'elementAt', 'android_point', {
+      returnPath: 'result.element',
+    }),
+    'android-xpath': androidActionBlock('XPath Query', 'xpath', 'android_xpath', {
+      returnPath: 'result.elements',
+    }),
+    'android-tap': androidActionBlock('Tap', 'tap', 'android_tap'),
+    'android-long-click': androidActionBlock('Long Click', 'longClick', 'android_long_click', {
+      durationMs: 900,
+    }),
+    'android-input-text': androidActionBlock('Input Text', 'inputText', 'android_input'),
+    'android-swipe': androidActionBlock('Swipe', 'swipe', 'android_swipe'),
+    'android-drag': androidActionBlock('Drag', 'drag', 'android_drag', {
+      durationMs: 700,
+    }),
+    'android-press': androidActionBlock('Press Key', 'press', 'android_key'),
+    'android-wait': androidActionBlock('Wait', 'wait', 'android_wait'),
+    'android-shell': androidActionBlock('ADB Shell', 'shell', 'android_shell', {
+      returnPath: 'result.stdout',
+    }),
+    'android-screenshot': androidActionBlock('Screenshot', 'screenshot', 'android_screenshot', {
+      returnPath: 'result.path',
+    }),
+    'android-notifications': androidActionBlock('Notifications', 'notifications', 'android_notifications', {
+      returnPath: 'result.text',
+    }),
+    'android-app': androidActionBlock('App Control', 'app', 'android_app'),
+    'android-packages': androidActionBlock('Packages', 'packages', 'android_packages', {
+      returnPath: 'result.packages',
+    }),
+    'android-intent': androidActionBlock('Intent', 'intent', 'android_intent', {
+      dryRun: true,
+    }),
+    'android-proxy': androidActionBlock('Proxy', 'proxy', 'android_proxy', {
+      dryRun: true,
+    }),
+    'android-location': androidActionBlock('Geo Location', 'location', 'android_location', {
+      dryRun: true,
+    }),
+    'android-permissions': androidActionBlock('Permissions', 'permissions', 'android_permissions', {
+      dryRun: true,
+    }),
+    'android-files': androidActionBlock('Device Files', 'files', 'android_files', {
+      dryRun: true,
+    }),
+    'android-screen-record': androidActionBlock('Screen Record', 'screenRecord', 'android_record', {
+      dryRun: true,
+      returnPath: 'result.localPath',
+    }),
+    'android-image-find': androidActionBlock('Find Image', 'imageFind', 'android_image', {
+      returnPath: 'result.match',
+    }),
+    'android-pixel': androidActionBlock('Pixel Check', 'pixel', 'android_pixel', {
+      returnPath: 'result.hex',
+    }),
+    'android-device-profile': androidActionBlock('Device Profile', 'deviceProfile', 'android_profile', {
+      dryRun: true,
+      returnPath: 'result.profile',
+    }),
+    'android-monkey': androidActionBlock('Monkey Test', 'monkey', 'android_monkey', {
+      dryRun: true,
+    }),
+    'android-parallel-run': androidActionBlock('Multi-device Run', 'parallelRun', 'android_parallel', {
+      dryRun: true,
+    }),
+    'android-airtest-script': androidActionBlock('Airtest Script', 'buildAirtestScript', 'android_script', {
+      returnPath: 'result.script',
+    }),
     'result-tools': {
       name: 'Result / Log Tools',
       description: 'Create structured logs, message payloads and random values',

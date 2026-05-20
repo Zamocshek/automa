@@ -65,6 +65,7 @@
       :category="pinnedCategory"
       :pinned="pinnedBlocks"
       @pin="pinBlock"
+      @add="$emit('add-block', $event)"
     />
     <workflow-block-list
       v-for="(items, catId) in blocks"
@@ -74,6 +75,7 @@
       :category="{ ...categories[catId], id: catId }"
       :pinned="pinnedBlocks"
       @pin="pinBlock"
+      @add="$emit('add-block', $event)"
     />
   </div>
 </template>
@@ -96,7 +98,7 @@ defineProps({
     default: false,
   },
 });
-const emit = defineEmits(['update']);
+const emit = defineEmits(['update', 'add-block']);
 
 const { t, te } = useI18n();
 const shortcut = useShortcut('action:search', () => {

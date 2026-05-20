@@ -134,6 +134,82 @@
         </div>
       </article>
 
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>Android / ZennoDroid</h2>
+          <span>ADB + UI tree + selector actions + multi-device blocks</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-input
+              :model-value="androidDeviceId"
+              label="Device serial"
+              placeholder="emulator-5554 или пусто для auto"
+              @change="androidDeviceId = $event"
+            />
+            <ui-input
+              :model-value="androidPackageName"
+              label="Package"
+              placeholder="com.example.app"
+              @change="androidPackageName = $event"
+            />
+            <ui-input
+              :model-value="androidText"
+              label="Текст для ввода"
+              @change="androidText = $event"
+            />
+            <div class="vc-inline">
+              <ui-input
+                :model-value="androidX"
+                label="X"
+                type="number"
+                @change="androidX = Number($event)"
+              />
+              <ui-input
+                :model-value="androidY"
+                label="Y"
+                type="number"
+                @change="androidY = Number($event)"
+              />
+            </div>
+          </div>
+          <div class="vc-stack">
+            <label>
+              Selector JSON
+              <ui-textarea
+                :model-value="androidSelectorJson"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="androidSelectorJson = $event"
+              />
+            </label>
+            <label>
+              ADB shell
+              <ui-textarea
+                :model-value="androidShellCommand"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="androidShellCommand = $event"
+              />
+            </label>
+          </div>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(composeAndroidWorkflow)">Собрать Android workflow</ui-button>
+          <ui-button @click="safeRun(runAndroidDevices)">ADB devices</ui-button>
+          <ui-button @click="safeRun(runAndroidUiTree)">UI tree</ui-button>
+          <ui-button @click="safeRun(runAndroidAnalyze)">Анализ UI</ui-button>
+          <ui-button @click="safeRun(runAndroidFindElement)">Найти элемент</ui-button>
+          <ui-button @click="safeRun(runAndroidTap)">Tap</ui-button>
+          <ui-button @click="safeRun(runAndroidInputText)">Input text</ui-button>
+          <ui-button @click="safeRun(runAndroidScreenshot)">Screenshot</ui-button>
+          <ui-button @click="safeRun(runAndroidShell)">Shell</ui-button>
+          <ui-button @click="selectMcpTool('android.devices')">MCP devices</ui-button>
+          <ui-button @click="selectMcpTool('android.tap')">MCP tap</ui-button>
+          <ui-button @click="selectMcpTool('android.parallel.run')">MCP multi-device</ui-button>
+        </div>
+      </article>
+
       <article class="vc-panel">
         <div class="vc-panel-head">
           <h2>Выполнение Python</h2>
@@ -389,7 +465,9 @@
         </div>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(runLibraryCode)">Запустить код библиотеки</ui-button>
-          <ui-button @click="safeRun(buildTelegramBot)">Собрать Telegram-бота</ui-button>
+          <ui-button variant="accent" @click="safeRun(composeTelegramBotWorkflow)">Открыть workflow Telegram-бота</ui-button>
+          <ui-button variant="accent" @click="safeRun(composeProductionTelegramServiceWorkflow)">Production bot-service workflow</ui-button>
+          <ui-button @click="safeRun(buildTelegramBot)">Bridge scaffold Telegram-бота</ui-button>
           <ui-button @click="safeRun(dryRunTelegramMessage)">Тест Telegram-сообщения</ui-button>
         </div>
         <div class="vc-inline">
@@ -531,6 +609,8 @@
           <ui-button @click="selectMcpTool('bridge.health')">Здоровье моста</ui-button>
           <ui-button @click="selectMcpTool('skill.status')">Статус скилла</ui-button>
           <ui-button @click="selectMcpTool('mcp.server.status')">MCP-сервер</ui-button>
+          <ui-button @click="selectMcpTool('mcp.android.server.config')">Android MCP JSON</ui-button>
+          <ui-button @click="selectMcpTool('workflow.schedule_patch')">Расписание workflow</ui-button>
           <ui-button @click="selectMcpTool('files.tool')">Файлы</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Ожидание</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
@@ -770,7 +850,7 @@ const telegramHandlersJson = ref(`[
 ]`);
 const selectedMcpTool = ref('bridge.run_action');
 const mcpArgs = ref('{}');
-const sampleComposerPrompt = 'Просканируй страницу через Playwright, собери CSS-селекторы, импортируй HTTP-запросы recorder, управляй браузерным профилем с cookies, добавь ожидания и повторы при ошибках, работай с файлами и путями, выполни HTTP API-запрос, собери поля/схему ресурсов, сгенерируй UI-приложение, используй переменные, JSON, списки, логику и циклы, запусти Python и Node библиотеки, обработай задачи параллельно через multiprocessing worker plan, собери Telegram bot service с polling, webhook HTTP receiver и Nginx, сгенерируй private VPN Marzban проект, затем собери маленькое приложение.';
+const sampleComposerPrompt = 'Просканируй страницу через Playwright, собери CSS-селекторы, импортируй HTTP-запросы recorder, управляй браузерным профилем с cookies, добавь ожидания и повторы при ошибках, работай с файлами и путями, выполни HTTP API-запрос, собери поля/схему ресурсов, сгенерируй UI-приложение, используй переменные, JSON, списки, логику и циклы, добавь Android automation / ZennoDroid блоки: ADB devices, UI tree, selector tap/input, swipe, screenshot, app/package, proxy, geo, permissions, files, screen record, image/pixel, device profile, Airtest script и multi-device run, запусти Python и Node библиотеки, обработай задачи параллельно через multiprocessing worker plan, собери Telegram bot service с polling, webhook HTTP receiver и Nginx, сгенерируй private VPN Marzban проект, затем собери маленькое приложение.';
 const composerPrompt = ref(sampleComposerPrompt);
 const browserEngine = ref('chromium');
 const browserProfileName = ref('demo-browser-profile');
@@ -778,8 +858,19 @@ const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>');
+const androidDeviceId = ref('');
+const androidPackageName = ref('com.example.app');
+const androidText = ref('Hello from Silverback');
+const androidX = ref(300);
+const androidY = ref(600);
+const androidSelectorJson = ref(`{
+  "text": "Login",
+  "clickable": true
+}`);
+const androidShellCommand = ref('getprop ro.build.version.release');
+const androidWorkflowPrompt = ref('Android automation / ZennoDroid workflow: detect ADB devices, read current app state, dump UI tree, analyze clickable elements, wait for Login selector, tap it, input text, swipe, take screenshot, read notifications, manage app/package, set proxy, set geo, list permissions and files, record screen, check image and pixel, build device profile, run monkey test, build Airtest script, then run a multi-device worker plan.');
 const utilityName = ref('silverback-coding-full-utility');
-const utilityPrompt = ref('Просканировать страницу Playwright-селекторами, импортировать recorder-запросы, управлять профилями и cookies, ждать и повторять действия, писать файлы и пути, выполнить HTTP-запрос, собрать поля/схему ресурсов, сгенерировать UI-приложение, использовать переменные, JSON, списки, логику и циклы, запускать Python и Node библиотеки, собрать Telegram bot service с polling, webhook HTTP receiver и Nginx, сгенерировать private VPN Marzban проект, обработать задачи параллельно через worker plan, затем собрать приложение.');
+const utilityPrompt = ref('Просканировать страницу Playwright-селекторами, импортировать recorder-запросы, управлять профилями и cookies, ждать и повторять действия, писать файлы и пути, выполнить HTTP-запрос, собрать поля/схему ресурсов, сгенерировать UI-приложение, использовать переменные, JSON, списки, логику и циклы, добавить Android automation / ZennoDroid блоки для ADB devices, UI tree, tap/input, swipe, screenshot, proxy, geo, permissions, files, Airtest и multi-device, запускать Python и Node библиотеки, собрать Telegram bot service с polling, webhook HTTP receiver и Nginx, сгенерировать private VPN Marzban проект, обработать задачи параллельно через worker plan, затем собрать приложение.');
 const httpRequestsJson = ref(`[
   {"method":"GET","url":"https://example.com/api","resourceType":"fetch"}
 ]`);
@@ -1017,6 +1108,97 @@ const examples = {
     name: 'automa-studio-captured-http',
     limit: 12,
   },
+  android_adb_devices: { adbPath: 'adb', timeout: 10 },
+  android_adb_connect: { adbPath: 'adb', host: '127.0.0.1:5555', wifi: true, timeout: 15 },
+  android_state: { adbPath: 'adb', deviceId: '', maxElements: 80 },
+  android_ui_tree: { adbPath: 'adb', deviceId: '', includeXml: false, maxElements: 120 },
+  android_ui_analyze: { adbPath: 'adb', deviceId: '', maxElements: 120 },
+  android_find_element: {
+    adbPath: 'adb',
+    deviceId: '',
+    selector: { text: 'Login', clickable: true },
+    maxElements: 120,
+  },
+  android_wait_element: {
+    adbPath: 'adb',
+    deviceId: '',
+    selector: { text: 'Login', clickable: true },
+    timeout: 10,
+    interval: 0.5,
+  },
+  android_element_at: { adbPath: 'adb', deviceId: '', x: 300, y: 600, maxElements: 120 },
+  android_xpath: { adbPath: 'adb', deviceId: '', xpath: ".//node[@clickable='true']", limit: 20 },
+  android_tap: { adbPath: 'adb', deviceId: '', x: 300, y: 600, selector: { text: 'Login', clickable: true } },
+  android_long_click: { adbPath: 'adb', deviceId: '', x: 300, y: 600, durationMs: 900 },
+  android_input_text: {
+    adbPath: 'adb',
+    deviceId: '',
+    x: 300,
+    y: 600,
+    text: 'Hello from Silverback',
+    clear: true,
+  },
+  android_swipe: { adbPath: 'adb', deviceId: '', x1: 300, y1: 900, x2: 300, y2: 300, durationMs: 450 },
+  android_drag: { adbPath: 'adb', deviceId: '', x1: 300, y1: 900, x2: 650, y2: 900, durationMs: 700 },
+  android_press: { adbPath: 'adb', deviceId: '', key: 'BACK' },
+  android_wait: { seconds: 1 },
+  android_shell: { adbPath: 'adb', deviceId: '', command: 'getprop ro.build.version.release', dryRun: true },
+  android_screenshot: { adbPath: 'adb', deviceId: '', name: 'studio-screenshot' },
+  android_notifications: { adbPath: 'adb', deviceId: '', maxChars: 4000 },
+  android_app: { adbPath: 'adb', deviceId: '', operation: 'current', packageName: 'com.example.app' },
+  android_packages: { adbPath: 'adb', deviceId: '', query: 'com.example' },
+  android_intent: {
+    adbPath: 'adb',
+    deviceId: '',
+    intentAction: 'android.intent.action.VIEW',
+    dataUri: 'https://example.com',
+    dryRun: true,
+  },
+  android_proxy: { adbPath: 'adb', deviceId: '', operation: 'set', proxy: '127.0.0.1:8080', dryRun: true },
+  android_location: { adbPath: 'adb', deviceId: '', latitude: 52.3676, longitude: 4.9041, dryRun: true },
+  android_permissions: {
+    adbPath: 'adb',
+    deviceId: '',
+    operation: 'list',
+    packageName: 'com.example.app',
+    permission: 'android.permission.POST_NOTIFICATIONS',
+    dryRun: true,
+  },
+  android_files: {
+    adbPath: 'adb',
+    deviceId: '',
+    operation: 'list',
+    remotePath: '/sdcard/Download',
+    localPath: '',
+    dryRun: true,
+  },
+  android_screen_record: { adbPath: 'adb', deviceId: '', name: 'studio-record', seconds: 5, dryRun: true },
+  android_image_find: { adbPath: 'adb', deviceId: '', templatePath: 'C:\\button.png', threshold: 0.86 },
+  android_pixel: { adbPath: 'adb', deviceId: '', x: 300, y: 600, color: '#FFFFFF' },
+  android_device_profile: {
+    adbPath: 'adb',
+    deviceId: '',
+    operation: 'build',
+    name: 'silverback-android-profile',
+    brand: 'Google',
+    model: 'Pixel 7',
+    dryRun: true,
+  },
+  android_monkey: { adbPath: 'adb', deviceId: '', packageName: 'com.example.app', events: 100, dryRun: true },
+  android_script_build: {
+    name: 'silverback-android-airtest',
+    steps: [
+      { action: 'tap', x: 300, y: 600 },
+      { action: 'text', text: 'Hello from Silverback' },
+      { action: 'press', key: 'BACK' },
+    ],
+  },
+  android_parallel_run: {
+    devices: [],
+    tasks: [{ action: 'android_state', payload: { maxElements: 20 } }],
+    workers: 4,
+    dryRun: true,
+  },
   resource_set: { name: 'api_url', type: 'url', value: 'https://example.com' },
   resource_get: { name: 'api_url' },
   resource_list: {},
@@ -1084,11 +1266,13 @@ const mcpExamples = {
   'bridge.run_action': { action: 'uppercase', payload: { text: 'mcp call from Automa' } },
   'mcp.server.status': {},
   'mcp.server.config': {},
+  'mcp.android.server.config': {},
   'project.status': {},
   'project.read_file': { path: 'memory.md' },
   'skill.status': {},
   'workflow.patch_template': { kind: 'python_bridge' },
   'workflow.compose_from_prompt': { prompt: sampleComposerPrompt },
+  'workflow.schedule_patch': { mode: 'on-startup', description: 'Start this service when the browser starts; still keep the normal Execute button.' },
   'browser.engine_status': { browserEngine: 'chromium' },
   'browser.profiles.list': {},
   'browser.profiles.create': {
@@ -1212,6 +1396,85 @@ const mcpExamples = {
     url: 'http://127.0.0.1:8765/health',
     name: 'automa-studio-captured-http',
     limit: 12,
+  },
+  'android.devices': { adbPath: 'adb', timeout: 10 },
+  'android.connect': { adbPath: 'adb', host: '127.0.0.1:5555', wifi: true, timeout: 15 },
+  'android.state': { adbPath: 'adb', deviceId: '', maxElements: 80 },
+  'android.ui_tree': { adbPath: 'adb', deviceId: '', includeXml: false, maxElements: 120 },
+  'android.analyze': { adbPath: 'adb', deviceId: '', maxElements: 120 },
+  'android.find_element': { adbPath: 'adb', deviceId: '', selector: { text: 'Login', clickable: true } },
+  'android.wait_element': {
+    adbPath: 'adb',
+    deviceId: '',
+    selector: { text: 'Login', clickable: true },
+    timeout: 10,
+    interval: 0.5,
+  },
+  'android.element_at': { adbPath: 'adb', deviceId: '', x: 300, y: 600 },
+  'android.xpath': { adbPath: 'adb', deviceId: '', xpath: ".//node[@clickable='true']", limit: 20 },
+  'android.tap': { adbPath: 'adb', deviceId: '', x: 300, y: 600, selector: { text: 'Login', clickable: true } },
+  'android.long_click': { adbPath: 'adb', deviceId: '', x: 300, y: 600, durationMs: 900 },
+  'android.input_text': { adbPath: 'adb', deviceId: '', x: 300, y: 600, text: 'Hello from Silverback', clear: true },
+  'android.swipe': { adbPath: 'adb', deviceId: '', x1: 300, y1: 900, x2: 300, y2: 300, durationMs: 450 },
+  'android.drag': { adbPath: 'adb', deviceId: '', x1: 300, y1: 900, x2: 650, y2: 900, durationMs: 700 },
+  'android.press': { adbPath: 'adb', deviceId: '', key: 'BACK' },
+  'android.wait': { seconds: 1 },
+  'android.shell': { adbPath: 'adb', deviceId: '', command: 'getprop ro.build.version.release', dryRun: true },
+  'android.screenshot': { adbPath: 'adb', deviceId: '', name: 'studio-screenshot' },
+  'android.notifications': { adbPath: 'adb', deviceId: '', maxChars: 4000 },
+  'android.app': { adbPath: 'adb', deviceId: '', operation: 'current', packageName: 'com.example.app' },
+  'android.packages': { adbPath: 'adb', deviceId: '', query: 'com.example' },
+  'android.intent': {
+    adbPath: 'adb',
+    deviceId: '',
+    intentAction: 'android.intent.action.VIEW',
+    dataUri: 'https://example.com',
+    dryRun: true,
+  },
+  'android.proxy': { adbPath: 'adb', deviceId: '', operation: 'set', proxy: '127.0.0.1:8080', dryRun: true },
+  'android.location': { adbPath: 'adb', deviceId: '', latitude: 52.3676, longitude: 4.9041, dryRun: true },
+  'android.permissions': {
+    adbPath: 'adb',
+    deviceId: '',
+    operation: 'list',
+    packageName: 'com.example.app',
+    permission: 'android.permission.POST_NOTIFICATIONS',
+    dryRun: true,
+  },
+  'android.files': {
+    adbPath: 'adb',
+    deviceId: '',
+    operation: 'list',
+    remotePath: '/sdcard/Download',
+    localPath: '',
+    dryRun: true,
+  },
+  'android.screen_record': { adbPath: 'adb', deviceId: '', name: 'studio-record', seconds: 5, dryRun: true },
+  'android.image_find': { adbPath: 'adb', deviceId: '', templatePath: 'C:\\button.png', threshold: 0.86 },
+  'android.pixel': { adbPath: 'adb', deviceId: '', x: 300, y: 600, color: '#FFFFFF' },
+  'android.device_profile': {
+    adbPath: 'adb',
+    deviceId: '',
+    operation: 'build',
+    name: 'silverback-android-profile',
+    brand: 'Google',
+    model: 'Pixel 7',
+    dryRun: true,
+  },
+  'android.monkey': { adbPath: 'adb', deviceId: '', packageName: 'com.example.app', events: 100, dryRun: true },
+  'android.script.build': {
+    name: 'silverback-android-airtest',
+    steps: [
+      { action: 'tap', x: 300, y: 600 },
+      { action: 'text', text: 'Hello from Silverback' },
+      { action: 'press', key: 'BACK' },
+    ],
+  },
+  'android.parallel.run': {
+    devices: [],
+    tasks: [{ action: 'android_state', payload: { maxElements: 20 } }],
+    workers: 4,
+    dryRun: true,
   },
   'result.log': { level: 'info', message: 'MCP checkpoint', data: { ok: true } },
   'random.number': { min: 1, max: 9, integer: true },
@@ -1552,6 +1815,87 @@ async function composeArticleWorkflow() {
   print('Article Workflow Composer', data);
 }
 
+function androidBasePayload() {
+  return {
+    adbPath: 'adb',
+    deviceId: androidDeviceId.value.trim(),
+    packageName: androidPackageName.value.trim(),
+    selector: JSON.parse(androidSelectorJson.value || '{}'),
+    x: Number(androidX.value || 0),
+    y: Number(androidY.value || 0),
+    maxElements: 120,
+  };
+}
+
+async function runAndroidDevices() {
+  const data = await callMcp('android.devices', {
+    adbPath: 'adb',
+    timeout: 10,
+  });
+  print('Android ADB Devices', data);
+}
+
+async function runAndroidUiTree() {
+  const data = await callMcp('android.ui_tree', {
+    ...androidBasePayload(),
+    includeXml: false,
+  });
+  print('Android UI Tree', data);
+}
+
+async function runAndroidAnalyze() {
+  const data = await callMcp('android.analyze', androidBasePayload());
+  print('Android UI Analyze', data);
+}
+
+async function runAndroidFindElement() {
+  const data = await callMcp('android.find_element', androidBasePayload());
+  print('Android Find Element', data);
+}
+
+async function runAndroidTap() {
+  const data = await callMcp('android.tap', androidBasePayload());
+  print('Android Tap', data);
+}
+
+async function runAndroidInputText() {
+  const data = await callMcp('android.input_text', {
+    ...androidBasePayload(),
+    text: androidText.value,
+    clear: true,
+  });
+  print('Android Input Text', data);
+}
+
+async function runAndroidScreenshot() {
+  const data = await callMcp('android.screenshot', {
+    ...androidBasePayload(),
+    name: 'studio-screenshot',
+  });
+  print('Android Screenshot', data);
+}
+
+async function runAndroidShell() {
+  const data = await callMcp('android.shell', {
+    ...androidBasePayload(),
+    command: androidShellCommand.value,
+    dryRun: true,
+  });
+  print('Android Shell', data);
+}
+
+async function composeAndroidWorkflow() {
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: 'silverback-android-automation',
+    prompt: androidWorkflowPrompt.value,
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'Android workflow project',
+    source: data,
+    openEditor: true,
+  });
+}
+
 async function runPython() {
   const data = await postJson('/run', {
     action: 'python_exec',
@@ -1760,6 +2104,54 @@ async function buildTelegramBot() {
     commandHandlers: JSON.parse(telegramHandlersJson.value || '[]'),
   });
   print('Telegram Bot Builder', data);
+}
+
+async function composeTelegramBotWorkflow() {
+  const handlers = JSON.parse(telegramHandlersJson.value || '[]');
+  const handlerText = handlers
+    .map((handler) => `/${handler.command}: ${handler.response}`)
+    .join('; ');
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: `${telegramAppName.value || 'silverback-telegram-bot'}-workflow`,
+    prompt: [
+      `Собери Telegram bot workflow как видимый Automa canvas, а не скрытый текстовый код.`,
+      `runtime: ${telegramRuntime.value}.`,
+      `app name: ${telegramAppName.value || 'silverback-telegram-bot'}.`,
+      `token resource: ${telegramTokenResource.value || 'telegram_bot_token'}.`,
+      `commands: ${handlerText || '/ping: pong'}.`,
+      `Добавь secret/resource block для токена, Telegram Bot Builder block, понятный checkpoint и System Command block, который запускает generated project from workflow через run.ps1.`,
+      `Пользователь должен открыть workflow, увидеть блоки, нажать выполнить и получить запуск проекта из workflow.`,
+    ].join(' '),
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'Telegram bot workflow project',
+    source: data,
+    openEditor: true,
+  });
+}
+
+async function composeProductionTelegramServiceWorkflow() {
+  const handlers = JSON.parse(telegramHandlersJson.value || '[]');
+  const handlerText = handlers
+    .map((handler) => `/${handler.command}: ${handler.response}`)
+    .join('; ');
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: `${telegramAppName.value || 'silverback-telegram-service'}-production-workflow`,
+    prompt: [
+      'Build a production Telegram bot service workflow with polling startup, webhook HTTP receiver, Nginx, Docker and systemd files.',
+      'The workflow must be visible and editable in Silverback/Automa, not hidden code.',
+      `app name: ${telegramAppName.value || 'silverback-telegram-service'}.`,
+      `token resource: ${telegramTokenResource.value || 'telegram_bot_token'}.`,
+      `commands: ${handlerText || '/start: hello, /ping: pong'}.`,
+      'Add Resource Store token block, Project Template Builder bot-service block, manual checkpoint and System Command launch block.',
+      'The trigger should support the normal Execute button and browser-startup relaunch for a long-running server service.',
+    ].join(' '),
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'Production Telegram bot-service workflow',
+    source: data,
+    openEditor: true,
+  });
 }
 
 async function dryRunTelegramMessage() {

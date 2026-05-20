@@ -124,6 +124,22 @@ function parseJsonArray(value, label) {
   return parsed;
 }
 
+function parseJsonObjectOr(value, fallback) {
+  try {
+    return parseJsonObject(value, 'json');
+  } catch (_error) {
+    return fallback;
+  }
+}
+
+function parseJsonArrayOr(value, fallback) {
+  try {
+    return parseJsonArray(value, 'json');
+  } catch (_error) {
+    return fallback;
+  }
+}
+
 function parseJsonValue(value, label) {
   try {
     return JSON.parse(value || 'null');
@@ -1326,6 +1342,7 @@ export async function androidAutomation({ id, data }, { refData }) {
     const tasksText = await render(data.tasksJson || '[]', refData, this.engine.isPopup);
     const devicesText = await render(data.devicesJson || '[]', refData, this.engine.isPopup);
     const stepsText = await render(data.stepsJson || '[]', refData, this.engine.isPopup);
+    const extrasText = await render(data.extrasJson || '{}', refData, this.engine.isPopup);
     const mode = data.mode || 'devices';
     const actionMap = {
       devices: 'android_adb_devices',
@@ -1372,7 +1389,7 @@ export async function androidAutomation({ id, data }, { refData }) {
       query: await render(data.packageName || '', refData, this.engine.isPopup),
       activity: await render(data.activity || '', refData, this.engine.isPopup),
       apkPath: await render(data.apkPath || '', refData, this.engine.isPopup),
-      selector: parseJsonObject(selectorText, 'selectorJson'),
+      selector: parseJsonObjectOr(selectorText, {}),
       xpath: await render(data.xpath || '', refData, this.engine.isPopup),
       text: await render(data.text || '', refData, this.engine.isPopup),
       key: await render(data.key || 'BACK', refData, this.engine.isPopup),
@@ -1380,7 +1397,7 @@ export async function androidAutomation({ id, data }, { refData }) {
       intentAction: await render(data.intentAction || 'android.intent.action.VIEW', refData, this.engine.isPopup),
       dataUri: await render(data.dataUri || '', refData, this.engine.isPopup),
       component: await render(data.component || '', refData, this.engine.isPopup),
-      extras: parseJsonObject(await render(data.extrasJson || '{}', refData, this.engine.isPopup), 'extrasJson'),
+      extras: parseJsonObjectOr(extrasText, {}),
       proxy: await render(data.proxy || '', refData, this.engine.isPopup),
       latitude: Number(data.latitude || 0),
       longitude: Number(data.longitude || 0),
@@ -1415,9 +1432,9 @@ export async function androidAutomation({ id, data }, { refData }) {
       profileOperation: data.profileOperation || 'build',
       events: Number(data.events || 100),
       threshold: Number(data.threshold || 0.86),
-      steps: parseJsonArray(stepsText, 'stepsJson'),
-      devices: parseJsonArray(devicesText, 'devicesJson'),
-      tasks: parseJsonArray(tasksText, 'tasksJson'),
+      steps: parseJsonArrayOr(stepsText, []),
+      devices: parseJsonArrayOr(devicesText, []),
+      tasks: parseJsonArrayOr(tasksText, []),
       workers: Number(data.workers || 4),
       dryRun: Boolean(data.dryRun),
       timeout: Number(data.executionTimeout || 30),
@@ -1535,6 +1552,39 @@ export default function () {
     httpClient,
     systemCommand,
     androidAutomation,
+    androidDevices: androidAutomation,
+    androidConnect: androidAutomation,
+    androidState: androidAutomation,
+    androidUiTree: androidAutomation,
+    androidAnalyze: androidAutomation,
+    androidFindElement: androidAutomation,
+    androidWaitElement: androidAutomation,
+    androidElementAt: androidAutomation,
+    androidXpath: androidAutomation,
+    androidTap: androidAutomation,
+    androidLongClick: androidAutomation,
+    androidInputText: androidAutomation,
+    androidSwipe: androidAutomation,
+    androidDrag: androidAutomation,
+    androidPress: androidAutomation,
+    androidWait: androidAutomation,
+    androidShell: androidAutomation,
+    androidScreenshot: androidAutomation,
+    androidNotifications: androidAutomation,
+    androidApp: androidAutomation,
+    androidPackages: androidAutomation,
+    androidIntent: androidAutomation,
+    androidProxy: androidAutomation,
+    androidLocation: androidAutomation,
+    androidPermissions: androidAutomation,
+    androidFiles: androidAutomation,
+    androidScreenRecord: androidAutomation,
+    androidImageFind: androidAutomation,
+    androidPixel: androidAutomation,
+    androidDeviceProfile: androidAutomation,
+    androidMonkey: androidAutomation,
+    androidParallelRun: androidAutomation,
+    androidAirtestScript: androidAutomation,
     libraryRunner,
     telegramMessage,
     telegramBotBuilder,
