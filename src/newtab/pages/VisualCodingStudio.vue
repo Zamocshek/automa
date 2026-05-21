@@ -861,6 +861,34 @@
                 @change="browserSwarmRetryAttempts = Number($event)"
               />
             </div>
+            <div class="vc-inline">
+              <ui-input
+                :model-value="browserSwarmSuccessLimit"
+                label="Stop success"
+                type="number"
+                @change="browserSwarmSuccessLimit = Number($event)"
+              />
+              <ui-input
+                :model-value="browserSwarmFailureLimit"
+                label="Stop errors"
+                type="number"
+                @change="browserSwarmFailureLimit = Number($event)"
+              />
+            </div>
+            <div class="vc-inline">
+              <ui-input
+                :model-value="browserSwarmSleepMin"
+                label="Sleep min"
+                type="number"
+                @change="browserSwarmSleepMin = Number($event)"
+              />
+              <ui-input
+                :model-value="browserSwarmSleepMax"
+                label="Sleep max"
+                type="number"
+                @change="browserSwarmSleepMax = Number($event)"
+              />
+            </div>
             <label>
               Proxy list
               <ui-textarea
@@ -970,6 +998,10 @@ const browserSwarmCount = ref(20);
 const browserSwarmConcurrency = ref(5);
 const browserSwarmRepeats = ref(1);
 const browserSwarmRetryAttempts = ref(2);
+const browserSwarmSuccessLimit = ref(0);
+const browserSwarmFailureLimit = ref(0);
+const browserSwarmSleepMin = ref(0);
+const browserSwarmSleepMax = ref(0);
 const browserSwarmProfileStrategy = ref('perBrowser');
 const browserSwarmProfilePrefix = ref('swarm-profile');
 const browserSwarmProxies = ref('');
@@ -1218,6 +1250,10 @@ const examples = {
     concurrency: 5,
     repeats: 1,
     retryAttempts: 2,
+    successLimit: 10,
+    failureLimit: 3,
+    sleepMinSeconds: 0,
+    sleepMaxSeconds: 0,
     profileStrategy: 'perBrowser',
     profilePrefix: 'swarm-profile',
     html: '<main><button id="run">Run</button><input name="email"></main>',
@@ -1454,6 +1490,10 @@ const mcpExamples = {
     concurrency: 5,
     repeats: 1,
     retryAttempts: 2,
+    successLimit: 10,
+    failureLimit: 3,
+    sleepMinSeconds: 0,
+    sleepMaxSeconds: 0,
     profileStrategy: 'perBrowser',
     profilePrefix: 'swarm-profile',
     html: '<main><button id="run">Run</button><input name="email"></main>',
@@ -2452,6 +2492,10 @@ function browserSwarmPayload() {
     concurrency: Number(browserSwarmConcurrency.value || 1),
     repeats: Number(browserSwarmRepeats.value || 1),
     retryAttempts: Number(browserSwarmRetryAttempts.value || 1),
+    successLimit: Number(browserSwarmSuccessLimit.value || 0),
+    failureLimit: Number(browserSwarmFailureLimit.value || 0),
+    sleepMinSeconds: Number(browserSwarmSleepMin.value || 0),
+    sleepMaxSeconds: Number(browserSwarmSleepMax.value || 0),
     profileStrategy: browserSwarmProfileStrategy.value,
     profilePrefix: browserSwarmProfilePrefix.value.trim() || 'swarm-profile',
     proxies: browserSwarmProxies.value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean),
