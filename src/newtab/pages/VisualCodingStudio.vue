@@ -523,6 +523,10 @@
             <strong>{{ dashboardSummary.browserJobs.queued }} queued</strong>
           </div>
           <div class="vc-mini-card">
+            <p>Browser swarms</p>
+            <strong>{{ dashboardSummary.browserSwarms.plans }} plans / {{ dashboardSummary.browserSwarms.plannedRuns }} runs</strong>
+          </div>
+          <div class="vc-mini-card">
             <p>Manual gates</p>
             <strong>{{ dashboardSummary.manualInterventions.open }} open</strong>
           </div>
@@ -786,6 +790,97 @@
           <ui-button @click="safeRun(listBrowserProfiles)">Список профилей</ui-button>
         </div>
       </article>
+
+      <article class="vc-panel vc-span-2">
+        <div class="vc-panel-head">
+          <h2>BAS / ZennoPoster Browser Swarm</h2>
+          <span>browser count + threads + repeats</span>
+        </div>
+        <div class="vc-form-grid">
+          <div class="vc-stack">
+            <ui-input
+              :model-value="browserSwarmName"
+              label="Plan name"
+              @change="browserSwarmName = $event"
+            />
+            <ui-select
+              :model-value="browserSwarmTool"
+              label="Browser tool"
+              block
+              @change="browserSwarmTool = $event"
+            >
+              <option value="browser.query_selector">query selector</option>
+              <option value="browser.scan_page">scan page</option>
+              <option value="browser.suggest_selectors">suggest selectors</option>
+              <option value="network.capture">network capture</option>
+            </ui-select>
+            <ui-select
+              :model-value="browserSwarmProfileStrategy"
+              label="Profile strategy"
+              block
+              @change="browserSwarmProfileStrategy = $event"
+            >
+              <option value="perBrowser">per browser</option>
+              <option value="perWorker">per worker</option>
+              <option value="perRun">per run</option>
+              <option value="reuse">reuse one</option>
+              <option value="none">none</option>
+            </ui-select>
+            <ui-input
+              :model-value="browserSwarmProfilePrefix"
+              label="Profile prefix"
+              @change="browserSwarmProfilePrefix = $event"
+            />
+          </div>
+          <div class="vc-stack">
+            <div class="vc-inline">
+              <ui-input
+                :model-value="browserSwarmCount"
+                label="Browsers"
+                type="number"
+                @change="browserSwarmCount = Number($event)"
+              />
+              <ui-input
+                :model-value="browserSwarmConcurrency"
+                label="Threads"
+                type="number"
+                @change="browserSwarmConcurrency = Number($event)"
+              />
+            </div>
+            <div class="vc-inline">
+              <ui-input
+                :model-value="browserSwarmRepeats"
+                label="Repeats"
+                type="number"
+                @change="browserSwarmRepeats = Number($event)"
+              />
+              <ui-input
+                :model-value="browserSwarmRetryAttempts"
+                label="Retries"
+                type="number"
+                @change="browserSwarmRetryAttempts = Number($event)"
+              />
+            </div>
+            <label>
+              Proxy list
+              <ui-textarea
+                :model-value="browserSwarmProxies"
+                spellcheck="false"
+                class="vc-code-input vc-small-code"
+                @change="browserSwarmProxies = $event"
+              />
+            </label>
+          </div>
+        </div>
+        <div class="vc-actions">
+          <ui-button variant="accent" @click="safeRun(planBrowserSwarm)">Plan browser swarm</ui-button>
+          <ui-button @click="safeRun(dryRunBrowserSwarm)">Dry run browser swarm</ui-button>
+          <ui-button @click="safeRun(runBrowserSwarmSample)">Run 1-browser sample</ui-button>
+          <ui-button @click="safeRun(listBrowserSwarms)">List swarms</ui-button>
+          <ui-button @click="selectMcpTool('browser.swarm.plan')">MCP plan</ui-button>
+          <ui-button @click="selectMcpTool('browser.swarm.run')">MCP run</ui-button>
+        </div>
+      </article>
     </section>
 
     <section class="vc-panel vc-output-panel">
@@ -869,6 +964,15 @@ const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>');
+const browserSwarmName = ref('silverback-browser-swarm');
+const browserSwarmTool = ref('browser.query_selector');
+const browserSwarmCount = ref(20);
+const browserSwarmConcurrency = ref(5);
+const browserSwarmRepeats = ref(1);
+const browserSwarmRetryAttempts = ref(2);
+const browserSwarmProfileStrategy = ref('perBrowser');
+const browserSwarmProfilePrefix = ref('swarm-profile');
+const browserSwarmProxies = ref('');
 const androidDeviceId = ref('');
 const androidPackageName = ref('com.example.app');
 const androidText = ref('Hello from Silverback');
@@ -1106,6 +1210,21 @@ const examples = {
     hint: 'run',
     maxElements: 40,
   },
+  browser_swarm_plan: {
+    name: 'silverback-browser-swarm',
+    browserEngine: 'chromium',
+    tool: 'browser.query_selector',
+    browserCount: 20,
+    concurrency: 5,
+    repeats: 1,
+    retryAttempts: 2,
+    profileStrategy: 'perBrowser',
+    profilePrefix: 'swarm-profile',
+    html: '<main><button id="run">Run</button><input name="email"></main>',
+    selector: 'button#run',
+  },
+  browser_swarm_run: { name: 'silverback-browser-swarm', dryRun: true, concurrency: 5, maxTasks: 5 },
+  browser_swarm_list: { limit: 10 },
   network_capture: {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
@@ -1327,6 +1446,21 @@ const mcpExamples = {
     hint: 'run',
     maxElements: 40,
   },
+  'browser.swarm.plan': {
+    name: 'silverback-browser-swarm',
+    browserEngine: 'chromium',
+    tool: 'browser.query_selector',
+    browserCount: 20,
+    concurrency: 5,
+    repeats: 1,
+    retryAttempts: 2,
+    profileStrategy: 'perBrowser',
+    profilePrefix: 'swarm-profile',
+    html: '<main><button id="run">Run</button><input name="email"></main>',
+    selector: 'button#run',
+  },
+  'browser.swarm.run': { name: 'silverback-browser-swarm', dryRun: true, concurrency: 5, maxTasks: 5 },
+  'browser.swarm.list': { limit: 10 },
   'http.request': { method: 'GET', url: 'https://example.com', maxChars: 4000 },
   'workflow.build_from_prompt': {
     name: 'silverback-coding-full-utility',
@@ -1566,6 +1700,7 @@ const hasBridge = computed(() => bridgeState.value === 'ok');
 const dashboardSummary = computed(() => productionDashboard.value?.summary || {
   sessions: { total: 0, failed: 0, blocked: 0, running: 0 },
   browserJobs: { total: 0, queued: 0, running: 0, failed: 0 },
+  browserSwarms: { plans: 0, plannedRuns: 0, parallelBrowsers: 0 },
   manualInterventions: { total: 0, open: 0, resolved: 0 },
   permissionAudit: 0,
   packageAudit: 0,
@@ -2034,6 +2169,7 @@ async function buildRuntimeFormProject() {
     workers: Number(batchWorkers.value || 2),
     repeats: Number(batchRepeats.value || 1),
     batchMode: batchMode.value,
+    browserSwarm: browserSwarmPayload(),
     androidDevices: ['emulator-5554', 'emulator-5556', 'emulator-5558', 'emulator-5560', 'emulator-5562'],
     androidTasks: [{ action: 'android_state', payload: { maxElements: 20 } }],
     overwrite: true,
@@ -2304,6 +2440,59 @@ async function createBrowserProfile() {
 async function listBrowserProfiles() {
   const data = await callMcp('browser.profiles.list');
   print('Browser Profiles', data);
+}
+
+function browserSwarmPayload() {
+  const useHtml = Boolean(browserHtml.value.trim());
+  return {
+    name: browserSwarmName.value.trim() || 'silverback-browser-swarm',
+    browserEngine: browserEngine.value,
+    tool: browserSwarmTool.value,
+    browserCount: Number(browserSwarmCount.value || 1),
+    concurrency: Number(browserSwarmConcurrency.value || 1),
+    repeats: Number(browserSwarmRepeats.value || 1),
+    retryAttempts: Number(browserSwarmRetryAttempts.value || 1),
+    profileStrategy: browserSwarmProfileStrategy.value,
+    profilePrefix: browserSwarmProfilePrefix.value.trim() || 'swarm-profile',
+    proxies: browserSwarmProxies.value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean),
+    url: useHtml ? '' : browserUrl.value.trim(),
+    html: useHtml ? browserHtml.value.trim() : '',
+    selector: browserSelector.value,
+    headless: true,
+  };
+}
+
+async function planBrowserSwarm() {
+  const payload = browserSwarmPayload();
+  const data = await callMcp('browser.swarm.plan', payload);
+  print('Browser Swarm Plan', data);
+}
+
+async function dryRunBrowserSwarm() {
+  const payload = browserSwarmPayload();
+  const plan = await callMcp('browser.swarm.plan', payload);
+  const run = await callMcp('browser.swarm.run', {
+    name: payload.name,
+    dryRun: true,
+    concurrency: payload.concurrency,
+  });
+  print('Browser Swarm Dry Run', { plan, run });
+}
+
+async function runBrowserSwarmSample() {
+  const payload = browserSwarmPayload();
+  const plan = await callMcp('browser.swarm.plan', payload);
+  const run = await callMcp('browser.swarm.run', {
+    name: payload.name,
+    maxTasks: 1,
+    concurrency: 1,
+  });
+  print('Browser Swarm Sample', { plan, run });
+}
+
+async function listBrowserSwarms() {
+  const data = await callMcp('browser.swarm.list', { limit: 20 });
+  print('Browser Swarms', data);
 }
 
 async function saveWorkflowToAutoma(workflow) {
