@@ -319,7 +319,16 @@ export async function buildApp({ id, data }, { refData }) {
     const actions = parseJsonArray(actionsText, 'actionsJson');
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
       action: 'build_app',
-      payload: { name: appName, actions },
+      payload: {
+        name: appName,
+        actions,
+        packageMode: data.packageMode || 'none',
+        packageOnefile: data.packageOnefile !== false,
+        packageWindowed: Boolean(data.packageWindowed),
+        packageAllowInstall: Boolean(data.packageAllowInstall),
+        packageDryRun: Boolean(data.packageDryRun),
+        packageTimeout: Number(data.packageTimeout || 600),
+      },
     });
     return finishBlock(this, id, data, responseData);
   } catch (error) {

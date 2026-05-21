@@ -20,6 +20,48 @@
       placeholder="silverback-coding-demo"
       @change="updateData({ appName: $event })"
     />
+    <label class="input-label">Упаковка</label>
+    <ui-select
+      :model-value="data.packageMode"
+      class="w-full"
+      @change="updateData({ packageMode: $event })"
+    >
+      <option value="none">Только папка runtime/builds</option>
+      <option value="pyinstaller">PyInstaller .exe</option>
+    </ui-select>
+    <div v-if="data.packageMode === 'pyinstaller'" class="space-y-2 rounded-lg border border-white/10 bg-white/5 p-3">
+      <ui-checkbox
+        :model-value="data.packageOnefile !== false"
+        @change="updateData({ packageOnefile: $event })"
+      >
+        Один .exe файл
+      </ui-checkbox>
+      <ui-checkbox
+        :model-value="data.packageWindowed"
+        @change="updateData({ packageWindowed: $event })"
+      >
+        Оконный режим без консоли
+      </ui-checkbox>
+      <ui-checkbox
+        :model-value="data.packageDryRun !== false"
+        @change="updateData({ packageDryRun: $event })"
+      >
+        Dry-run упаковки
+      </ui-checkbox>
+      <ui-checkbox
+        :model-value="data.packageAllowInstall"
+        @change="updateData({ packageAllowInstall: $event })"
+      >
+        Разрешить установку PyInstaller
+      </ui-checkbox>
+      <ui-input
+        :model-value="data.packageTimeout"
+        label="Таймаут упаковки, сек"
+        type="number"
+        class="w-full"
+        @change="updateData({ packageTimeout: Number($event) })"
+      />
+    </div>
     <label class="input-label">JSON действий</label>
     <ui-textarea
       :model-value="data.actionsJson"

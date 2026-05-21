@@ -178,6 +178,12 @@ export default function () {
         appName: 'silverback-coding-demo',
         actionsJson:
           '[\n  {"action":"echo","payload":{"message":"built app"}},\n  {"action":"uppercase","payload":{"text":"demo"}}\n]',
+        packageMode: 'none',
+        packageOnefile: true,
+        packageWindowed: false,
+        packageAllowInstall: false,
+        packageDryRun: true,
+        packageTimeout: 600,
         ...baseBridgeData,
         returnPath: 'result.dir',
       },
