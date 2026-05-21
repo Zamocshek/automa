@@ -526,9 +526,18 @@
             <p>Manual gates</p>
             <strong>{{ dashboardSummary.manualInterventions.open }} open</strong>
           </div>
+          <div class="vc-mini-card">
+            <p>Teletype audit</p>
+            <strong>{{ teletypeAuditLabel }}</strong>
+          </div>
+          <div class="vc-mini-card">
+            <p>Known gaps</p>
+            <strong>{{ teletypeGapLabel }}</strong>
+          </div>
         </section>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(refreshProductionDashboard)">Refresh dashboard</ui-button>
+          <ui-button @click="safeRun(runTeletypeAudit)">Teletype audit</ui-button>
           <ui-button @click="safeRun(runReleasePreflight)">Release preflight</ui-button>
           <ui-button @click="safeRun(writeReleaseManifest)">Release manifest</ui-button>
           <ui-button @click="safeRun(copyMcpJson)">Copy MCP JSON</ui-button>
@@ -1542,7 +1551,8 @@ const mcpExamples = {
     name: 'silverback-private-vpn-benchmark',
   },
   'benchmark.private_vpn.capabilities': {},
-  'production.dashboard': { limit: 8, includePreflight: true },
+  'release.teletype_audit': { writeReport: false },
+  'production.dashboard': { limit: 8, includePreflight: true, includeTeletypeAudit: true },
   'project.recipes.list': {},
   'project.recipe.build': {
     id: 'saas-intake-agent',
@@ -1566,6 +1576,17 @@ const productionReadyLabel = computed(() => {
   if (ready === true) return `ready v${productionDashboard.value.version}`;
   if (ready === false) return 'needs attention';
   return 'not checked';
+});
+const teletypeAudit = computed(() => productionDashboard.value?.teletypeAudit || null);
+const teletypeAuditLabel = computed(() => {
+  if (!teletypeAudit.value) return 'not checked';
+  const counts = teletypeAudit.value.counts || {};
+  return `${counts.done || 0}/${counts.total || 0} done`;
+});
+const teletypeGapLabel = computed(() => {
+  if (!teletypeAudit.value) return 'not checked';
+  const counts = teletypeAudit.value.counts || {};
+  return `${counts.partial || 0} partial / ${counts.missing || 0} missing`;
 });
 const selectedProjectRecipe = computed(
   () => projectRecipes.value.find((recipe) => recipe.id === selectedRecipeId.value) || projectRecipes.value[0] || null,
@@ -2373,10 +2394,20 @@ async function listResources() {
 }
 
 async function refreshProductionDashboard() {
-  const data = await callMcp('production.dashboard', { limit: 8, includePreflight: true });
+  const data = await callMcp('production.dashboard', { limit: 8, includePreflight: true, includeTeletypeAudit: true });
   productionDashboard.value = data.result;
   if (Array.isArray(data.result?.recipes)) projectRecipes.value = data.result.recipes;
   print('Production Dashboard', data);
+}
+
+async function runTeletypeAudit() {
+  const data = await callMcp('release.teletype_audit', { writeReport: true });
+  productionDashboard.value = {
+    ...(productionDashboard.value || {}),
+    teletypeAudit: data.result,
+    version: data.result?.version || productionDashboard.value?.version,
+  };
+  print('Teletype Audit', data);
 }
 
 async function runReleasePreflight() {
