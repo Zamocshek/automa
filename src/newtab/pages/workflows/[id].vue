@@ -65,7 +65,7 @@
           </div>
         </ui-card>
         <ui-tabs
-          :model-value="isPackage ? state.activeTab : 'editor'"
+          :model-value="state.activeTab"
           class="pointer-events-auto h-full space-x-1 rounded-lg border-none bg-white px-2 dark:bg-gray-800"
           @change="onTabChange"
         >
@@ -90,7 +90,10 @@
               {{ t('common.settings') }}
             </ui-tab>
           </template>
-          <ui-tab v-else value="logs" class="flex items-center">
+          <ui-tab value="project-state" class="flex items-center">
+            Ресурсы
+          </ui-tab>
+          <ui-tab v-if="!isPackage" value="logs" class="flex items-center">
             {{ t('common.log', 2) }}
             <span
               v-if="workflowStates.length > 0"
@@ -163,6 +166,13 @@
             />
           </ui-tab-panel>
         </template>
+        <ui-tab-panel value="project-state" class="h-full overflow-auto">
+          <workflow-project-state
+            :workflow="workflow"
+            :is-package="isPackage"
+            :is-team="isTeamWorkflow"
+          />
+        </ui-tab-panel>
         <ui-tab-panel cache value="editor" class="w-full" @keydown="onKeydown">
           <editor-debugging
             v-if="workflow.testingMode && workflowStates.length > 0"
@@ -311,6 +321,7 @@ import WorkflowDetailsCard from '@/components/newtab/workflow/WorkflowDetailsCar
 import WorkflowEditBlock from '@/components/newtab/workflow/WorkflowEditBlock.vue';
 import WorkflowEditor from '@/components/newtab/workflow/WorkflowEditor.vue';
 import WorkflowGlobalData from '@/components/newtab/workflow/WorkflowGlobalData.vue';
+import WorkflowProjectState from '@/components/newtab/workflow/WorkflowProjectState.vue';
 import WorkflowSettings from '@/components/newtab/workflow/WorkflowSettings.vue';
 import WorkflowShare from '@/components/newtab/workflow/WorkflowShare.vue';
 import WorkflowShareTeam from '@/components/newtab/workflow/WorkflowShareTeam.vue';
