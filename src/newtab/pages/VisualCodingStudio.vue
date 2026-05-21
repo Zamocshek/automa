@@ -49,6 +49,77 @@
     </section>
 
     <section class="vc-grid">
+      <article class="vc-panel vc-span-2 vc-cockpit">
+        <div class="vc-panel-head">
+          <h2>BAS/ZENNO Production Cockpit</h2>
+          <span>one workspace + visible blocks + MCP</span>
+        </div>
+        <div class="vc-cockpit-layout">
+          <div class="vc-cockpit-primary">
+            <p class="vc-section-label">Production axis</p>
+            <div class="vc-cockpit-rows">
+              <div
+                v-for="row in basCockpitRows"
+                :key="row.label"
+                class="vc-cockpit-row"
+              >
+                <span>{{ row.label }}</span>
+                <strong>{{ row.value }}</strong>
+              </div>
+            </div>
+            <div class="vc-actions">
+              <ui-button variant="accent" @click="safeRun(runProductionReadinessChecklist)">Readiness pass</ui-button>
+              <ui-button @click="safeRun(composeBasZennoProductionWorkflow)">Compose BAS/ZENNO workflow</ui-button>
+              <ui-button @click="safeRun(refreshProductionDashboard)">Refresh cockpit</ui-button>
+              <ui-button @click="safeRun(planBrowserSwarm)">Plan swarm</ui-button>
+            </div>
+          </div>
+          <div class="vc-cockpit-secondary">
+            <p class="vc-section-label">Camoufox manager</p>
+            <div class="vc-inline">
+              <ui-input
+                :model-value="camoufoxManagerPath"
+                label="Manager path"
+                @change="camoufoxManagerPath = $event"
+              />
+              <ui-input
+                :model-value="camoufoxTargetPrefix"
+                label="Import prefix"
+                @change="camoufoxTargetPrefix = $event"
+              />
+            </div>
+            <div class="vc-actions">
+              <ui-button @click="safeRun(refreshCamoufoxManager)">Manager status</ui-button>
+              <ui-button @click="safeRun(syncCamoufoxProfiles)">Import profiles</ui-button>
+              <ui-button @click="selectMcpTool('camoufox.manager.sync')">MCP sync</ui-button>
+            </div>
+            <p class="vc-section-label">Network policy / recorder</p>
+            <div class="vc-form-grid vc-form-grid-wide">
+              <ui-input
+                :model-value="networkPolicyName"
+                label="Policy name"
+                @change="networkPolicyName = $event"
+              />
+              <label>
+                Request rules JSON
+                <ui-textarea
+                  :model-value="networkPolicyRulesJson"
+                  spellcheck="false"
+                  class="vc-code-input vc-tiny-code"
+                  @change="networkPolicyRulesJson = $event"
+                />
+              </label>
+            </div>
+            <div class="vc-actions">
+              <ui-button @click="safeRun(buildNetworkPolicy)">Build policy</ui-button>
+              <ui-button @click="safeRun(runNetworkPolicyScan)">Scan with policy</ui-button>
+              <ui-button @click="safeRun(listNetworkPolicies)">List policies</ui-button>
+              <ui-button @click="selectMcpTool('network.policy.build')">MCP policy</ui-button>
+            </div>
+          </div>
+        </div>
+      </article>
+
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
           <h2>Запуск действий моста</h2>
@@ -99,6 +170,8 @@
           <ui-button @click="selectAction('parallel_plan_build')">Параллельный план</ui-button>
           <ui-button @click="selectAction('design_app_build')">Дизайн-приложение</ui-button>
           <ui-button @click="selectAction('private_vpn_project_build')">Private VPN</ui-button>
+          <ui-button @click="selectAction('network_policy_build')">Network policy</ui-button>
+          <ui-button @click="selectAction('camoufox_manager_sync')">Camoufox sync</ui-button>
         </div>
       </article>
 
@@ -538,9 +611,20 @@
             <p>Known gaps</p>
             <strong>{{ teletypeGapLabel }}</strong>
           </div>
+          <div class="vc-mini-card">
+            <p>Camoufox manager</p>
+            <strong>{{ camoufoxManagerLabel }}</strong>
+          </div>
+          <div class="vc-mini-card">
+            <p>Network policies</p>
+            <strong>{{ networkPolicyLabel }}</strong>
+          </div>
         </section>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(refreshProductionDashboard)">Refresh dashboard</ui-button>
+          <ui-button @click="safeRun(runProductionReadinessChecklist)">Readiness pass</ui-button>
+          <ui-button @click="safeRun(refreshCamoufoxManager)">Camoufox status</ui-button>
+          <ui-button @click="safeRun(buildNetworkPolicy)">Network policy</ui-button>
           <ui-button @click="safeRun(runTeletypeAudit)">Teletype audit</ui-button>
           <ui-button @click="safeRun(runReleasePreflight)">Release preflight</ui-button>
           <ui-button @click="safeRun(writeReleaseManifest)">Release manifest</ui-button>
@@ -629,6 +713,8 @@
           <ui-button @click="selectMcpTool('files.tool')">Файлы</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Ожидание</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
+          <ui-button @click="selectMcpTool('network.policy.build')">Network policy</ui-button>
+          <ui-button @click="selectMcpTool('camoufox.manager.sync')">Camoufox sync</ui-button>
           <ui-button @click="selectMcpTool('resources.schema.build')">Поля</ui-button>
           <ui-button @click="selectMcpTool('parallel.plan.build')">План</ui-button>
           <ui-button @click="selectMcpTool('design.app.build')">Дизайн-приложение</ui-button>
@@ -1005,6 +1091,19 @@ const browserSwarmSleepMax = ref(0);
 const browserSwarmProfileStrategy = ref('perBrowser');
 const browserSwarmProfilePrefix = ref('swarm-profile');
 const browserSwarmProxies = ref('');
+const camoufoxManagerPath = ref('runtime/reference/camoumgr');
+const camoufoxTargetPrefix = ref('camoumgr');
+const networkPolicyName = ref('studio-network-policy');
+const networkPolicyRulesJson = ref(`[
+  {
+    "id": "replace-demo-document",
+    "action": "fulfill",
+    "urlContains": "/network-policy-demo",
+    "status": 200,
+    "contentType": "text/html",
+    "body": "<main><h1>policy-ok</h1><button id='run'>Run</button><input name='email'></main>"
+  }
+]`);
 const androidDeviceId = ref('');
 const androidPackageName = ref('com.example.app');
 const androidText = ref('Hello from Silverback');
@@ -1274,6 +1373,26 @@ const examples = {
     name: 'automa-studio-captured-http',
     limit: 12,
   },
+  network_policy_build: {
+    name: 'studio-network-policy',
+    url: 'http://127.0.0.1:8765/network-policy-demo',
+    rules: [
+      {
+        id: 'replace-demo-document',
+        action: 'fulfill',
+        urlContains: '/network-policy-demo',
+        status: 200,
+        contentType: 'text/html',
+        body: "<main><h1>policy-ok</h1><button id='run'>Run</button></main>",
+      },
+    ],
+  },
+  network_policy_list: {},
+  network_policy_get: { name: 'studio-network-policy' },
+  network_policy_delete: { name: 'studio-network-policy' },
+  camoufox_manager_status: { managerPath: 'runtime/reference/camoumgr' },
+  camoufox_manager_profiles: { managerPath: 'runtime/reference/camoumgr' },
+  camoufox_manager_sync: { managerPath: 'runtime/reference/camoumgr', direction: 'import', targetPrefix: 'camoumgr' },
   android_adb_devices: { adbPath: 'adb', timeout: 10 },
   android_adb_connect: { adbPath: 'adb', host: '127.0.0.1:5555', wifi: true, timeout: 15 },
   android_state: { adbPath: 'adb', deviceId: '', maxElements: 80 },
@@ -1459,6 +1578,15 @@ const mcpExamples = {
   },
   'browser.profiles.import_cookies': { name: 'demo-browser-profile', cookies: [] },
   'browser.profiles.export_cookies': { name: 'demo-browser-profile' },
+  'camoufox.manager.status': { managerPath: 'runtime/reference/camoumgr' },
+  'camoufox.manager.profiles': { managerPath: 'runtime/reference/camoumgr' },
+  'camoufox.manager.sync': {
+    managerPath: 'runtime/reference/camoumgr',
+    direction: 'import',
+    targetPrefix: 'camoumgr',
+    copyData: false,
+    overwriteData: false,
+  },
   'browser.scan_page': {
     browserEngine: 'chromium',
     profileName: 'demo-browser-profile',
@@ -1582,6 +1710,23 @@ const mcpExamples = {
     name: 'automa-studio-captured-http',
     limit: 12,
   },
+  'network.policy.build': {
+    name: 'studio-network-policy',
+    url: 'http://127.0.0.1:8765/network-policy-demo',
+    rules: [
+      {
+        id: 'replace-demo-document',
+        action: 'fulfill',
+        urlContains: '/network-policy-demo',
+        status: 200,
+        contentType: 'text/html',
+        body: "<main><h1>policy-ok</h1><button id='run'>Run</button></main>",
+      },
+    ],
+  },
+  'network.policy.list': {},
+  'network.policy.get': { name: 'studio-network-policy' },
+  'network.policy.delete': { name: 'studio-network-policy' },
   'android.devices': { adbPath: 'adb', timeout: 10 },
   'android.connect': { adbPath: 'adb', host: '127.0.0.1:5555', wifi: true, timeout: 15 },
   'android.state': { adbPath: 'adb', deviceId: '', maxElements: 80 },
@@ -1744,6 +1889,8 @@ const dashboardSummary = computed(() => productionDashboard.value?.summary || {
   manualInterventions: { total: 0, open: 0, resolved: 0 },
   permissionAudit: 0,
   packageAudit: 0,
+  camoufoxManager: { found: false, profiles: 0, api: false },
+  networkPolicies: { total: 0 },
   recipes: projectRecipes.value.length,
 });
 const productionReadyLabel = computed(() => {
@@ -1763,6 +1910,37 @@ const teletypeGapLabel = computed(() => {
   const counts = teletypeAudit.value.counts || {};
   return `${counts.partial || 0} partial / ${counts.missing || 0} missing`;
 });
+const productionScoreLabel = computed(() => {
+  const counts = teletypeAudit.value?.counts || {};
+  if (!counts.total) return 'audit pending';
+  return `${counts.done || 0}/${counts.total} article blocks`;
+});
+const browserSwarmCapacityLabel = computed(() => {
+  const summary = dashboardSummary.value.browserSwarms || {};
+  const configured = Number(browserSwarmCount.value || 0);
+  const threads = Number(browserSwarmConcurrency.value || 0);
+  return `${summary.parallelBrowsers || configured} browsers / ${threads} threads`;
+});
+const camoufoxManagerLabel = computed(() => {
+  const manager = productionDashboard.value?.camoufoxManager || {};
+  const summary = dashboardSummary.value.camoufoxManager || {};
+  if (manager.found || summary.found) return `${summary.profiles || manager.profilesCount || 0} profiles`;
+  return 'not linked';
+});
+const networkPolicyLabel = computed(() => {
+  const summary = dashboardSummary.value.networkPolicies || {};
+  return `${summary.total || 0} policies`;
+});
+const basCockpitRows = computed(() => [
+  { label: 'Release', value: productionReadyLabel.value },
+  { label: 'Teletype parity', value: productionScoreLabel.value },
+  { label: 'MCP tools', value: mcpLabel.value },
+  { label: 'Browser swarm', value: browserSwarmCapacityLabel.value },
+  { label: 'Camoufox profiles', value: camoufoxManagerLabel.value },
+  { label: 'Network policies', value: networkPolicyLabel.value },
+  { label: 'Project recipes', value: `${dashboardSummary.value.recipes || projectRecipes.value.length} ready` },
+  { label: 'Manual gates', value: `${dashboardSummary.value.manualInterventions?.open || 0} open` },
+]);
 const selectedProjectRecipe = computed(
   () => projectRecipes.value.find((recipe) => recipe.id === selectedRecipeId.value) || projectRecipes.value[0] || null,
 );
@@ -1994,6 +2172,85 @@ async function runRecorderToolkit() {
     limit: 12,
   });
   print('Recorder Import Toolkit', data);
+}
+
+function camoufoxManagerPayload(extra = {}) {
+  return {
+    managerPath: camoufoxManagerPath.value.trim() || 'runtime/reference/camoumgr',
+    targetPrefix: camoufoxTargetPrefix.value.trim() || 'camoumgr',
+    ...extra,
+  };
+}
+
+async function refreshCamoufoxManager() {
+  const data = await callMcp('camoufox.manager.status', camoufoxManagerPayload());
+  productionDashboard.value = {
+    ...(productionDashboard.value || {}),
+    camoufoxManager: data.result,
+    summary: {
+      ...(productionDashboard.value?.summary || dashboardSummary.value),
+      camoufoxManager: {
+        found: Boolean(data.result?.found),
+        profiles: Number(data.result?.profilesCount || 0),
+        api: Boolean(data.result?.api?.ok),
+      },
+    },
+  };
+  print('Camoufox Manager Status', data);
+}
+
+async function syncCamoufoxProfiles() {
+  const data = await callMcp('camoufox.manager.sync', camoufoxManagerPayload({
+    direction: 'import',
+    copyData: false,
+    overwriteData: false,
+  }));
+  print('Camoufox Profile Import', data);
+  await refreshProductionDashboard();
+}
+
+function networkPolicyPayload(extra = {}) {
+  return {
+    name: networkPolicyName.value.trim() || 'studio-network-policy',
+    url: `${BRIDGE_URL}/network-policy-demo`,
+    browserEngine: browserEngine.value,
+    profileName: browserProfileName.value.trim() || 'demo-browser-profile',
+    rules: JSON.parse(networkPolicyRulesJson.value || '[]'),
+    ...extra,
+  };
+}
+
+async function buildNetworkPolicy() {
+  const data = await callMcp('network.policy.build', networkPolicyPayload());
+  print('Network Policy Build', data);
+  await refreshProductionDashboard();
+}
+
+async function listNetworkPolicies() {
+  const data = await callMcp('network.policy.list', {});
+  productionDashboard.value = {
+    ...(productionDashboard.value || {}),
+    networkPolicies: data.result?.policies || [],
+    summary: {
+      ...(productionDashboard.value?.summary || dashboardSummary.value),
+      networkPolicies: { total: Number(data.result?.count || data.result?.policies?.length || 0) },
+    },
+  };
+  print('Network Policies', data);
+}
+
+async function runNetworkPolicyScan() {
+  const policy = await callMcp('network.policy.build', networkPolicyPayload());
+  const scan = await callMcp('browser.scan_page', {
+    browserEngine: browserEngine.value,
+    profileName: browserProfileName.value.trim() || 'demo-browser-profile',
+    url: `${BRIDGE_URL}/network-policy-demo`,
+    networkPolicyName: networkPolicyName.value.trim() || 'studio-network-policy',
+    captureNetwork: true,
+    maxElements: 40,
+  });
+  print('Network Policy Scan', { policy, scan });
+  await refreshProductionDashboard();
 }
 
 async function runResultToolkit() {
@@ -2417,6 +2674,28 @@ async function composeWorkflow() {
   });
 }
 
+async function composeBasZennoProductionWorkflow() {
+  const data = await callMcp('workflow.build_from_prompt', {
+    name: 'silverback-bas-zenno-production-workflow',
+    prompt: [
+      'Build a BAS/ZennoPoster-style Silverback workflow as visible editable Automa blocks.',
+      'Keep one normal Execute button path and add a startup/schedule plan for long-running services.',
+      'Include Resource Store and runtime form fields for tokens, API URLs, worker count, browser count, repeats, proxy list and mode.',
+      'Include Browser Scanner recon, CSS/XPath selector capture, Network Recorder Import, network policy intercept/replace rules and HTTP Client blocks.',
+      'Include Camoufox manager profile import/sync and Browser Swarm plan with browserCount, concurrency, repeats, retry, success/failure stop limits and sleep range.',
+      'Include B2B intake polling/webhook blocks so website form values become variables and then drive browser/API/Android actions.',
+      'Include Telegram bot service builder with polling and webhook production launch, manual checkpoint, System Command run block, Docker/systemd notes.',
+      'Include Android MCP blocks for ADB devices, UI tree, find/tap/input, screenshot, proxy, geo, permissions, files and multi-device parallel run.',
+      'The graph must make code compact for weak agents: show named blocks, variable edges and checkpoints instead of hiding everything in one code block.',
+    ].join(' '),
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'BAS/ZENNO production workflow project',
+    source: data,
+    openEditor: true,
+  });
+}
+
 function browserPayload(useHtml = false) {
   const html = browserHtml.value.trim();
   const base = {
@@ -2631,6 +2910,36 @@ async function refreshProductionDashboard() {
   productionDashboard.value = data.result;
   if (Array.isArray(data.result?.recipes)) projectRecipes.value = data.result.recipes;
   print('Production Dashboard', data);
+}
+
+async function runProductionReadinessChecklist() {
+  const dashboard = await callMcp('production.dashboard', { limit: 8, includePreflight: true, includeTeletypeAudit: true });
+  const audit = await callMcp('release.teletype_audit', { writeReport: true });
+  const preflight = await callMcp('release.preflight', { runQuickChecks: false });
+  const camoufox = await callMcp('camoufox.manager.status', camoufoxManagerPayload());
+  const networkPolicies = await callMcp('network.policy.list', {});
+  const recipes = await callMcp('project.recipes.list', {});
+  productionDashboard.value = {
+    ...dashboard.result,
+    teletypeAudit: audit.result,
+    preflight: preflight.result,
+    camoufoxManager: camoufox.result,
+    networkPolicies: networkPolicies.result?.policies || [],
+    recipes: recipes.result?.recipes || dashboard.result?.recipes || [],
+    summary: {
+      ...(dashboard.result?.summary || {}),
+      camoufoxManager: {
+        found: Boolean(camoufox.result?.found),
+        profiles: Number(camoufox.result?.profilesCount || 0),
+        api: Boolean(camoufox.result?.api?.ok),
+      },
+      networkPolicies: {
+        total: Number(networkPolicies.result?.count || networkPolicies.result?.policies?.length || 0),
+      },
+    },
+  };
+  if (Array.isArray(recipes.result?.recipes)) projectRecipes.value = recipes.result.recipes;
+  print('Production Readiness Checklist', { dashboard, audit, preflight, camoufox, networkPolicies, recipes });
 }
 
 async function runTeletypeAudit() {
@@ -2971,6 +3280,63 @@ onMounted(async () => {
   padding: 16px;
 }
 
+.vc-cockpit {
+  border-color: rgba(45, 212, 191, 0.26);
+  background:
+    linear-gradient(135deg, rgba(45, 212, 191, 0.1), rgba(124, 58, 237, 0.08) 52%, rgba(245, 158, 11, 0.08)),
+    #0b0a13;
+}
+
+.vc-cockpit-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.vc-cockpit-primary,
+.vc-cockpit-secondary {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.vc-section-label {
+  margin: 0;
+  color: #9ddfd8;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.vc-cockpit-rows {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid rgba(196, 181, 253, 0.16);
+}
+
+.vc-cockpit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 42px;
+  border-bottom: 1px solid rgba(196, 181, 253, 0.14);
+}
+
+.vc-cockpit-row span {
+  color: #b8afc9;
+  font-size: 13px;
+}
+
+.vc-cockpit-row strong {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 760;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .vc-panel-head {
   display: flex;
   align-items: center;
@@ -3003,6 +3369,10 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+}
+
+.vc-form-grid-wide {
+  grid-template-columns: 1fr;
 }
 
 .vc-metric-grid,
@@ -3081,6 +3451,10 @@ label {
   min-height: 84px;
 }
 
+.vc-tiny-code {
+  min-height: 70px;
+}
+
 .vc-output-panel {
   margin-top: 16px;
 }
@@ -3146,6 +3520,14 @@ pre {
 
   .vc-form-grid {
     grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .vc-cockpit-layout {
+    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .vc-form-grid-wide {
+    grid-template-columns: minmax(180px, 0.42fr) minmax(0, 1fr);
   }
 
   .vc-metric-grid {
