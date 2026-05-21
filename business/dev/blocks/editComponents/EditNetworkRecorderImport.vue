@@ -129,6 +129,18 @@
     >
       Build/update policy before run
     </ui-checkbox>
+    <ui-checkbox
+      :model-value="data.applyInlineNetworkPolicy"
+      @change="updateData({ applyInlineNetworkPolicy: $event })"
+    >
+      Apply inline rules without saving
+    </ui-checkbox>
+    <ui-input
+      :model-value="data.networkPolicyDescription"
+      label="Network policy description"
+      class="w-full"
+      @change="updateData({ networkPolicyDescription: $event })"
+    />
     <ui-select
       :model-value="data.networkPolicyDefaultAction || 'continue'"
       label="Default request action"

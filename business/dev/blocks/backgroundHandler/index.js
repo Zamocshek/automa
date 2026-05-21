@@ -176,35 +176,39 @@ async function callBridge(data, refData, isPopup, body) {
 }
 
 async function maybeSyncCamoufoxManager(data, refData, isPopup, browserEngine, profileName) {
-  let effectiveProfileName = profileName;
+  let effectiveProfileName = String(profileName || '').trim();
   if (browserEngine !== 'camoufox' || !data.syncCamoufoxProfile) {
     return effectiveProfileName;
   }
 
-  const managerProfileName = await render(
+  const managerProfileName = (await render(
     data.camoufoxManagerProfileName || '',
     refData,
     isPopup
-  );
-  const targetPrefix = await render(
+  )).trim();
+  const targetPrefix = (await render(
     data.camoufoxTargetPrefix || 'camoumgr-',
     refData,
     isPopup
-  );
-  const managerPath = await render(
+  )).trim();
+  const managerPath = (await render(
     data.camoufoxManagerPath || 'runtime/reference/camoumgr',
     refData,
     isPopup
-  );
+  )).trim();
+  if (!managerProfileName) {
+    throw new Error('Manager profile name is required when Camoufox manager sync is enabled');
+  }
   const syncPayload = {
     managerPath,
     direction: 'import',
     targetPrefix,
     copyData: Boolean(data.camoufoxCopyData),
     overwriteData: Boolean(data.camoufoxOverwriteData),
+    profileNames: [managerProfileName],
   };
-  if (managerProfileName) {
-    syncPayload.profileNames = [managerProfileName];
+  if (effectiveProfileName) {
+    syncPayload.targetName = effectiveProfileName;
   }
 
   await callBridge(data, refData, isPopup, {
@@ -219,11 +223,11 @@ async function maybeSyncCamoufoxManager(data, refData, isPopup, browserEngine, p
 }
 
 async function applyNetworkPolicyOptions(data, refData, isPopup, payload) {
-  const policyName = await render(
+  const policyName = (await render(
     data.networkPolicyName || '',
     refData,
     isPopup
-  );
+  )).trim();
   const rulesText = await render(
     data.networkPolicyRulesJson || '',
     refData,
@@ -231,6 +235,11 @@ async function applyNetworkPolicyOptions(data, refData, isPopup, payload) {
   );
   const trimmedRules = rulesText.trim();
   const eventLimit = Number(data.networkPolicyEventLimit || 160);
+  const policyDescription = await render(
+    data.networkPolicyDescription || 'Workflow-scoped request policy',
+    refData,
+    isPopup
+  );
 
   if (eventLimit > 0) payload.networkPolicyEventLimit = eventLimit;
 
@@ -240,11 +249,7 @@ async function applyNetworkPolicyOptions(data, refData, isPopup, payload) {
       action: 'network_policy_build',
       payload: {
         name: policyName,
-        description: await render(
-          data.networkPolicyDescription || 'Workflow-scoped request policy',
-          refData,
-          isPopup
-        ),
+        description: policyDescription,
         defaultAction: data.networkPolicyDefaultAction || 'continue',
         rules,
         write: true,
@@ -255,10 +260,10 @@ async function applyNetworkPolicyOptions(data, refData, isPopup, payload) {
   if (policyName) {
     payload.networkPolicyName = policyName;
     payload.captureNetwork = true;
-  } else if (trimmedRules) {
+  } else if (data.applyInlineNetworkPolicy && trimmedRules) {
     payload.networkPolicy = {
       name: 'inline-network-policy',
-      description: 'Inline workflow-scoped request policy',
+      description: policyDescription,
       defaultAction: data.networkPolicyDefaultAction || 'continue',
       rules: parseJsonArray(trimmedRules, 'networkPolicyRulesJson'),
     };
@@ -488,16 +493,16 @@ export async function browserScanner({ id, data }, { refData }) {
   try {
     const mode = data.mode || 'scan';
     const source = data.source || 'html';
-    const browserEngine = await render(
+    const browserEngine = (await render(
       data.browserEngine || 'chromium',
       refData,
       this.engine.isPopup
-    );
-    let profileName = await render(
+    )).trim() || 'chromium';
+    let profileName = (await render(
       data.profileName || '',
       refData,
       this.engine.isPopup
-    );
+    )).trim();
     profileName = await maybeSyncCamoufoxManager(
       data,
       refData,
@@ -1199,12 +1204,12 @@ export async function profileAction({ id, data }, { refData }) {
 
 export async function networkRecorderImport({ id, data }, { refData }) {
   try {
-    const browserEngine = await render(
+    const browserEngine = (await render(
       data.browserEngine || 'chromium',
       refData,
       this.engine.isPopup
-    );
-    let profileName = await render(data.profileName || '', refData, this.engine.isPopup);
+    )).trim() || 'chromium';
+    let profileName = (await render(data.profileName || '', refData, this.engine.isPopup)).trim();
     profileName = await maybeSyncCamoufoxManager(
       data,
       refData,
