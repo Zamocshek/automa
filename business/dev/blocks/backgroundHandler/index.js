@@ -175,6 +175,97 @@ async function callBridge(data, refData, isPopup, body) {
   }
 }
 
+async function maybeSyncCamoufoxManager(data, refData, isPopup, browserEngine, profileName) {
+  let effectiveProfileName = profileName;
+  if (browserEngine !== 'camoufox' || !data.syncCamoufoxProfile) {
+    return effectiveProfileName;
+  }
+
+  const managerProfileName = await render(
+    data.camoufoxManagerProfileName || '',
+    refData,
+    isPopup
+  );
+  const targetPrefix = await render(
+    data.camoufoxTargetPrefix || 'camoumgr-',
+    refData,
+    isPopup
+  );
+  const managerPath = await render(
+    data.camoufoxManagerPath || 'runtime/reference/camoumgr',
+    refData,
+    isPopup
+  );
+  const syncPayload = {
+    managerPath,
+    direction: 'import',
+    targetPrefix,
+    copyData: Boolean(data.camoufoxCopyData),
+    overwriteData: Boolean(data.camoufoxOverwriteData),
+  };
+  if (managerProfileName) {
+    syncPayload.profileNames = [managerProfileName];
+  }
+
+  await callBridge(data, refData, isPopup, {
+    action: 'camoufox_manager_sync',
+    payload: syncPayload,
+  });
+
+  if (!effectiveProfileName && managerProfileName) {
+    effectiveProfileName = `${targetPrefix}${managerProfileName}`;
+  }
+  return effectiveProfileName;
+}
+
+async function applyNetworkPolicyOptions(data, refData, isPopup, payload) {
+  const policyName = await render(
+    data.networkPolicyName || '',
+    refData,
+    isPopup
+  );
+  const rulesText = await render(
+    data.networkPolicyRulesJson || '',
+    refData,
+    isPopup
+  );
+  const trimmedRules = rulesText.trim();
+  const eventLimit = Number(data.networkPolicyEventLimit || 160);
+
+  if (eventLimit > 0) payload.networkPolicyEventLimit = eventLimit;
+
+  if (data.buildNetworkPolicy && policyName && trimmedRules) {
+    const rules = parseJsonArray(trimmedRules, 'networkPolicyRulesJson');
+    await callBridge(data, refData, isPopup, {
+      action: 'network_policy_build',
+      payload: {
+        name: policyName,
+        description: await render(
+          data.networkPolicyDescription || 'Workflow-scoped request policy',
+          refData,
+          isPopup
+        ),
+        defaultAction: data.networkPolicyDefaultAction || 'continue',
+        rules,
+        write: true,
+      },
+    });
+  }
+
+  if (policyName) {
+    payload.networkPolicyName = policyName;
+    payload.captureNetwork = true;
+  } else if (trimmedRules) {
+    payload.networkPolicy = {
+      name: 'inline-network-policy',
+      description: 'Inline workflow-scoped request policy',
+      defaultAction: data.networkPolicyDefaultAction || 'continue',
+      rules: parseJsonArray(trimmedRules, 'networkPolicyRulesJson'),
+    };
+    payload.captureNetwork = true;
+  }
+}
+
 function callChromeApi(fn, ...args) {
   return new Promise((resolve, reject) => {
     try {
@@ -402,10 +493,17 @@ export async function browserScanner({ id, data }, { refData }) {
       refData,
       this.engine.isPopup
     );
-    const profileName = await render(
+    let profileName = await render(
       data.profileName || '',
       refData,
       this.engine.isPopup
+    );
+    profileName = await maybeSyncCamoufoxManager(
+      data,
+      refData,
+      this.engine.isPopup,
+      browserEngine,
+      profileName
     );
     const payload = {
       browserEngine,
@@ -422,6 +520,8 @@ export async function browserScanner({ id, data }, { refData }) {
     } else {
       payload.html = await render(data.html || '', refData, this.engine.isPopup);
     }
+
+    await applyNetworkPolicyOptions(data, refData, this.engine.isPopup, payload);
 
     let action = 'browser_scan_page';
     if (mode === 'query') {
@@ -1099,10 +1199,23 @@ export async function profileAction({ id, data }, { refData }) {
 
 export async function networkRecorderImport({ id, data }, { refData }) {
   try {
+    const browserEngine = await render(
+      data.browserEngine || 'chromium',
+      refData,
+      this.engine.isPopup
+    );
+    let profileName = await render(data.profileName || '', refData, this.engine.isPopup);
+    profileName = await maybeSyncCamoufoxManager(
+      data,
+      refData,
+      this.engine.isPopup,
+      browserEngine,
+      profileName
+    );
     const payload = {
       name: await render(data.workflowName || 'captured-http-workflow', refData, this.engine.isPopup),
-      browserEngine: data.browserEngine || 'chromium',
-      profileName: await render(data.profileName || '', refData, this.engine.isPopup),
+      browserEngine,
+      profileName,
       limit: Number(data.limit || 12),
       headless: data.headless !== false,
     };
@@ -1111,6 +1224,8 @@ export async function networkRecorderImport({ id, data }, { refData }) {
     } else {
       payload.url = await render(data.url || '', refData, this.engine.isPopup);
     }
+
+    await applyNetworkPolicyOptions(data, refData, this.engine.isPopup, payload);
 
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
       action: 'network_recorder_import',
