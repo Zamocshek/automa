@@ -36,6 +36,7 @@
       <option value="insert">insert</option>
       <option value="set">set</option>
       <option value="remove">remove</option>
+      <option value="removeValue">delete by value</option>
       <option value="contains">contains</option>
       <option value="slice">slice</option>
       <option value="removeRange">remove range</option>
@@ -58,7 +59,7 @@
       spellcheck="false"
       @change="updateData({ itemsJson: $event })"
     />
-    <template v-if="['append', 'insert', 'set', 'remove', 'contains', 'index'].includes(data.mode)">
+    <template v-if="['append', 'insert', 'set', 'removeValue', 'contains', 'index'].includes(data.mode)">
       <label class="input-label">JSON элемента</label>
       <ui-textarea
         :model-value="data.itemJson"
@@ -209,11 +210,17 @@ const listPresets = [
   { key: 'insert', label: 'Вставить элемент', hint: 'insert', values: { mode: 'insert', index: 0, itemJson: '"inserted"', returnPath: 'result' } },
   { key: 'set', label: 'Установить элемент', hint: 'set', values: { mode: 'set', index: 0, itemJson: '"updated"', returnPath: 'result' } },
   { key: 'remove', label: 'Удалить по индексу', hint: 'remove', values: { mode: 'remove', index: 0, returnPath: 'result' } },
+  { key: 'remove-value', label: 'Удалить по значению', hint: 'value', values: { mode: 'removeValue', itemJson: '"alpha"', returnPath: 'result' } },
   { key: 'contains', label: 'Содержит', hint: 'contains', values: { mode: 'contains', itemJson: '"alpha"', returnPath: 'result' } },
+  { key: 'slice', label: 'Подсписок', hint: 'slice', values: { mode: 'slice', start: 0, end: 2, returnPath: 'result' } },
+  { key: 'remove-range', label: 'Удалить часть', hint: 'range', values: { mode: 'removeRange', start: 0, count: 1, returnPath: 'result' } },
   { key: 'dedupe', label: 'Удалить дубликаты', hint: 'unique', values: { mode: 'dedupe', returnPath: 'result' } },
   { key: 'join', label: 'Объединить в строку', hint: 'join', values: { mode: 'join', separator: ',', returnPath: 'result' } },
   { key: 'parse', label: 'Парсить строку', hint: 'split', values: { mode: 'parse', text: 'a,b,c', separator: ',', returnPath: 'result' } },
   { key: 'sort', label: 'Сортировать', hint: 'sort', values: { mode: 'sort', reverse: false, returnPath: 'result' } },
+  { key: 'index', label: 'Получить индекс', hint: 'index', values: { mode: 'index', itemJson: '"alpha"', returnPath: 'result' } },
+  { key: 'copy', label: 'Копировать список', hint: 'copy', values: { mode: 'copy', returnPath: 'result' } },
+  { key: 'shuffle', label: 'Перемешать список', hint: 'shuffle', values: { mode: 'shuffle', returnPath: 'result' } },
   { key: 'merge', label: 'Объединить списки', hint: 'merge', values: { mode: 'merge', listsJson: '[["a"], ["b"]]', returnPath: 'result' } },
   { key: 'compare', label: 'Сравнить списки', hint: 'compare', values: { mode: 'compare', compareMode: 'same_items', rightJson: '[]', returnPath: 'result' } },
 ];

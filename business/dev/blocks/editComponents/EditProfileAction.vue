@@ -1,5 +1,12 @@
 <template>
   <div class="space-y-2">
+    <BasActionGrid
+      title="Profiles / Fingerprint"
+      description="BAS-style browser profile, cookie and Camoufox fingerprint operations as visible actions."
+      :actions="profilePresets"
+      :active="data.mode"
+      @select="selectPreset"
+    />
     <ui-textarea
       :model-value="data.description"
       placeholder="Описание"
@@ -26,6 +33,11 @@
       <option value="metadata">записать метаданные</option>
       <option value="importCookies">импорт cookies</option>
       <option value="exportCookies">экспорт cookies</option>
+      <option value="fingerprintGet">get fingerprint</option>
+      <option value="fingerprintApply">apply fingerprint</option>
+      <option value="fingerprintPerformance">performance fingerprint</option>
+      <option value="fingerprintOverride">override key</option>
+      <option value="fingerprintCancelOverride">cancel override</option>
       <option value="lock">lock</option>
       <option value="release">release</option>
       <option value="delete">delete</option>
@@ -63,7 +75,7 @@
       class="w-full"
       @change="updateData({ profileDescription: $event })"
     />
-    <template v-if="data.mode === 'metadata'">
+    <template v-if="['metadata', 'fingerprintApply', 'fingerprintPerformance'].includes(data.mode)">
       <label class="input-label">JSON метаданных</label>
       <ui-textarea
         :model-value="data.metadataJson"
@@ -71,6 +83,24 @@
         rows="8"
         spellcheck="false"
         @change="updateData({ metadataJson: $event })"
+      />
+    </template>
+    <template v-if="['fingerprintOverride', 'fingerprintCancelOverride'].includes(data.mode)">
+      <ui-input
+        :model-value="data.fingerprintKey"
+        label="Fingerprint key"
+        class="w-full"
+        placeholder="user_agent"
+        @change="updateData({ fingerprintKey: $event })"
+      />
+      <label v-if="data.mode === 'fingerprintOverride'" class="input-label">JSON value</label>
+      <ui-textarea
+        v-if="data.mode === 'fingerprintOverride'"
+        :model-value="data.fingerprintValueJson"
+        class="w-full font-mono"
+        rows="4"
+        spellcheck="false"
+        @change="updateData({ fingerprintValueJson: $event })"
       />
     </template>
     <template v-if="data.mode === 'importCookies'">
@@ -127,6 +157,8 @@
 </template>
 
 <script setup>
+import BasActionGrid from './BasActionGrid.vue';
+
 const props = defineProps({
   data: {
     type: Object,
@@ -135,7 +167,25 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:data']);
 
+const profilePresets = [
+  { key: 'create', label: 'Create profile', hint: 'permanent', values: { mode: 'create', browserEngine: 'chromium', returnPath: 'result' } },
+  { key: 'switch-permanent', label: 'Switch permanent', hint: 'profile', values: { mode: 'get', returnPath: 'result' } },
+  { key: 'switch-temporary', label: 'Switch temporary', hint: 'copy', values: { mode: 'copy', targetProfileName: 'temp-browser-profile', overwrite: true, returnPath: 'result' } },
+  { key: 'copy', label: 'Copy profile folder', hint: 'copy', values: { mode: 'copy', targetProfileName: 'demo-browser-profile-copy', returnPath: 'result' } },
+  { key: 'delete', label: 'Delete profile', hint: 'delete', values: { mode: 'delete', force: false, returnPath: 'result.deleted' } },
+  { key: 'info', label: 'Current profile info', hint: 'info', values: { mode: 'get', returnPath: 'result' } },
+  { key: 'get-fingerprint', label: 'Get fingerprint', hint: 'read', values: { mode: 'fingerprintGet', browserEngine: 'camoufox', returnPath: 'result.fingerprint' } },
+  { key: 'apply-fingerprint', label: 'Apply fingerprint', hint: 'apply', values: { mode: 'fingerprintApply', browserEngine: 'camoufox', metadataJson: '{\n  "fingerprint": {\n    "os_type": "windows",\n    "screen_width": 1366,\n    "screen_height": 768\n  }\n}', returnPath: 'result.metadata.fingerprint' } },
+  { key: 'performance', label: 'Performance fingerprint', hint: 'perf', values: { mode: 'fingerprintPerformance', browserEngine: 'camoufox', metadataJson: '{\n  "hardwareConcurrency": 4,\n  "deviceMemory": 8,\n  "webglEnabled": true\n}', returnPath: 'result.metadata.fingerprint' } },
+  { key: 'override-key', label: 'Override key', hint: 'key', values: { mode: 'fingerprintOverride', browserEngine: 'camoufox', fingerprintKey: 'user_agent', fingerprintValueJson: '"Mozilla/5.0"', returnPath: 'result.metadata.fingerprintOverrides' } },
+  { key: 'cancel-override', label: 'Cancel override', hint: 'clear', values: { mode: 'fingerprintCancelOverride', browserEngine: 'camoufox', fingerprintKey: '', returnPath: 'result.metadata.fingerprintOverrides' } },
+];
+
 function updateData(value) {
   emit('update:data', { ...props.data, ...value });
+}
+
+function selectPreset(action) {
+  updateData(action.values || {});
 }
 </script>

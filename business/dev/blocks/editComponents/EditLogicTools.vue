@@ -30,9 +30,10 @@
       <option value="truthy">truthy</option>
       <option value="boolean">boolean-группа</option>
       <option value="choose">выбор значения</option>
+      <option value="flow">BAS flow directive</option>
     </ui-select>
     <ui-select
-      v-if="data.mode !== 'truthy'"
+      v-if="!['truthy', 'flow'].includes(data.mode)"
       :model-value="data.operator"
       label="Оператор"
       class="w-full"
@@ -55,7 +56,43 @@
       <option value="or">or</option>
       <option value="not">not</option>
     </ui-select>
-    <template v-if="data.mode === 'boolean'">
+    <template v-if="data.mode === 'flow'">
+      <ui-select
+        :model-value="data.directive || 'success'"
+        label="Flow command"
+        class="w-full"
+        @change="updateData({ directive: $event })"
+      >
+        <option value="break">Break</option>
+        <option value="continue">Continue</option>
+        <option value="success">Success</option>
+        <option value="fail">Fail</option>
+        <option value="abort_script">Abort script</option>
+        <option value="set_label">Set Label</option>
+        <option value="goto_label">Go To Label</option>
+        <option value="ignore_errors">Ignore Errors</option>
+        <option value="set_variable">Set Variable</option>
+        <option value="increment_variable">Increment Variable</option>
+        <option value="set_global_variable">Set Global Variable</option>
+        <option value="increment_global_variable">Increment Global Variable</option>
+        <option value="function_call">Function Call</option>
+        <option value="get_function_parameter">Get Function Parameter</option>
+        <option value="return">Return</option>
+        <option value="function_call_threads">Function Call in several threads</option>
+      </ui-select>
+      <ui-input :model-value="data.labelName" label="Label" class="w-full" @change="updateData({ labelName: $event })" />
+      <ui-input :model-value="data.flowName" label="Name / variable / function" class="w-full" @change="updateData({ flowName: $event })" />
+      <ui-input :model-value="data.threads" label="Threads" type="number" class="w-full" @change="updateData({ threads: Number($event) })" />
+      <label class="input-label">JSON value</label>
+      <ui-textarea
+        :model-value="data.valueJson"
+        class="w-full font-mono"
+        rows="4"
+        spellcheck="false"
+        @change="updateData({ valueJson: $event })"
+      />
+    </template>
+    <template v-else-if="data.mode === 'boolean'">
       <label class="input-label">JSON значений</label>
       <ui-textarea
         :model-value="data.valuesJson"
@@ -144,6 +181,16 @@ const logicPresets = [
   { key: 'or', label: 'ИЛИ (OR)', hint: 'any', values: { mode: 'boolean', operator: 'or', valuesJson: '[true, false]', returnPath: 'result' } },
   { key: 'not', label: 'НЕ (NOT)', hint: 'invert', values: { mode: 'boolean', operator: 'not', valuesJson: '[false]', returnPath: 'result' } },
   { key: 'choose', label: 'Выбрать значение', hint: 'true/false', values: { mode: 'choose', operator: 'eq', whenTrueJson: '"ok"', whenFalseJson: '"fail"', returnPath: 'result' } },
+  { key: 'break', label: 'Break', hint: 'loop', values: { mode: 'flow', directive: 'break', returnPath: 'result.directive' } },
+  { key: 'continue', label: 'Continue', hint: 'loop', values: { mode: 'flow', directive: 'continue', returnPath: 'result.directive' } },
+  { key: 'success', label: 'Success', hint: 'state', values: { mode: 'flow', directive: 'success', returnPath: 'result.directive' } },
+  { key: 'fail', label: 'Fail', hint: 'state', values: { mode: 'flow', directive: 'fail', returnPath: 'result.directive' } },
+  { key: 'abort', label: 'Abort script', hint: 'stop', values: { mode: 'flow', directive: 'abort_script', returnPath: 'result.directive' } },
+  { key: 'label', label: 'Set Label', hint: 'label', values: { mode: 'flow', directive: 'set_label', labelName: 'checkpoint', returnPath: 'result' } },
+  { key: 'goto', label: 'Go To Label', hint: 'goto', values: { mode: 'flow', directive: 'goto_label', labelName: 'checkpoint', returnPath: 'result' } },
+  { key: 'function', label: 'Function Call', hint: 'fn', values: { mode: 'flow', directive: 'function_call', flowName: 'worker_flow', returnPath: 'result' } },
+  { key: 'return', label: 'Return', hint: 'return', values: { mode: 'flow', directive: 'return', valueJson: '{"ok": true}', returnPath: 'result' } },
+  { key: 'function-threads', label: 'Function threads', hint: 'threads', values: { mode: 'flow', directive: 'function_call_threads', flowName: 'worker_flow', threads: 4, returnPath: 'result' } },
 ];
 
 function updateData(value) {

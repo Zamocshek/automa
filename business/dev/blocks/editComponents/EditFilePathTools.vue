@@ -39,8 +39,13 @@
       <option value="basename">basename</option>
       <option value="ext">extension</option>
       <option value="normalize">normalize</option>
+      <option value="parse">parse</option>
       <option value="relative">relative</option>
       <option value="isAbsolute">абсолютный путь</option>
+      <option value="projectFile">project file</option>
+      <option value="projectDir">project dir</option>
+      <option value="installPath">install path</option>
+      <option value="systemPath">system path</option>
     </ui-select>
     <template v-if="['copy', 'move'].includes(data.mode)">
       <ui-input
@@ -66,6 +71,9 @@
         @change="updateData({ partsJson: $event })"
       />
     </template>
+    <template v-else-if="['projectDir', 'installPath'].includes(data.mode)">
+      <div class="text-xs opacity-70">No path input required.</div>
+    </template>
     <template v-else>
       <ui-input
         :model-value="data.path"
@@ -80,6 +88,14 @@
       label="База"
       class="w-full"
       @change="updateData({ base: $event })"
+    />
+    <ui-input
+      v-if="data.mode === 'systemPath'"
+      :model-value="data.systemPathName || 'home'"
+      label="System path"
+      class="w-full"
+      placeholder="home, temp, runtime, data, cwd"
+      @change="updateData({ systemPathName: $event })"
     />
     <template v-if="data.mode === 'write'">
       <label class="input-label">Текст</label>
@@ -133,7 +149,14 @@ const filePresets = [
   { key: 'copy', label: 'Копировать', hint: 'copy', values: { mode: 'copy', source: 'demo/output.txt', target: 'demo/copy.txt', returnPath: 'result' } },
   { key: 'join', label: 'Объединить путь', hint: 'join', values: { mode: 'join', partsJson: '["demo", "output.txt"]', returnPath: 'result' } },
   { key: 'basename', label: 'Имя файла', hint: 'basename', values: { mode: 'basename', path: 'demo/output.txt', returnPath: 'result' } },
+  { key: 'dirname', label: 'Папка файла', hint: 'dirname', values: { mode: 'dirname', path: 'demo/output.txt', returnPath: 'result' } },
+  { key: 'ext', label: 'Расширение', hint: 'ext', values: { mode: 'ext', path: 'demo/output.txt', returnPath: 'result' } },
   { key: 'normalize', label: 'Нормализовать путь', hint: 'normalize', values: { mode: 'normalize', path: 'demo/../demo/output.txt', returnPath: 'result' } },
+  { key: 'parse', label: 'Разобрать путь', hint: 'parse', values: { mode: 'parse', path: 'demo/output.txt', returnPath: 'result' } },
+  { key: 'project-file', label: 'Файл проекта', hint: 'project', values: { mode: 'projectFile', path: 'AGENTS.md', returnPath: 'result' } },
+  { key: 'project-dir', label: 'Папка проекта', hint: 'root', values: { mode: 'projectDir', returnPath: 'result' } },
+  { key: 'install-path', label: 'Install path', hint: 'install', values: { mode: 'installPath', returnPath: 'result' } },
+  { key: 'system-path', label: 'System path', hint: 'home', values: { mode: 'systemPath', systemPathName: 'home', returnPath: 'result' } },
 ];
 
 function updateData(value) {

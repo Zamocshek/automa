@@ -564,6 +564,14 @@ export async function resourceStore({ id, data }, { refData }) {
       action = 'resource_set';
       payload.type = data.resourceType || 'string';
       payload.description = await render(data.resourceDescription || '', refData, this.engine.isPopup);
+      payload.descriptionEn = await render(data.resourceDescriptionEn || '', refData, this.engine.isPopup);
+      payload.descriptionRu = await render(data.resourceDescriptionRu || '', refData, this.engine.isPopup);
+      payload.hint = await render(data.resourceHint || '', refData, this.engine.isPopup);
+      payload.hintEn = await render(data.resourceHintEn || '', refData, this.engine.isPopup);
+      payload.hintRu = await render(data.resourceHintRu || '', refData, this.engine.isPopup);
+      payload.group = await render(data.resourceGroup || '', refData, this.engine.isPopup);
+      payload.allowEmpty = data.allowEmpty !== false;
+      payload.multiline = Boolean(data.multiline);
       const valueText = await render(data.resourceValue || 'null', refData, this.engine.isPopup);
       payload.value = JSON.parse(valueText);
     } else if (mode === 'list') {
@@ -720,12 +728,13 @@ export async function jsonTools({ id, data }, { refData }) {
       delete: 'json_delete',
       parse: 'json_parse',
       stringify: 'json_stringify',
+      format: 'json_format',
       valid: 'json_is_valid',
     };
     const action = modeToAction[mode] || 'json_get';
     const payload = {};
 
-    if (['parse', 'valid'].includes(mode)) {
+    if (['parse', 'valid', 'format'].includes(mode)) {
       payload.text = await render(data.text || '', refData, this.engine.isPopup);
     } else {
       const dataJson = await render(data.dataJson || '{}', refData, this.engine.isPopup);
@@ -736,7 +745,7 @@ export async function jsonTools({ id, data }, { refData }) {
     if (mode === 'set') {
       const valueJson = await render(data.valueJson || 'null', refData, this.engine.isPopup);
       payload.value = parseJsonValue(valueJson, 'valueJson');
-    } else if (mode === 'stringify') {
+    } else if (['stringify', 'format'].includes(mode)) {
       payload.indent = Number(data.indent || 2);
     } else if (mode === 'create') {
       payload.shape = data.shape || 'object';
@@ -767,6 +776,7 @@ export async function listTools({ id, data }, { refData }) {
       insert: 'list_insert',
       set: 'list_set',
       remove: 'list_remove',
+      removeValue: 'list_remove',
       contains: 'list_contains',
       slice: 'list_slice',
       removeRange: 'list_remove_range',
@@ -787,7 +797,7 @@ export async function listTools({ id, data }, { refData }) {
     const itemsText = await render(data.itemsJson || '[]', refData, this.engine.isPopup);
     payload.items = parseJsonArray(itemsText, 'itemsJson');
 
-    if (['append', 'insert', 'set', 'remove', 'contains', 'index'].includes(mode)) {
+    if (['append', 'insert', 'set', 'removeValue', 'contains', 'index'].includes(mode)) {
       const itemText = await render(data.itemJson || 'null', refData, this.engine.isPopup);
       payload.item = parseJsonValue(itemText, 'itemJson');
     }
@@ -837,6 +847,7 @@ export async function logicTools({ id, data }, { refData }) {
       truthy: 'logic_truthy',
       boolean: 'logic_boolean',
       choose: 'logic_choose',
+      flow: 'logic_flow_directive',
     };
     const action = modeToAction[mode] || 'logic_compare';
     const leftJson = await render(data.leftJson || 'null', refData, this.engine.isPopup);
@@ -845,7 +856,13 @@ export async function logicTools({ id, data }, { refData }) {
       operator: data.operator || 'eq',
     };
 
-    if (mode === 'truthy') {
+    if (mode === 'flow') {
+      payload.directive = data.directive || 'success';
+      payload.label = await render(data.labelName || '', refData, this.engine.isPopup);
+      payload.name = await render(data.flowName || '', refData, this.engine.isPopup);
+      payload.value = parseJsonValue(await render(data.valueJson || 'null', refData, this.engine.isPopup), 'valueJson');
+      payload.threads = Number(data.threads || 1);
+    } else if (mode === 'truthy') {
       payload.value = payload.left;
       delete payload.left;
       delete payload.operator;
@@ -1075,6 +1092,11 @@ export async function filePathTools({ id, data }, { refData }) {
       normalize: 'path_normalize',
       relative: 'path_relative',
       isAbsolute: 'path_is_absolute',
+      parse: 'path_parse',
+      projectFile: 'path_project_file',
+      projectDir: 'path_project_dir',
+      installPath: 'path_install_path',
+      systemPath: 'path_system_path',
     };
     const action = modeToAction[mode] || 'file_write';
     const payload = {
@@ -1091,6 +1113,9 @@ export async function filePathTools({ id, data }, { refData }) {
     }
     if (mode === 'relative') {
       payload.base = await render(data.base || '.', refData, this.engine.isPopup);
+    }
+    if (mode === 'systemPath') {
+      payload.name = await render(data.systemPathName || 'home', refData, this.engine.isPopup);
     }
 
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
@@ -1112,6 +1137,9 @@ export async function waitTools({ id, data }, { refData }) {
       http: 'wait_http',
       selector: 'wait_selector',
       text: 'wait_text',
+      pageLoad: 'wait_page_load',
+      urlLoad: 'wait_url',
+      browserAddress: 'wait_browser_address',
       try: 'try_action',
       retry: 'retry_action',
     };
@@ -1130,11 +1158,15 @@ export async function waitTools({ id, data }, { refData }) {
       payload.url = await render(data.url || '', refData, this.engine.isPopup);
       payload.status = Number(data.status || 200);
       payload.contains = await render(data.text || '', refData, this.engine.isPopup);
-    } else if (['selector', 'text'].includes(mode)) {
+    } else if (['selector', 'text', 'pageLoad', 'urlLoad', 'browserAddress'].includes(mode)) {
       payload.browserEngine = data.browserEngine || 'chromium';
       payload.url = await render(data.url || '', refData, this.engine.isPopup);
       payload.selector = await render(data.selector || '', refData, this.engine.isPopup);
       payload.text = await render(data.text || '', refData, this.engine.isPopup);
+      payload.expectedUrl = await render(data.expectedUrl || '', refData, this.engine.isPopup);
+      payload.contains = await render(data.urlContains || data.contains || '', refData, this.engine.isPopup);
+      payload.regex = await render(data.urlRegex || data.regex || '', refData, this.engine.isPopup);
+      payload.loadState = data.loadState || 'load';
       payload.state = data.state || 'visible';
       payload.headless = data.headless !== false;
     } else if (['try', 'retry'].includes(mode)) {
@@ -1168,6 +1200,11 @@ export async function profileAction({ id, data }, { refData }) {
       metadata: 'browser_profile_set_metadata',
       importCookies: 'browser_profile_import_cookies',
       exportCookies: 'browser_profile_export_cookies',
+      fingerprintGet: 'camoufox_fingerprint_get',
+      fingerprintApply: 'camoufox_fingerprint_apply',
+      fingerprintPerformance: 'camoufox_fingerprint_performance',
+      fingerprintOverride: 'camoufox_fingerprint_override_key',
+      fingerprintCancelOverride: 'camoufox_fingerprint_cancel_override',
     };
     const action = modeToAction[mode] || 'browser_profile_create';
     const profileName = await render(data.profileName || '', refData, this.engine.isPopup);
@@ -1185,8 +1222,17 @@ export async function profileAction({ id, data }, { refData }) {
       payload.source = profileName;
       payload.target = await render(data.targetProfileName || '', refData, this.engine.isPopup);
     }
-    if (mode === 'metadata') {
+    if (['metadata', 'fingerprintApply'].includes(mode)) {
       Object.assign(payload, parseJsonObject(await render(data.metadataJson || '{}', refData, this.engine.isPopup), 'metadataJson'));
+    }
+    if (mode === 'fingerprintPerformance') {
+      Object.assign(payload, parseJsonObject(await render(data.metadataJson || '{}', refData, this.engine.isPopup), 'metadataJson'));
+    }
+    if (['fingerprintOverride', 'fingerprintCancelOverride'].includes(mode)) {
+      payload.key = await render(data.fingerprintKey || '', refData, this.engine.isPopup);
+      if (mode === 'fingerprintOverride') {
+        payload.value = parseJsonValue(await render(data.fingerprintValueJson || 'null', refData, this.engine.isPopup), 'fingerprintValueJson');
+      }
     }
     if (mode === 'importCookies') {
       payload.cookies = parseJsonArray(await render(data.cookiesJson || '[]', refData, this.engine.isPopup), 'cookiesJson');
@@ -1463,12 +1509,23 @@ export async function httpClient({ id, data }, { refData }) {
     const url = await render(data.url || '', refData, this.engine.isPopup);
     const headersText = await render(data.headersJson || '{}', refData, this.engine.isPopup);
     const payload = {
+      operation: data.operation || 'request',
       method: data.method || 'GET',
       url,
       headers: parseJsonObject(headersText, 'headersJson'),
       timeout: Number(data.timeout || 20),
       maxChars: Number(data.maxChars || 200000),
+      sessionName: await render(data.sessionName || '', refData, this.engine.isPopup),
+      proxy: await render(data.proxy || '', refData, this.engine.isPopup),
+      loadCookies: Boolean(data.loadCookies),
+      saveCookies: Boolean(data.saveCookies),
+      loadHeaders: Boolean(data.loadHeaders),
+      saveHeaders: Boolean(data.saveHeaders),
+      stopAfterError: Boolean(data.stopAfterError),
+      downloadTo: await render(data.downloadTo || '', refData, this.engine.isPopup),
     };
+    const extractorsText = await render(data.extractorsJson || '[]', refData, this.engine.isPopup);
+    payload.extractors = parseJsonArray(extractorsText, 'extractorsJson');
 
     if (data.bodyMode === 'json') {
       const jsonBody = await render(data.jsonBody || '{}', refData, this.engine.isPopup);

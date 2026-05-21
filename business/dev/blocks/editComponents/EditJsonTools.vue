@@ -35,6 +35,7 @@
       <option value="delete">delete</option>
       <option value="parse">parse</option>
       <option value="stringify">stringify</option>
+      <option value="format">format</option>
       <option value="valid">valid</option>
     </ui-select>
     <ui-select
@@ -47,7 +48,7 @@
       <option value="object">объект</option>
       <option value="array">массив</option>
     </ui-select>
-    <template v-if="!['parse', 'valid'].includes(data.mode)">
+    <template v-if="!['parse', 'valid', 'format'].includes(data.mode)">
       <label class="input-label">JSON данных</label>
       <ui-textarea
         :model-value="data.dataJson"
@@ -75,7 +76,7 @@
         @change="updateData({ valueJson: $event })"
       />
     </template>
-    <template v-if="['parse', 'valid'].includes(data.mode)">
+    <template v-if="['parse', 'valid', 'format'].includes(data.mode)">
       <label class="input-label">JSON-текст</label>
       <ui-textarea
         :model-value="data.text"
@@ -86,7 +87,7 @@
       />
     </template>
     <ui-input
-      v-if="data.mode === 'stringify'"
+      v-if="['stringify', 'format'].includes(data.mode)"
       :model-value="data.indent"
       label="Отступ"
       class="w-full"
@@ -135,6 +136,7 @@ const jsonPresets = [
   { key: 'set', label: 'Изменить значение', hint: 'set path', values: { mode: 'set', path: 'user.name', valueJson: '"Silverback"', returnPath: 'result' } },
   { key: 'delete', label: 'Удалить значение', hint: 'delete path', values: { mode: 'delete', path: 'user.name', returnPath: 'result' } },
   { key: 'parse', label: 'Строку в JSON', hint: 'parse', values: { mode: 'parse', text: '{"ok": true}', returnPath: 'result' } },
+  { key: 'format', label: 'Форматировать JSON', hint: 'pretty', values: { mode: 'format', text: '{"ok":true}', indent: 2, returnPath: 'result' } },
   { key: 'stringify', label: 'JSON в строку', hint: 'stringify', values: { mode: 'stringify', indent: 2, returnPath: 'result' } },
   { key: 'valid', label: 'Проверить JSON', hint: 'valid', values: { mode: 'valid', text: '{"ok": true}', returnPath: 'result' } },
 ];
