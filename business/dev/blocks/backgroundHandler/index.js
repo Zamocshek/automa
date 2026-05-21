@@ -413,6 +413,7 @@ export async function browserScanner({ id, data }, { refData }) {
       headless: data.headless !== false,
       maxElements: Number(data.maxElements || 80),
       captureNetwork: Boolean(data.captureNetwork),
+      screenshot: Boolean(data.screenshot),
     };
     if (profileName) payload.profileName = profileName;
 
@@ -429,6 +430,12 @@ export async function browserScanner({ id, data }, { refData }) {
     } else if (mode === 'suggest') {
       action = 'browser_suggest_selectors';
       payload.hint = await render(data.hint || '', refData, this.engine.isPopup);
+    } else if (mode === 'recon') {
+      action = 'browser_recon_plan';
+      payload.intent = await render(data.intent || '', refData, this.engine.isPopup);
+      payload.hint = await render(data.hint || '', refData, this.engine.isPopup);
+      payload.waitSelector = await render(data.waitSelector || '', refData, this.engine.isPopup);
+      payload.captureNetwork = true;
     }
 
     const responseData = await callBridge(data, refData, this.engine.isPopup, {
