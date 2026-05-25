@@ -83,7 +83,8 @@ const androidQuickBaseData = {
   tasksJson: '[\n  {"action":"android_state","payload":{"maxElements":20}}\n]',
   workers: 4,
   dryRun: false,
-  executionTimeout: 30,
+  executionTimeout: 60,
+  timeout: 120000,
 };
 
 function androidActionBlock(name, mode, variableName, extraData = {}) {
@@ -101,8 +102,8 @@ function androidActionBlock(name, mode, variableName, extraData = {}) {
     refDataKeys: androidRefDataKeys,
     autocomplete: ['variableName', 'deviceId', 'packageName', 'profileName'],
     data: {
-      ...androidQuickBaseData,
       ...baseBridgeData,
+      ...androidQuickBaseData,
       mode,
       returnPath: 'result',
       variableName,
@@ -898,8 +899,9 @@ export default function () {
         tasksJson: '[\n  {"action":"android_state","payload":{"maxElements":20}}\n]',
         workers: 4,
         dryRun: false,
-        executionTimeout: 30,
         ...baseBridgeData,
+        executionTimeout: 60,
+        timeout: 120000,
         returnPath: 'result',
         variableName: 'android_result',
       },
