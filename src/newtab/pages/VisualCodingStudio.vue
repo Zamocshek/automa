@@ -864,6 +864,51 @@
             />
           </label>
         </div>
+        <div class="vc-browser-lab">
+          <div class="vc-panel-head vc-tight-head">
+            <h3>Live Browser Lab</h3>
+            <span>{{ browserLabStatus }}</span>
+          </div>
+          <div class="vc-cockpit-rows">
+            <div class="vc-cockpit-row">
+              <span>HTTP sniff</span>
+              <strong>{{ httpSniffStatus }}</strong>
+            </div>
+            <div class="vc-cockpit-row">
+              <span>Captured requests</span>
+              <strong>{{ httpSniffRequests.length }}</strong>
+            </div>
+          </div>
+          <div class="vc-actions">
+            <ui-button variant="accent" @click="safeRun(openBrowserLab)">
+              Open browser
+            </ui-button>
+            <ui-button @click="safeRun(startBrowserActionRecording)">
+              Start recording
+            </ui-button>
+            <ui-button @click="safeRun(openRecordingPage)">
+              Recording page
+            </ui-button>
+            <ui-button @click="safeRun(pickBrowserSelector)">
+              Pick CSS selector
+            </ui-button>
+            <ui-button
+              :disabled="httpSniffActive"
+              @click="safeRun(startHttpSniffRecord)"
+            >
+              Start HTTP sniff
+            </ui-button>
+            <ui-button
+              :disabled="!httpSniffActive"
+              @click="safeRun(stopHttpSniffRecord)"
+            >
+              Stop sniff
+            </ui-button>
+            <ui-button @click="safeRun(buildWorkflowFromHttpSniff)">
+              Sniff to workflow
+            </ui-button>
+          </div>
+        </div>
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(scanBrowserUrl)">
             Сканировать URL
@@ -1008,8 +1053,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import browser from 'webextension-polyfill';
+import elementSelector from '@/newtab/utils/elementSelector';
+import startRecordWorkflow from '@/newtab/utils/startRecordWorkflow';
 import { useWorkflowStore } from '@/stores/workflow';
 import { findTriggerBlock } from '@/utils/helper';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
@@ -1078,6 +1126,14 @@ const browserUrl = ref('https://example.com');
 const browserSelector = ref('button, a, input');
 const selectorHint = ref('run');
 const browserHtml = ref('<main><h1>Демо Silverback Coding</h1><button id="run">Запуск</button><input name="email" placeholder="Email"></main>');
+const browserLabStatus = ref('browser not opened');
+const browserLabTabId = ref(null);
+const browserLabWindowId = ref(null);
+const httpSniffStatus = ref('sniff stopped');
+const httpSniffActive = ref(false);
+const httpSniffRequests = ref([]);
+const httpSniffLimit = ref(200);
+let httpSniffRequestMap = new Map();
 const browserSwarmName = ref('silverback-browser-swarm');
 const browserSwarmTool = ref('browser.query_selector');
 const browserSwarmCount = ref(20);
@@ -2712,6 +2768,203 @@ function browserPayload(useHtml = false) {
   return { ...base, url: browserUrl.value.trim(), captureNetwork: true };
 }
 
+function normalizeBrowserLabUrl() {
+  const raw = browserUrl.value.trim() || 'https://example.com';
+  if (/^(https?|file):\/\//i.test(raw)) return raw;
+  return `https://${raw}`;
+}
+
+async function debuggerCall(method, ...args) {
+  const debuggerApi = globalThis.chrome?.debugger;
+  if (!debuggerApi?.[method]) {
+    throw new Error('chrome.debugger API is not available');
+  }
+  return new Promise((resolve, reject) => {
+    debuggerApi[method](...args, (result) => {
+      const error = globalThis.chrome?.runtime?.lastError;
+      if (error) reject(new Error(error.message));
+      else resolve(result);
+    });
+  });
+}
+
+async function getBrowserLabTab() {
+  if (!browserLabTabId.value) return null;
+  try {
+    const tab = await browser.tabs.get(browserLabTabId.value);
+    return tab?.id ? tab : null;
+  } catch (error) {
+    browserLabTabId.value = null;
+    browserLabWindowId.value = null;
+    return null;
+  }
+}
+
+async function openBrowserLab() {
+  const url = normalizeBrowserLabUrl();
+  let tab = await getBrowserLabTab();
+  if (tab) {
+    tab = await browser.tabs.update(tab.id, { url, active: true });
+    if (tab.windowId) await browser.windows.update(tab.windowId, { focused: true });
+  } else {
+    const win = await browser.windows.create({
+      url,
+      type: 'normal',
+      focused: true,
+      width: 1280,
+      height: 900,
+    });
+    tab = win.tabs?.[0];
+    browserLabWindowId.value = win.id || tab?.windowId || null;
+  }
+  browserLabTabId.value = tab?.id || null;
+  browserLabWindowId.value = tab?.windowId || browserLabWindowId.value;
+  browserLabStatus.value = tab?.id ? `tab ${tab.id}: ${url}` : `opened: ${url}`;
+  print('Live Browser Lab', {
+    ok: true,
+    tabId: browserLabTabId.value,
+    windowId: browserLabWindowId.value,
+    url,
+    extension: 'Silverback Coding / Automa is loaded in this browser profile',
+  });
+  return tab;
+}
+
+async function startBrowserActionRecording() {
+  const tab = await openBrowserLab();
+  if (!tab?.id) throw new Error('Browser Lab tab was not opened');
+  await startRecordWorkflow({
+    name: utilityName.value || 'silverback-browser-recording',
+    description: `Recorded from Browser Lab: ${tab.url || normalizeBrowserLabUrl()}`,
+  });
+  browserLabStatus.value = `recording tab ${tab.id}`;
+  await router.push('/recording');
+}
+
+async function openRecordingPage() {
+  await router.push('/recording');
+}
+
+async function pickBrowserSelector() {
+  await openBrowserLab();
+  const selector = await elementSelector.selectElement('silverback-browser-lab-selector');
+  if (selector) browserSelector.value = String(selector);
+  print('Browser Lab CSS selector', { ok: true, selector: browserSelector.value });
+}
+
+function allHttpSniffRequests() {
+  return Array.from(httpSniffRequestMap.values())
+    .filter((item) => item?.url?.startsWith?.('http'));
+}
+
+function onHttpSniffDebugEvent(source, method, params = {}) {
+  if (!httpSniffActive.value || source?.tabId !== browserLabTabId.value) return;
+  if (method === 'Network.requestWillBeSent') {
+    const request = params.request || {};
+    const url = String(request.url || '');
+    if (!url.startsWith('http://') && !url.startsWith('https://')) return;
+    const item = {
+      event: 'request',
+      requestId: params.requestId,
+      method: request.method || 'GET',
+      url,
+      headers: request.headers || {},
+      body: request.postData || '',
+      resourceType: params.type || '',
+      documentUrl: params.documentURL || '',
+      initiator: params.initiator?.type || '',
+      timestamp: Date.now(),
+    };
+    httpSniffRequestMap.set(params.requestId || `${item.method}:${item.url}:${item.timestamp}`, item);
+  } else if (method === 'Network.responseReceived') {
+    const existing = httpSniffRequestMap.get(params.requestId);
+    if (existing) {
+      existing.status = params.response?.status;
+      existing.statusText = params.response?.statusText;
+      existing.mimeType = params.response?.mimeType;
+    }
+  } else {
+    return;
+  }
+  const capturedRequests = allHttpSniffRequests();
+  httpSniffRequests.value = capturedRequests.slice(-Number(httpSniffLimit.value || 200));
+  httpSniffStatus.value = `recording ${capturedRequests.length} requests`;
+}
+
+async function startHttpSniffRecord() {
+  const tab = await openBrowserLab();
+  if (!tab?.id) throw new Error('Browser Lab tab was not opened');
+  if (httpSniffActive.value) return;
+  const debuggerApi = globalThis.chrome?.debugger;
+  if (!debuggerApi?.onEvent) throw new Error('chrome.debugger API is not available');
+  httpSniffRequestMap = new Map();
+  httpSniffRequests.value = [];
+  debuggerApi.onEvent.addListener(onHttpSniffDebugEvent);
+  try {
+    await debuggerCall('attach', { tabId: tab.id }, '1.3');
+    await debuggerCall('sendCommand', { tabId: tab.id }, 'Network.enable', {
+      maxPostDataSize: 1024 * 1024,
+    });
+    httpSniffActive.value = true;
+    httpSniffStatus.value = `recording tab ${tab.id}`;
+    print('HTTP Sniff Record started', {
+      ok: true,
+      tabId: tab.id,
+      url: tab.url,
+      next: 'Click through the site, then press Stop sniff or Sniff to workflow.',
+    });
+  } catch (error) {
+    debuggerApi.onEvent.removeListener(onHttpSniffDebugEvent);
+    throw error;
+  }
+}
+
+async function stopHttpSniffRecord({ silent = false } = {}) {
+  if (!httpSniffActive.value) {
+    const requests = allHttpSniffRequests();
+    if (!silent) print('HTTP Sniff Record', { ok: true, requests });
+    return;
+  }
+  const tabId = browserLabTabId.value;
+  httpSniffActive.value = false;
+  globalThis.chrome?.debugger?.onEvent?.removeListener(onHttpSniffDebugEvent);
+  if (tabId) {
+    try {
+      await debuggerCall('detach', { tabId });
+    } catch (error) {
+      if (!silent) console.warn(error);
+    }
+  }
+  const requests = allHttpSniffRequests();
+  httpSniffRequests.value = requests;
+  httpRequestsJson.value = JSON.stringify(requests, null, 2);
+  httpSniffStatus.value = `stopped, ${requests.length} requests`;
+  if (!silent) {
+    print('HTTP Sniff Record stopped', {
+      ok: true,
+      requests,
+      importHint: 'Press "Sniff to workflow" to convert captured requests into HTTP Client blocks.',
+    });
+  }
+}
+
+async function buildWorkflowFromHttpSniff() {
+  if (httpSniffActive.value) await stopHttpSniffRecord({ silent: true });
+  const requests = allHttpSniffRequests();
+  if (!requests.length) throw new Error('No HTTP requests captured yet');
+  httpRequestsJson.value = JSON.stringify(requests, null, 2);
+  const data = await callMcp('workflow.from_http_requests', {
+    name: `${utilityName.value || 'silverback-browser'}-http-sniff`,
+    requests,
+    limit: Math.min(requests.length, 200),
+  });
+  await saveWorkflowProject(data.result.workflow, {
+    label: 'HTTP sniff workflow project',
+    source: data,
+    openEditor: true,
+  });
+}
+
 async function scanBrowserUrl() {
   const data = await callMcp('browser.scan_page', browserPayload(false));
   print('Browser Scan URL', data);
@@ -3128,6 +3381,12 @@ onMounted(async () => {
   await safeRun(refreshProductionDashboard);
   if (hasBridge.value) await safeRun(runFullDemo);
 });
+
+onBeforeUnmount(() => {
+  if (httpSniffActive.value) {
+    stopHttpSniffRecord({ silent: true });
+  }
+});
 </script>
 
 <style scoped>
@@ -3298,6 +3557,23 @@ onMounted(async () => {
   display: grid;
   align-content: start;
   gap: 14px;
+}
+
+.vc-browser-lab {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  border-radius: 8px;
+  background: rgba(45, 212, 191, 0.06);
+}
+
+.vc-tight-head h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 760;
+  letter-spacing: 0;
 }
 
 .vc-section-label {
