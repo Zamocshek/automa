@@ -24,7 +24,7 @@
       :model-value="data.mode"
       label="Операция"
       class="w-full"
-      @change="updateData({ mode: $event })"
+      @change="selectMode"
     >
       <option value="messageBox">messageBox</option>
       <option value="requestInput">request input</option>
@@ -53,7 +53,7 @@
         label="Имя переменной ввода"
         class="w-full"
         placeholder="user_input"
-        @change="updateData({ inputName: $event, variableName: data.variableName || $event })"
+        @change="updateInputName"
       />
       <ui-input
         :model-value="data.defaultValue"
@@ -118,24 +118,27 @@
       />
       <ui-checkbox
         :model-value="data.createIntervention !== false"
-        @change="updateData({ createIntervention: $event })"
+        @change="updateData({ createIntervention: $event, wait: $event && data.wait })"
       >
         Создать manual intervention checkpoint
       </ui-checkbox>
       <ui-checkbox
         :model-value="data.wait"
-        @change="updateData({ wait: $event })"
+        @change="updateData({ wait: $event, createIntervention: $event || data.createIntervention })"
       >
         Ждать ответа оператора
       </ui-checkbox>
-      <ui-input
-        :model-value="data.timeoutSeconds"
-        label="Таймаут, сек"
-        class="w-full"
-        type="number"
-        @change="updateData({ timeoutSeconds: Number($event) })"
-      />
     </template>
+    <ui-input
+      v-if="['messageBox', 'requestInput', 'manualControl'].includes(data.mode)"
+      :model-value="data.timeoutSeconds"
+      label="Таймаут, сек"
+      class="w-full"
+      type="number"
+      min="1"
+      max="86400"
+      @change="updateData({ timeoutSeconds: Number($event) })"
+    />
     <ui-checkbox
       :model-value="data.logToBridge !== false"
       @change="updateData({ logToBridge: $event })"
@@ -224,7 +227,7 @@ const interactionPresets = [
       message: 'Нужен ручной шаг в активной вкладке.',
       instructions: 'Возьмите управление браузером, выполните действие и подтвердите checkpoint.',
       createIntervention: true,
-      wait: false,
+      wait: true,
       returnPath: 'result.bridge',
       variableName: 'manual_control',
     },
@@ -248,6 +251,18 @@ function updateData(value) {
 }
 
 function selectPreset(action) {
-  updateData(action.values || {});
+  updateData({ createIntervention: false, wait: false, ...action.values });
+}
+
+function selectMode(mode) {
+  const preset = interactionPresets.find((action) => action.key === mode);
+  if (preset) selectPreset(preset);
+}
+
+function updateInputName(inputName) {
+  const variableName = !props.data.variableName || props.data.variableName === props.data.inputName
+    ? inputName
+    : props.data.variableName;
+  updateData({ inputName, variableName });
 }
 </script>

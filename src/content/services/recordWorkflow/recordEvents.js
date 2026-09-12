@@ -1,3 +1,4 @@
+/* eslint no-use-before-define: ["error", { "functions": false }] */
 import { nanoid } from 'nanoid';
 import browser from 'webextension-polyfill';
 import { debounce } from '@/utils/helper';
@@ -6,6 +7,8 @@ import findSelector, { finder } from '@/lib/findSelector';
 import addBlockToFlow from './addBlock';
 
 let isMainFrame = true;
+let pendingInput = null;
+let inputTimer;
 
 const isAutomaInstance = (target) =>
   target.id === 'automa-recording' ||
@@ -174,6 +177,7 @@ async function onKeydown(event) {
   });
 }
 function onClick(event) {
+  flushInputTextField();
   const { target } = event;
   if (isAutomaInstance(target)) return;
 
@@ -285,10 +289,12 @@ const onScroll = debounce(({ target }) => {
   });
 }, 500);
 
-const onInputTextField = debounce(({ target }) => {
-  const selector = target.dataset.automaElSelector;
-  if (!selector) return;
-
+function flushInputTextField() {
+  clearTimeout(inputTimer);
+  if (!pendingInput) return;
+  const { selector, value, elementName } = pendingInput;
+  pendingInput = null;
+  // Input must reach storage before the click that submits its value.
   addBlock((recording) => {
     const lastFlow = recording.flows[recording.flows.length - 1];
     if (
@@ -296,11 +302,10 @@ const onInputTextField = debounce(({ target }) => {
       lastFlow.id === 'forms' &&
       lastFlow.data.selector === selector
     ) {
-      lastFlow.data.value = target.value;
+      lastFlow.data.value = value;
       return;
     }
 
-    const elementName = (target.ariaLabel || target.name || '').slice(0, 12);
     recording.flows.push({
       id: 'forms',
       data: {
@@ -308,13 +313,26 @@ const onInputTextField = debounce(({ target }) => {
         delay: 100,
         clearValue: true,
         type: 'text-field',
-        value: target.value,
+        value,
         waitForSelector: true,
         description: `Text field (${elementName})`,
       },
     });
   });
-}, 300);
+}
+
+function onInputTextField({ target }) {
+  const selector = target.dataset.automaElSelector;
+  if (!selector) return;
+  if (pendingInput && pendingInput.selector !== selector) flushInputTextField();
+  pendingInput = {
+    selector,
+    value: target.value,
+    elementName: (target.ariaLabel || target.name || '').slice(0, 12),
+  };
+  clearTimeout(inputTimer);
+  inputTimer = setTimeout(flushInputTextField, 300);
+}
 
 function onFocusIn({ target }) {
   if (!isTextFieldEl(target)) return;
@@ -325,10 +343,13 @@ function onFocusIn({ target }) {
 function onFocusOut({ target }) {
   if (!isTextFieldEl(target)) return;
 
+  flushInputTextField();
   target.removeEventListener('input', onInputTextField);
 }
 
 export function cleanUp() {
+  flushInputTextField();
+  document.activeElement?.removeEventListener('input', onInputTextField);
   if (isMainFrame) {
     window.removeEventListener('message', onMessage);
     document.removeEventListener('scroll', onScroll, true);

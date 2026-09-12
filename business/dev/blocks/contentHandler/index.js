@@ -1,3 +1,5 @@
+import operatorDialog from './operatorDialog';
+
 export default function () {
-  return {};
+  return { userInteraction: operatorDialog };
 }

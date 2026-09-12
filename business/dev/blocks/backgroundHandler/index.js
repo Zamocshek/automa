@@ -1,4 +1,5 @@
 import objectPath from 'object-path';
+import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 import renderString from '@/workflowEngine/templating/renderString';
 
 const DEFAULT_BRIDGE_URL = 'http://127.0.0.1:8765/run';
@@ -148,15 +149,22 @@ function parseJsonValue(value, label) {
   }
 }
 
-async function callBridge(data, refData, isPopup, body) {
+async function callBridge(data, refData, isPopup, body, worker) {
   const bridgeUrl = await render(data.bridgeUrl || DEFAULT_BRIDGE_URL, refData, isPopup);
   const timeout = Number(data.timeout || 30000);
-  const controller = timeout > 0 ? new AbortController() : null;
-  const timer = controller
+  const controller = timeout > 0 || worker ? new AbortController() : null;
+  const timer = timeout > 0
     ? setTimeout(() => controller.abort(), timeout)
     : null;
+  const states = worker?.engine?.states;
+  const executionId = worker?.engine?.id;
+  const onStop = (stoppedId) => {
+    if (stoppedId === executionId) controller.abort();
+  };
 
   try {
+    if (worker?.engine?.isDestroyed) throw new Error('Workflow stopped');
+    states?.on('stop', onStop);
     const response = await fetch(bridgeUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -164,6 +172,9 @@ async function callBridge(data, refData, isPopup, body) {
       signal: controller?.signal,
     });
     const responseData = await response.json();
+    if (controller?.signal.aborted || worker?.engine?.isDestroyed) {
+      throw new Error('Bridge request aborted');
+    }
     if (!response.ok || responseData.ok === false) {
       const error = new Error(responseData.error || response.statusText);
       error.responseData = responseData;
@@ -172,7 +183,23 @@ async function callBridge(data, refData, isPopup, body) {
     return responseData;
   } finally {
     if (timer) clearTimeout(timer);
+    states?.off('stop', onStop);
   }
+}
+
+function operatorTimeoutSeconds(data) {
+  const seconds = Number(data.timeoutSeconds ?? 300);
+  if (!Number.isFinite(seconds) || seconds < 1 || seconds > 86400) {
+    throw new Error('Operator timeout must be between 1 and 86400 seconds');
+  }
+  return seconds;
+}
+
+function operatorBridgeData(data, wait) {
+  return {
+    ...data,
+    timeout: Math.max(5000, Number(data.timeout) || 30000) + (wait ? operatorTimeoutSeconds(data) * 1000 : 0),
+  };
 }
 
 async function maybeSyncCamoufoxManager(data, refData, isPopup, browserEngine, profileName) {
@@ -307,12 +334,15 @@ function callChromeApi(fn, ...args) {
 
 async function activeTabId(worker) {
   if (worker.activeTab?.id) return worker.activeTab.id;
-  if (!globalThis.chrome?.tabs?.query) return null;
-  const tabs = await callChromeApi(
-    globalThis.chrome.tabs.query.bind(globalThis.chrome.tabs),
-    { active: true, currentWindow: true }
-  );
-  return Array.isArray(tabs) && tabs[0]?.id ? tabs[0].id : null;
+  const tabs = await BrowserAPIService.tabs.query({
+    active: true,
+    currentWindow: true,
+    url: ['*://*/*', 'file://*'],
+  });
+  const tab = tabs?.[0];
+  if (!tab?.id) return null;
+  worker.activeTab = { ...worker.activeTab, id: tab.id, frameId: 0, url: tab.url };
+  return tab.id;
 }
 
 async function executeInActiveTab(worker, func, args = []) {
@@ -333,15 +363,61 @@ async function executeInActiveTab(worker, func, args = []) {
 
 async function focusActiveTab(worker) {
   const tabId = await activeTabId(worker);
-  if (!tabId || !globalThis.chrome?.tabs?.update) return { ok: false, error: 'active tab is not available' };
-  const tab = await callChromeApi(globalThis.chrome.tabs.update.bind(globalThis.chrome.tabs), tabId, { active: true });
-  if (tab?.windowId && globalThis.chrome?.windows?.update) {
-    await callChromeApi(globalThis.chrome.windows.update.bind(globalThis.chrome.windows), tab.windowId, { focused: true });
+  if (!tabId) return { ok: false, error: 'active tab is not available' };
+  const tab = await BrowserAPIService.tabs.update(tabId, { active: true });
+  if (Number.isInteger(tab?.windowId)) {
+    await BrowserAPIService.windows.update(tab.windowId, { focused: true });
   }
   return { ok: true, tabId, url: tab?.url || '' };
 }
 
+async function promptInActiveTab(worker, data) {
+  const focused = await focusActiveTab(worker);
+  if (!focused.ok) throw new Error(focused.error);
+  const timeout = operatorTimeoutSeconds(data) * 1000;
+  const promptId = crypto.randomUUID();
+  const { states } = worker.engine;
+  const executionId = worker.engine.id;
+  let timer;
+  let onStop;
+  let cancelled = false;
+  const interrupted = new Promise((_resolve, reject) => {
+    const cancel = (message) => {
+      cancelled = true;
+      const error = new Error(message);
+      error.name = 'AbortError';
+      reject(error);
+    };
+    onStop = (stoppedId) => {
+      if (stoppedId === executionId) cancel('Workflow stopped');
+    };
+    states?.on('stop', onStop);
+    timer = setTimeout(() => cancel('Operator interaction timed out'), timeout);
+  });
+  try {
+    if (worker.engine.isDestroyed) throw new Error('Workflow stopped');
+    const result = await Promise.race([
+      worker._sendMessageToTab({
+        label: 'user-interaction',
+        data: { ...data, promptId, deadline: Date.now() + timeout },
+      }, { frameId: 0 }),
+      interrupted,
+    ]);
+    if (!result || typeof result !== 'object') throw new Error('Operator dialog returned no result');
+    return { ...result, target: 'activeTab', tabId: focused.tabId };
+  } finally {
+    clearTimeout(timer);
+    states?.off('stop', onStop);
+    if (cancelled) {
+      BrowserAPIService.tabs.sendMessage(focused.tabId, {
+        isBlock: true, label: 'user-interaction', data: { promptId, cancel: true },
+      }, { frameId: 0 }).catch(() => {});
+    }
+  }
+}
+
 async function finishBlock(worker, id, data, responseData, fallbackOutput) {
+  if (worker.engine?.isDestroyed) return { data: null, nextBlockId: [] };
   const nextBlockId = worker.getBlockConnections(id);
   const returnData = data.returnPath
     ? objectPath.get(responseData, data.returnPath, responseData)
@@ -362,6 +438,7 @@ async function finishBlock(worker, id, data, responseData, fallbackOutput) {
 }
 
 function fallbackOrThrow(worker, id, error) {
+  if (worker.engine?.isDestroyed) return { data: null, nextBlockId: [] };
   const fallbackOutput = worker.getBlockConnections(id, 'fallback');
   if (fallbackOutput && fallbackOutput.length > 0) {
     return {
@@ -1297,7 +1374,7 @@ export async function manualIntervention({ id, data }, { refData }) {
       instructions: await render(data.instructions || '', refData, this.engine.isPopup),
       workflowId: this.engine?.workflow?.id || '',
       blockId: id,
-      timeoutSeconds: Number(data.timeoutSeconds || 300),
+      timeoutSeconds: operatorTimeoutSeconds(data),
     };
 
     let action = 'manual_intervention_create';
@@ -1323,16 +1400,27 @@ export async function manualIntervention({ id, data }, { refData }) {
       payload.id = await render(data.interventionId || '', refData, this.engine.isPopup);
       payload.decision = data.decision || 'resume';
       payload.note = await render(data.note || '', refData, this.engine.isPopup);
+      if (data.includeInput) {
+        payload.inputValue = await render(data.inputValue ?? '', refData, this.engine.isPopup);
+      }
     } else if (mode === 'list') {
       action = 'manual_intervention_list';
       payload.status = data.status || '';
       payload.limit = Number(data.limit || 20);
     }
 
-    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+    let responseData = await callBridge(operatorBridgeData(data, mode === 'wait' || (mode === 'captchaCheck' && data.wait)), refData, this.engine.isPopup, {
       action,
       payload,
-    });
+    }, this);
+    if (mode === 'create' && data.wait) {
+      const interventionId = responseData.result?.id;
+      if (!interventionId) throw new Error('Bridge returned no checkpoint ID');
+      responseData = await callBridge(operatorBridgeData(data, true), refData, this.engine.isPopup, {
+        action: 'manual_intervention_wait',
+        payload: { id: interventionId, timeoutSeconds: payload.timeoutSeconds },
+      }, this);
+    }
     return finishBlock(this, id, data, responseData);
   } catch (error) {
     return fallbackOrThrow(this, id, error);
@@ -1344,44 +1432,30 @@ export async function userInteraction({ id, data }, { refData }) {
     const mode = data.mode || 'messageBox';
     const title = await render(data.title || 'Silverback Coding', refData, this.engine.isPopup);
     const message = await render(data.message || '', refData, this.engine.isPopup);
-    const defaultValue = await render(data.defaultValue || '', refData, this.engine.isPopup);
+    const defaultValue = await render(data.defaultValue ?? '', refData, this.engine.isPopup);
     const inputName = await render(data.inputName || 'user_input', refData, this.engine.isPopup);
-    const code = await render(data.code || 'result = input.message;', refData, this.engine.isPopup);
-    const inputJson = parseJsonValue(
-      await render(data.inputJson || '{}', refData, this.engine.isPopup),
-      'inputJson'
-    );
+    const createIntervention = mode === 'manualControl' ? data.createIntervention !== false : Boolean(data.createIntervention);
+    const wait = mode === 'requestInput' && createIntervention ? true : Boolean(data.wait);
     let localResult = { mode, title, message };
 
     if (mode === 'messageBox') {
-      const injected = await executeInActiveTab(this, (alertMessage) => {
-        window.alert(alertMessage);
-        return { shown: true };
-      }, [message || title]);
-      localResult = injected.ok
-        ? { ...localResult, shown: true, target: 'activeTab', tabId: injected.tabId }
-        : { ...localResult, shown: false, error: injected.error };
-      if (!localResult.shown && globalThis.chrome?.notifications?.create) {
-        await globalThis.chrome.notifications.create({
+      try {
+        localResult = { ...localResult, ...await promptInActiveTab(this, { mode, title, message, timeoutSeconds: data.timeoutSeconds }) };
+      } catch (error) {
+        if (error.name === 'AbortError' || this.engine.isDestroyed) throw error;
+        await BrowserAPIService.notifications.create({
           type: 'basic',
           iconUrl: '/icon-128.png',
           title,
           message: message || title,
         });
-        localResult = { ...localResult, shown: true, target: 'notification' };
+        localResult = { ...localResult, shown: true, acknowledged: false, target: 'notification' };
       }
-    } else if (mode === 'requestInput') {
-      const injected = await executeInActiveTab(this, (promptMessage, promptDefault) => {
-        return window.prompt(promptMessage, promptDefault);
-      }, [message || title, defaultValue]);
-      const value = injected.ok ? injected.result : defaultValue;
+    } else if (mode === 'requestInput' && !createIntervention) {
       localResult = {
         ...localResult,
         inputName,
-        value,
-        cancelled: value === null,
-        target: injected.ok ? 'activeTab' : 'defaultValue',
-        tabId: injected.tabId,
+        ...await promptInActiveTab(this, { mode, title, message, defaultValue, inputName, timeoutSeconds: data.timeoutSeconds }),
       };
     } else if (mode === 'playSound') {
       const injected = await executeInActiveTab(this, (frequency, durationMs, volume) => {
@@ -1410,6 +1484,11 @@ export async function userInteraction({ id, data }, { refData }) {
         error: injected.result?.error || injected.error,
       };
     } else if (mode === 'executeUiJs') {
+      const code = await render(data.code || 'result = input.message;', refData, this.engine.isPopup);
+      const inputJson = parseJsonValue(
+        await render(data.inputJson || '{}', refData, this.engine.isPopup),
+        'inputJson'
+      );
       const injected = await executeInActiveTab(this, (userCode, input) => {
         const fn = new Function('input', `${userCode}\n; return typeof result !== 'undefined' ? result : undefined;`);
         return fn(input);
@@ -1419,6 +1498,7 @@ export async function userInteraction({ id, data }, { refData }) {
         : { ...localResult, error: injected.error, target: 'none' };
     } else if (mode === 'manualControl') {
       const focused = await focusActiveTab(this);
+      if (!focused.ok) throw new Error(focused.error);
       localResult = {
         ...localResult,
         focused: Boolean(focused.ok),
@@ -1428,14 +1508,20 @@ export async function userInteraction({ id, data }, { refData }) {
       };
     }
 
+    if (localResult.cancelled || localResult.error) {
+      const error = new Error(localResult.error || 'Operator interaction cancelled');
+      error.responseData = { ok: false, action: 'user_interaction', error: error.message, result: localResult };
+      throw error;
+    }
+
     let responseData = {
       ok: true,
       action: 'user_interaction_local',
       result: localResult,
     };
 
-    if (data.logToBridge !== false) {
-      const bridgeResponse = await callBridge(data, refData, this.engine.isPopup, {
+    if (data.logToBridge !== false || createIntervention || wait) {
+      const bridgeResponse = await callBridge(operatorBridgeData(data, wait), refData, this.engine.isPopup, {
         action: 'user_interaction',
         payload: {
           mode,
@@ -1445,13 +1531,18 @@ export async function userInteraction({ id, data }, { refData }) {
           inputName,
           responseValue: localResult.value,
           instructions: localResult.instructions,
-          createIntervention: mode === 'manualControl' ? data.createIntervention !== false : Boolean(data.createIntervention),
-          wait: Boolean(data.wait),
-          timeoutSeconds: Number(data.timeoutSeconds || 300),
+          createIntervention,
+          wait,
+          timeoutSeconds: operatorTimeoutSeconds(data),
+          workflowId: this.engine.workflow?.id || '',
+          blockId: id,
           localResult,
           templateVariables: legacyTemplateVariables(refData),
         },
-      });
+      }, this);
+      if (mode === 'requestInput' && Object.prototype.hasOwnProperty.call(bridgeResponse.result || {}, 'value')) {
+        localResult.value = bridgeResponse.result.value;
+      }
       responseData = {
         ok: bridgeResponse.ok !== false,
         action: 'user_interaction',
@@ -1459,7 +1550,11 @@ export async function userInteraction({ id, data }, { refData }) {
       };
     }
 
-    return finishBlock(this, id, data, responseData);
+    if (mode === 'requestInput' && localResult.value == null) {
+      throw new Error('Operator input was not provided');
+    }
+    const variableName = await render(data.variableName || inputName, refData, this.engine.isPopup);
+    return finishBlock(this, id, { ...data, variableName }, responseData);
   } catch (error) {
     return fallbackOrThrow(this, id, error);
   }
@@ -1513,7 +1608,7 @@ export async function httpClient({ id, data }, { refData }) {
       method: data.method || 'GET',
       url,
       headers: parseJsonObject(headersText, 'headersJson'),
-      timeout: Number(data.timeout || 20),
+      timeout: Math.min(120, Math.max(1, Number(data.timeout) || 20)),
       maxChars: Number(data.maxChars || 200000),
       sessionName: await render(data.sessionName || '', refData, this.engine.isPopup),
       proxy: await render(data.proxy || '', refData, this.engine.isPopup),
@@ -1534,12 +1629,16 @@ export async function httpClient({ id, data }, { refData }) {
       payload.body = await render(data.body || '', refData, this.engine.isPopup);
     }
 
-    const responseData = await callBridge(data, refData, this.engine.isPopup, {
+    const responseData = await callBridge({ ...data, timeout: payload.timeout * 1000 + 5000 }, refData, this.engine.isPopup, {
       action: 'http_request',
       payload,
-    });
+    }, this);
     return finishBlock(this, id, data, responseData);
   } catch (error) {
+    const status = error.responseData?.result?.status;
+    if (!data.stopAfterError && Number.isInteger(status) && status >= 400 && status <= 599) {
+      return finishBlock(this, id, data, error.responseData);
+    }
     return fallbackOrThrow(this, id, error);
   }
 }

@@ -4,10 +4,9 @@ import { isXPath, sleep, getActiveTab } from '@/utils/helper';
 const isMV2 = browser.runtime.getManifest().manifest_version === 2;
 
 async function makeDashboardFocus() {
-  const [currentTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
+  const currentTab = await browser.tabs.getCurrent();
+  if (!currentTab) return;
+  await browser.tabs.update(currentTab.id, { active: true });
   await browser.windows.update(currentTab.windowId, {
     focused: true,
   });
@@ -19,10 +18,15 @@ export async function initElementSelector(tab = null) {
   if (!tab) {
     activeTab = await getActiveTab();
   }
+  if (!activeTab?.id)
+    throw new Error('No tab available for the element selector');
 
-  const result = await browser.tabs.sendMessage(activeTab.id, {
-    type: 'automa-element-selector',
-  });
+  // A new tab has no receiving content script yet: inject on rejection too.
+  const result = await browser.tabs
+    .sendMessage(activeTab.id, {
+      type: 'automa-element-selector',
+    })
+    .catch(() => false);
 
   if (!result) {
     if (isMV2) {
@@ -78,32 +82,38 @@ async function verifySelector(data) {
   }
 }
 
-async function selectElement(name) {
-  const tab = await getActiveTab();
+async function selectElement(name, targetTab = null, { signal } = {}) {
+  const tab = targetTab || (await getActiveTab());
+  const cancelled = () => new Error('Element selection cancelled');
+  if (signal?.aborted) throw cancelled();
 
   await initElementSelector(tab);
+  if (signal?.aborted) throw cancelled();
 
-  const port = await browser.tabs.connect(tab.id, { name });
-  const getSelector = () => {
-    return new Promise((resolve, reject) => {
-      port.onDisconnect.addListener(() => {
+  const port = browser.tabs.connect(tab.id, { name, frameId: 0 });
+  let onDisconnect;
+  let onMessage;
+  let onAbort;
+  try {
+    const selector = await new Promise((resolve, reject) => {
+      onAbort = () => reject(cancelled());
+      onDisconnect = () => {
         reject(new Error('Port closed'));
-      });
-      port.onMessage.addListener(async (message) => {
-        try {
-          makeDashboardFocus();
-        } catch (error) {
-          console.error(error);
-        } finally {
-          resolve(message);
-        }
-      });
+      };
+      onMessage = resolve;
+      port.onDisconnect.addListener(onDisconnect);
+      port.onMessage.addListener(onMessage);
+      signal?.addEventListener('abort', onAbort, { once: true });
+      if (signal?.aborted) onAbort();
     });
-  };
-
-  const selector = await getSelector();
-
-  return selector;
+    await makeDashboardFocus().catch(console.error);
+    return selector;
+  } finally {
+    port.onDisconnect.removeListener(onDisconnect);
+    port.onMessage.removeListener(onMessage);
+    signal?.removeEventListener('abort', onAbort);
+    port.disconnect();
+  }
 }
 
 export default {

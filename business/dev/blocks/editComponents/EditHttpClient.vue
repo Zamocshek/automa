@@ -117,6 +117,8 @@
       label="Таймаут, сек"
       class="w-full"
       type="number"
+      min="1"
+      max="120"
       @change="updateData({ timeout: Number($event) })"
     />
     <ui-input

@@ -1,6 +1,8 @@
 import browser from 'webextension-polyfill';
 
-export default async function (detail, save = true) {
+let writes = Promise.resolve();
+
+async function appendBlock(detail, save) {
   const { isRecording, recording } = await browser.storage.local.get([
     'isRecording',
     'recording',
@@ -16,4 +18,10 @@ export default async function (detail, save = true) {
   if (save) await browser.storage.local.set({ recording });
 
   return { recording, addedBlock };
+}
+
+export default function (detail, save = true) {
+  const operation = writes.then(() => appendBlock(detail, save));
+  writes = operation.catch(() => {});
+  return operation;
 }

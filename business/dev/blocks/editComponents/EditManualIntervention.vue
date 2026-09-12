@@ -25,7 +25,7 @@
       :model-value="data.mode"
       label="Mode"
       class="w-full"
-      @change="updateData({ mode: $event })"
+      @change="selectMode"
     >
       <option value="captchaCheck">captcha check</option>
       <option value="create">create checkpoint</option>
@@ -118,13 +118,15 @@
       >
         Always create checkpoint
       </ui-checkbox>
-      <ui-checkbox
-        :model-value="Boolean(data.wait)"
-        @change="updateData({ wait: $event })"
-      >
-        Wait for operator response
-      </ui-checkbox>
     </template>
+
+    <ui-checkbox
+      v-if="['captchaCheck', 'create'].includes(data.mode)"
+      :model-value="Boolean(data.wait)"
+      @change="updateData({ wait: $event })"
+    >
+      Wait for operator response
+    </ui-checkbox>
 
     <template v-if="['wait', 'respond'].includes(data.mode)">
       <ui-input
@@ -153,6 +155,19 @@
         class="w-full"
         @change="updateData({ note: $event })"
       />
+      <ui-checkbox
+        :model-value="Boolean(data.includeInput)"
+        @change="updateData({ includeInput: $event })"
+      >
+        Include operator input
+      </ui-checkbox>
+      <ui-input
+        v-if="data.includeInput"
+        :model-value="data.inputValue"
+        label="Input value"
+        class="w-full"
+        @change="updateData({ inputValue: $event })"
+      />
     </template>
 
     <ui-input
@@ -160,6 +175,8 @@
       label="Timeout seconds"
       class="w-full"
       type="number"
+      min="1"
+      max="86400"
       @change="updateData({ timeoutSeconds: Number($event) })"
     />
     <ui-input
@@ -205,7 +222,7 @@ const presets = [
       title: 'Captcha or manual check',
       reason: 'captcha_or_security_check',
       force: false,
-      wait: false,
+      wait: true,
     },
   },
   {
@@ -217,7 +234,7 @@ const presets = [
       title: 'Manual approval required',
       reason: 'human_review',
       force: true,
-      wait: false,
+      wait: true,
     },
   },
   {
@@ -240,5 +257,10 @@ function updateData(value) {
 
 function applyPreset(action) {
   updateData(action.values || {});
+}
+
+function selectMode(mode) {
+  const preset = presets.find((action) => action.key === mode);
+  updateData(preset?.values || { mode });
 }
 </script>

@@ -181,7 +181,7 @@
           />
           <workflow-editor
             v-if="state.workflowConverted"
-            :id="route.params.id"
+            :id="workflowId"
             :data="editorData"
             :disabled="isTeamWorkflow && !haveEditAccess"
             :class="{ 'animate-blocks': state.animateBlocks }"
@@ -582,7 +582,7 @@ const workflow = computed(() => {
   return workflowStore.getById(workflowId);
 });
 const workflowStates = computed(() =>
-  workflowStore.getWorkflowStates(route.params.id)
+  workflowStore.getWorkflowStates(workflowId)
 );
 const activeWorkflowModal = computed(
   () => workflowModals[modalState.name] || {}
@@ -638,9 +638,9 @@ const updateHostedWorkflow = throttle(async () => {
   if (isTeamWorkflow) return;
   if (!userStore.user || workflowPayload.isUpdating) return;
 
-  const isHosted = userStore.hostedWorkflows[route.params.id];
-  const isBackup = userStore.backupIds?.includes(route.params.id);
-  const workflowExist = workflowStore.getById(route.params.id);
+  const isHosted = userStore.hostedWorkflows[workflowId];
+  const isBackup = userStore.backupIds?.includes(workflowId);
+  const workflowExist = workflowStore.getById(workflowId);
 
   if (
     (!isBackup && !isHosted) ||
@@ -672,7 +672,7 @@ const updateHostedWorkflow = throttle(async () => {
       );
     }
 
-    const response = await fetchApi(`/me/workflows/${route.params.id}`, {
+    const response = await fetchApi(`/me/workflows/${workflowId}`, {
       auth: true,
       method: 'PUT',
       keepalive: true,
@@ -1163,7 +1163,7 @@ async function updateWorkflow(data) {
     } else {
       await workflowStore.update({
         data,
-        id: route.params.id,
+        id: workflowId,
       });
     }
 
