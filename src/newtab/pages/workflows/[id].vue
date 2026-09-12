@@ -600,10 +600,10 @@ const editorData = computed(() => {
   return workflow.value.drawflow;
 });
 
-const updateBlockData = debounce((data) => {
-  console.log('🚀 ~ updateBlockData ~ data:', data);
+const updateBlockData = (data) => {
   if (!haveEditAccess.value) return;
   const node = editor.value.getNode.value(editState.blockData.blockId);
+  if (!node) return;
   const dataCopy = JSON.parse(JSON.stringify(data));
 
   let autocompleteId = '';
@@ -633,7 +633,7 @@ const updateBlockData = debounce((data) => {
 
   editState.blockData.data = data;
   state.dataChanged = true;
-}, 250);
+};
 const updateHostedWorkflow = throttle(async () => {
   if (isTeamWorkflow) return;
   if (!userStore.user || workflowPayload.isUpdating) return;

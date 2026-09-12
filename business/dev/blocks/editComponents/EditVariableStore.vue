@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="Переменные"
       description="Хранилище переменных для проекта, workflow и MCP-сценариев."
       :actions="variablePresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -26,20 +28,22 @@
       class="w-full"
       @change="updateData({ mode: $event })"
     >
-      <option value="get">get</option>
-      <option value="set">set</option>
-      <option value="list">list</option>
-      <option value="delete">delete</option>
-      <option value="increment">increment</option>
+      <option value="get">Получить</option>
+      <option value="set">Записать</option>
+      <option value="list">Показать список</option>
+      <option value="delete">Удалить</option>
+      <option value="increment">Увеличить</option>
     </ui-select>
-    <ui-input
+    <BlockValueField
       v-if="data.mode !== 'list'"
+      help="variableName"
       :model-value="data.variableStoreName"
       label="Имя переменной"
       class="w-full"
       @change="updateData({ variableStoreName: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="scope"
       :model-value="data.variableScope"
       label="Область"
       class="w-full"
@@ -53,13 +57,13 @@
         class="w-full"
         @change="updateData({ variableType: $event })"
       >
-        <option value="any">any</option>
-        <option value="string">string</option>
-        <option value="number">number</option>
-        <option value="integer">integer</option>
-        <option value="boolean">boolean</option>
-        <option value="list">list</option>
-        <option value="json">json</option>
+        <option value="any">Любой</option>
+        <option value="string">Строка</option>
+        <option value="number">Число</option>
+        <option value="integer">Целое число</option>
+        <option value="boolean">Да / нет</option>
+        <option value="list">Показать список</option>
+        <option value="json">JSON</option>
       </ui-select>
       <ui-input
         :model-value="data.variableDescription"
@@ -67,8 +71,12 @@
         class="w-full"
         @change="updateData({ variableDescription: $event })"
       />
-      <label class="input-label">JSON значения</label>
-      <ui-textarea
+      <BlockValueField
+      label="JSON значения"
+      help="json"
+      json="any"
+      multiline
+      templates
         :model-value="data.valueJson"
         class="w-full font-mono"
         rows="6"
@@ -84,7 +92,8 @@
       type="number"
       @change="updateData({ delta: Number($event) })"
     />
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -96,8 +105,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной Automa"
       class="w-full"
@@ -107,6 +117,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({

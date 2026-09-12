@@ -25,7 +25,8 @@
           class="absolute right-2 top-2 flex items-center text-gray-600 dark:text-gray-300"
         >
           <button
-            :title="`Add ${getBlockName(block)}`"
+            :title="`${t('common.add')} ${getBlockName(block)}`"
+            :aria-label="`${t('common.add')} ${getBlockName(block)}`"
             :data-add-block-id="block.id"
             class="cursor-pointer rounded bg-white/80 p-0.5 opacity-100 shadow-sm transition dark:bg-gray-900/80"
             @click.stop="$emit('add', block)"
@@ -68,7 +69,7 @@
           size="24"
           class="mb-2"
         />
-        <p class="text-overflow capitalize leading-tight">
+        <p class="block-catalog-name leading-tight">
           {{ getBlockName(block) }}
         </p>
         <div
@@ -141,3 +142,11 @@ function onBlockDragStart(event, block) {
   event.dataTransfer.setData('text/plain', block.id);
 }
 </script>
+<style scoped>
+.block-catalog-name {
+  min-height: 2.5em;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.3;
+}
+</style>

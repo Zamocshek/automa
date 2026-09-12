@@ -468,6 +468,49 @@ export async function pythonBridge({ id, data }, { refData }) {
 
 export async function parallelRunner({ id, data }, { refData }) {
   try {
+    if (data.executionTarget === 'browser') {
+      const integer = (value, fallback, min, max, label) => {
+        const number = Number(value ?? fallback);
+        if (!Number.isInteger(number) || number < min || number > max) {
+          throw new Error(`${label}: ${min}..${max}`);
+        }
+        return number;
+      };
+      const workers = integer(data.workers, 1, 1, 512, 'Parallel workers');
+      const browserCount = integer(data.browserCount, 1, 1, 10000, 'Browser count');
+      const repeats = integer(data.repeats, 1, 1, 1000, 'Repeats');
+      const sleepMinSeconds = Number(data.sleepMinSeconds ?? 0);
+      const sleepMaxSeconds = Number(data.sleepMaxSeconds ?? 0);
+      if (!Number.isFinite(sleepMinSeconds) || !Number.isFinite(sleepMaxSeconds) ||
+          sleepMinSeconds < 0 || sleepMaxSeconds < sleepMinSeconds) {
+        throw new Error('Invalid browser delay range');
+      }
+      const url = await render(data.pageUrl || '', refData, this.engine.isPopup);
+      if (!/^https?:\/\//i.test(url)) throw new Error('Browser URL must start with http:// or https://');
+      const bridgeData = {
+        ...data,
+        timeout: integer(data.timeoutSeconds, 600, 1, 86400, 'Timeout seconds') * 1000,
+      };
+      const options = {
+        name: `workflow-${this.engine.id}-${id}-${crypto.randomUUID()}`,
+        url, browserCount, concurrency: workers, repeats,
+        browserEngine: data.browserEngine || 'chromium',
+        profileStrategy: 'none', headless: data.headless !== false,
+        sleepMinSeconds, sleepMaxSeconds,
+        successLimit: integer(data.successLimit, 0, 0, 10000000, 'Success limit'),
+        failureLimit: integer(data.failureLimit, 0, 0, 10000000, 'Failure limit'),
+      };
+      const planned = await callBridge(bridgeData, refData, this.engine.isPopup, {
+        action: 'browser_swarm_plan', payload: options,
+      }, this);
+      // Run the just-written plan, not a stale named plan or truncated preview.
+      if (!planned.result?.path) throw new Error('Browser plan path is missing');
+      const response = await callBridge(bridgeData, refData, this.engine.isPopup, {
+        action: 'browser_swarm_run',
+        payload: { path: planned.result.path, dryRun: data.dryRun === true },
+      }, this);
+      return finishBlock(this, id, data, response);
+    }
     const tasksText = await render(data.tasksJson || '[]', refData, this.engine.isPopup);
     const tasks = parseJsonArray(tasksText, 'tasksJson');
     const responseData = await callBridge(data, refData, this.engine.isPopup, {

@@ -58,9 +58,9 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
     browserSelector: 'button, a, input',
     browserLabTabId: null,
     browserLabWindowId: null,
-    browserLabStatus: 'browser not opened',
+    browserLabStatus: 'браузер не открыт',
     browserLabBusy: false,
-    httpSniffStatus: 'sniff stopped',
+    httpSniffStatus: 'запись остановлена',
     httpSniffActive: false,
     httpSniffBusy: false,
     httpSniffRequests: [],
@@ -97,7 +97,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
     } catch {
       state.browserLabTabId = null;
       state.browserLabWindowId = null;
-      state.browserLabStatus = 'browser tab closed';
+      state.browserLabStatus = 'вкладка браузера закрыта';
       return null;
     }
   }
@@ -127,7 +127,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
         throw new Error('Browser Lab tab was not opened');
       state.browserLabTabId = tab.id;
       state.browserLabWindowId = tab.windowId;
-      state.browserLabStatus = `tab ${tab.id}: ${
+      state.browserLabStatus = `вкладка ${tab.id}: ${
         tab.pendingUrl || tab.url || url
       }`;
       return tab;
@@ -159,11 +159,11 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
     current.cancelled = true;
     removeListeners();
     state.httpSniffActive = false;
-    state.httpSniffStatus = `detached (${reason}), ${state.httpSniffRequests.length} requests`;
+    state.httpSniffStatus = `отключено (${reason}), запросов: ${state.httpSniffRequests.length}`;
     if (reason === 'target_closed' && state.browserLabTabId === current.tabId) {
       state.browserLabTabId = null;
       state.browserLabWindowId = null;
-      state.browserLabStatus = 'browser tab closed';
+      state.browserLabStatus = 'вкладка браузера закрыта';
     }
     if (current.ready) capture = null;
   }
@@ -171,7 +171,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
   function publish(current) {
     if (!current.ready) return;
     state.httpSniffRequests = current.requests.slice();
-    state.httpSniffStatus = `recording tab ${current.tabId}, ${current.requests.length} requests`;
+    state.httpSniffStatus = `запись вкладки ${current.tabId}, запросов: ${current.requests.length}`;
   }
 
   function onDebugEvent(source, method, params = {}) {
@@ -217,7 +217,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
         current.requests.length >= maxRequests ||
         current.bytes + size > maxBytes
       ) {
-        current.limitReason = 'capture limit reached';
+        current.limitReason = 'достигнут лимит записи';
         if (current.ready)
           stopHttpSniff(current.limitReason).catch(console.error);
         return;
@@ -281,7 +281,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
           const navigated = await browserApi.tabs.update(tab.id, {
             url: targetUrl,
           });
-          state.browserLabStatus = `tab ${tab.id}: ${
+          state.browserLabStatus = `вкладка ${tab.id}: ${
             navigated.pendingUrl || navigated.url || targetUrl
           }`;
           checkCancelled();
@@ -303,7 +303,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
           );
         }
         state.httpSniffActive = current.attached;
-        state.httpSniffStatus = `start failed: ${startError.message}`;
+        state.httpSniffStatus = `ошибка запуска: ${startError.message}`;
         throw startError;
       }
     })().finally(() => {
@@ -314,7 +314,7 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
     return startOperation;
   }
 
-  function stopHttpSniff(reason = 'stopped') {
+  function stopHttpSniff(reason = 'запись остановлена') {
     if (stopOperation) return stopOperation;
     const current = capture;
     if (!current) return Promise.resolve(state.httpSniffRequests);
@@ -324,11 +324,11 @@ export function createBrowserLabSession(browserApi, chromeApi, limits = {}) {
       try {
         await detach(current);
         state.httpSniffActive = false;
-        state.httpSniffStatus = `${reason}, ${state.httpSniffRequests.length} requests`;
+        state.httpSniffStatus = `${reason}, запросов: ${state.httpSniffRequests.length}`;
         return state.httpSniffRequests;
       } catch (error) {
         state.httpSniffActive = current.attached;
-        state.httpSniffStatus = `detach failed: ${error.message}`;
+        state.httpSniffStatus = `ошибка отключения: ${error.message}`;
         throw error;
       }
     })().finally(() => {

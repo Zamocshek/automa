@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="Telegram сообщение"
       description="BAS-кубик для отправки сообщения: токен из ресурса или [[value_token]], chat id, текст с [[VARIABLE]] и сохранение ответа."
       :actions="telegramPresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -73,7 +75,8 @@
       type="number"
       @change="updateData({ requestTimeout: Number($event) })"
     />
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -86,8 +89,9 @@
     >
       Записать ответ Telegram в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -98,6 +102,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({

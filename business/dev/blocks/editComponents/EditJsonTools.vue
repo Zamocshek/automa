@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="JSON"
       description="Работа с JSON и JSONPath как отдельные BAS-кубики."
       :actions="jsonPresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -27,12 +29,12 @@
       @change="updateData({ mode: $event })"
     >
       <option value="create">create</option>
-      <option value="get">get</option>
+      <option value="get">Получить</option>
       <option value="keys">keys</option>
       <option value="values">values</option>
       <option value="count">count</option>
-      <option value="set">set</option>
-      <option value="delete">delete</option>
+      <option value="set">Записать</option>
+      <option value="delete">Удалить</option>
       <option value="parse">parse</option>
       <option value="stringify">stringify</option>
       <option value="format">format</option>
@@ -67,8 +69,12 @@
       />
     </template>
     <template v-if="data.mode === 'set'">
-      <label class="input-label">JSON значения</label>
-      <ui-textarea
+      <BlockValueField
+      label="JSON значения"
+      help="json"
+      json="any"
+      multiline
+      templates
         :model-value="data.valueJson"
         class="w-full font-mono"
         rows="5"
@@ -94,7 +100,8 @@
       type="number"
       @change="updateData({ indent: Number($event) })"
     />
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -106,8 +113,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -117,6 +125,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({

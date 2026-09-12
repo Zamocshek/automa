@@ -6,7 +6,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -70,7 +71,8 @@
       spellcheck="false"
       @change="updateData({ actionsJson: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -83,8 +85,9 @@
     >
       Записать путь сборки в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -94,6 +97,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 const props = defineProps({
   data: {
     type: Object,

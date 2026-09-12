@@ -36,7 +36,8 @@
 </template>
 <script setup>
 import customEditComponents from '@business/blocks/editComponents';
-import { computed } from 'vue';
+import { computed, provide } from 'vue';
+import { variableNames } from '@business/blocks/editComponents/fieldAssistance';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 
@@ -79,6 +80,10 @@ const props = defineProps({
 const emit = defineEmits(['close', 'update', 'update:autocomplete']);
 
 const { t, te } = useI18n();
+provide(
+  'blockVariableNames',
+  computed(() => variableNames(props.workflow))
+);
 const toast = useToast();
 
 const blockData = computed({

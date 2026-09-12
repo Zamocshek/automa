@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="Взаимодействие с пользователем"
       description="BAS-кубик из статьи: messageBox, запрос ввода, звук, ручное управление вкладкой и JS в web interface."
       :actions="interactionPresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -26,7 +28,7 @@
       class="w-full"
       @change="selectMode"
     >
-      <option value="messageBox">messageBox</option>
+      <option value="messageBox">Сообщение</option>
       <option value="requestInput">request input</option>
       <option value="playSound">play sound</option>
       <option value="manualControl">manual browser control</option>
@@ -145,7 +147,8 @@
     >
       Записать действие в bridge/MCP trace
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -158,8 +161,9 @@
     >
       Записать результат в переменную Automa
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -170,6 +174,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({

@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="Ожидание"
       description="Ждать загрузку, файл, CSS, текст или повторять действие с retry."
       :actions="waitPresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -77,15 +79,19 @@
         <option value="webkit">webkit</option>
         <option value="camoufox">camoufox</option>
       </ui-select>
-      <ui-input
+      <BlockValueField
+        help="url"
+        templates
         :model-value="data.url"
         label="URL"
         class="w-full"
         @change="updateData({ url: $event })"
       />
     </template>
-    <ui-input
+    <BlockValueField
       v-if="data.mode === 'selector'"
+      help="selector"
+      templates
       :model-value="data.selector"
       label="Селектор"
       class="w-full"
@@ -190,7 +196,8 @@
     >
       Headless-браузер
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -202,8 +209,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -213,6 +221,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({

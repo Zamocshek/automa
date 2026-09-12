@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="Android automation"
       description="ADB/Airtest-style blocks: devices, connect, UI tree, selectors, tap, input, swipe, shell, app control and multi-device run."
       :actions="androidPresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="Bridge URL"
       class="w-full"
@@ -37,18 +39,18 @@
       <option value="xpath">XPath search</option>
       <option value="tap">Tap / click</option>
       <option value="longClick">Long click</option>
-      <option value="inputText">Input text</option>
+      <option value="inputText">Ввести текст</option>
       <option value="swipe">Swipe</option>
       <option value="drag">Drag</option>
       <option value="press">Press key</option>
       <option value="wait">Wait</option>
       <option value="shell">ADB shell</option>
-      <option value="screenshot">Screenshot</option>
+      <option value="screenshot">Снимок экрана</option>
       <option value="notifications">Notifications</option>
       <option value="app">App control</option>
       <option value="packages">Installed packages</option>
       <option value="intent">Intent / deep link</option>
-      <option value="proxy">Proxy</option>
+      <option value="proxy">Прокси</option>
       <option value="location">Geo location</option>
       <option value="permissions">Permissions</option>
       <option value="files">Device files</option>
@@ -70,7 +72,7 @@
     <div class="grid grid-cols-2 gap-2">
       <ui-input
         :model-value="data.deviceId"
-        label="Device serial"
+        label="Идентификатор устройства"
         class="w-full"
         placeholder="emulator-5554"
         @change="updateData({ deviceId: $event })"
@@ -179,11 +181,11 @@
     </template>
     <template v-if="data.mode === 'proxy'">
       <ui-select :model-value="data.proxyOperation" label="Proxy operation" class="w-full" @change="updateData({ proxyOperation: $event })">
-        <option value="set">set</option>
+        <option value="set">Записать</option>
         <option value="clear">clear</option>
         <option value="current">current</option>
       </ui-select>
-      <ui-input :model-value="data.proxy" label="Proxy" class="w-full" placeholder="host:port" @change="updateData({ proxy: $event })" />
+      <ui-input :model-value="data.proxy" label="Прокси" class="w-full" placeholder="host:port" @change="updateData({ proxy: $event })" />
       <ui-checkbox :model-value="data.dryRun" @change="updateData({ dryRun: $event })">
         Dry run
       </ui-checkbox>
@@ -199,11 +201,11 @@
     </template>
     <template v-if="data.mode === 'permissions'">
       <ui-select :model-value="data.permissionOperation" label="Permission operation" class="w-full" @change="updateData({ permissionOperation: $event })">
-        <option value="list">list</option>
+        <option value="list">Показать список</option>
         <option value="grant">grant</option>
         <option value="revoke">revoke</option>
       </ui-select>
-      <ui-input :model-value="data.packageName" label="Package" class="w-full" placeholder="com.example.app" @change="updateData({ packageName: $event })" />
+      <ui-input :model-value="data.packageName" label="Пакет приложения" class="w-full" placeholder="com.example.app" @change="updateData({ packageName: $event })" />
       <ui-input :model-value="data.permission" label="Permission" class="w-full" placeholder="android.permission.POST_NOTIFICATIONS" @change="updateData({ permission: $event })" />
       <ui-checkbox :model-value="data.dryRun" @change="updateData({ dryRun: $event })">
         Dry run
@@ -211,11 +213,11 @@
     </template>
     <template v-if="data.mode === 'files'">
       <ui-select :model-value="data.fileOperation" label="File operation" class="w-full" @change="updateData({ fileOperation: $event })">
-        <option value="list">list</option>
+        <option value="list">Показать список</option>
         <option value="push">push</option>
         <option value="pull">pull</option>
         <option value="mkdir">mkdir</option>
-        <option value="delete">delete</option>
+        <option value="delete">Удалить</option>
       </ui-select>
       <ui-input :model-value="data.remotePath" label="Remote path" class="w-full" placeholder="/sdcard/Download" @change="updateData({ remotePath: $event })" />
       <ui-input :model-value="data.localPath" label="Local path" class="w-full" placeholder="C:\\file.txt" @change="updateData({ localPath: $event })" />
@@ -249,11 +251,11 @@
       <ui-select :model-value="data.profileOperation" label="Profile operation" class="w-full" @change="updateData({ profileOperation: $event })">
         <option value="build">build</option>
         <option value="apply">apply</option>
-        <option value="get">get</option>
-        <option value="list">list</option>
-        <option value="delete">delete</option>
+        <option value="get">Получить</option>
+        <option value="list">Показать список</option>
+        <option value="delete">Удалить</option>
       </ui-select>
-      <ui-input :model-value="data.profileName" label="Profile name" class="w-full" @change="updateData({ profileName: $event })" />
+      <ui-input :model-value="data.profileName" label="Имя профиля" class="w-full" @change="updateData({ profileName: $event })" />
       <div class="grid grid-cols-2 gap-2">
         <ui-input :model-value="data.brand" label="Brand" class="w-full" @change="updateData({ brand: $event })" />
         <ui-input :model-value="data.model" label="Model" class="w-full" @change="updateData({ model: $event })" />
@@ -273,7 +275,7 @@
         <option value="install">install apk</option>
         <option value="uninstall">uninstall</option>
       </ui-select>
-      <ui-input :model-value="data.packageName" label="Package" class="w-full" placeholder="com.example.app" @change="updateData({ packageName: $event })" />
+      <ui-input :model-value="data.packageName" label="Пакет приложения" class="w-full" placeholder="com.example.app" @change="updateData({ packageName: $event })" />
       <ui-input :model-value="data.activity" label="Activity" class="w-full" placeholder=".MainActivity" @change="updateData({ activity: $event })" />
       <ui-input :model-value="data.apkPath" label="APK path" class="w-full" placeholder="C:\\app.apk" @change="updateData({ apkPath: $event })" />
     </template>
@@ -291,8 +293,12 @@
     <template v-if="data.mode === 'parallelRun'">
       <label class="input-label">Devices JSON</label>
       <ui-textarea :model-value="data.devicesJson" class="w-full font-mono" rows="4" spellcheck="false" @change="updateData({ devicesJson: $event })" />
-      <label class="input-label">Tasks JSON</label>
-      <ui-textarea :model-value="data.tasksJson" class="w-full font-mono" rows="8" spellcheck="false" @change="updateData({ tasksJson: $event })" />
+      <BlockValueField
+      label="Tasks JSON"
+      help="tasks"
+      json="array"
+      multiline
+      templates :model-value="data.tasksJson" class="w-full font-mono" rows="8" spellcheck="false" @change="updateData({ tasksJson: $event })" />
       <ui-input :model-value="data.workers" label="Workers" type="number" class="w-full" @change="updateData({ workers: Number($event) })" />
       <ui-checkbox :model-value="data.dryRun" @change="updateData({ dryRun: $event })">
         Dry run plan only
@@ -308,7 +314,8 @@
     <ui-checkbox :model-value="data.includeXml" @change="updateData({ includeXml: $event })">
       Include raw UI XML
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Result path"
       class="w-full"
@@ -318,8 +325,9 @@
     <ui-checkbox :model-value="data.assignVariable" @change="updateData({ assignVariable: $event })">
       Save result to Automa variable
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Variable name"
       class="w-full"
@@ -330,6 +338,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({
@@ -356,18 +365,18 @@ const androidPresets = [
   { key: 'xpath', label: 'XPath', hint: 'query', values: { mode: 'xpath', xpath: ".//node[@clickable='true']", returnPath: 'result.elements', variableName: 'android_xpath' } },
   { key: 'tap', label: 'Click / tap', hint: 'input', values: { mode: 'tap', returnPath: 'result', variableName: 'android_tap' } },
   { key: 'longClick', label: 'Long click', hint: 'hold', values: { mode: 'longClick', durationMs: 900, returnPath: 'result', variableName: 'android_long_click' } },
-  { key: 'inputText', label: 'Input text', hint: 'type', values: { mode: 'inputText', returnPath: 'result', variableName: 'android_input' } },
+  { key: 'inputText', label: 'Ввести текст', hint: 'type', values: { mode: 'inputText', returnPath: 'result', variableName: 'android_input' } },
   { key: 'swipe', label: 'Swipe', hint: 'gesture', values: { mode: 'swipe', returnPath: 'result', variableName: 'android_swipe' } },
   { key: 'drag', label: 'Drag', hint: 'move', values: { mode: 'drag', durationMs: 700, returnPath: 'result', variableName: 'android_drag' } },
   { key: 'press', label: 'Press key', hint: 'back', values: { mode: 'press', key: 'BACK', returnPath: 'result', variableName: 'android_key' } },
   { key: 'wait', label: 'Wait', hint: 'sleep', values: { mode: 'wait', seconds: 1, returnPath: 'result', variableName: 'android_wait' } },
   { key: 'shell', label: 'ADB shell', hint: 'cmd', values: { mode: 'shell', shellCommand: 'getprop ro.build.version.release', returnPath: 'result.stdout', variableName: 'android_shell' } },
-  { key: 'screenshot', label: 'Screenshot', hint: 'png', values: { mode: 'screenshot', returnPath: 'result.path', variableName: 'android_screenshot' } },
+  { key: 'screenshot', label: 'Снимок экрана', hint: 'png', values: { mode: 'screenshot', returnPath: 'result.path', variableName: 'android_screenshot' } },
   { key: 'notifications', label: 'Notifications', hint: 'dumpsys', values: { mode: 'notifications', returnPath: 'result.text', variableName: 'android_notifications' } },
   { key: 'app', label: 'App control', hint: 'apk', values: { mode: 'app', appOperation: 'current', returnPath: 'result', variableName: 'android_app' } },
   { key: 'packages', label: 'Packages', hint: 'pm list', values: { mode: 'packages', returnPath: 'result.packages', variableName: 'android_packages' } },
   { key: 'intent', label: 'Intent', hint: 'deep link', values: { mode: 'intent', dryRun: true, returnPath: 'result', variableName: 'android_intent' } },
-  { key: 'proxy', label: 'Proxy', hint: 'network', values: { mode: 'proxy', proxyOperation: 'set', dryRun: true, returnPath: 'result', variableName: 'android_proxy' } },
+  { key: 'proxy', label: 'Прокси', hint: 'network', values: { mode: 'proxy', proxyOperation: 'set', dryRun: true, returnPath: 'result', variableName: 'android_proxy' } },
   { key: 'location', label: 'Geo', hint: 'gps', values: { mode: 'location', dryRun: true, returnPath: 'result', variableName: 'android_location' } },
   { key: 'permissions', label: 'Permissions', hint: 'pm grant', values: { mode: 'permissions', permissionOperation: 'list', dryRun: true, returnPath: 'result', variableName: 'android_permissions' } },
   { key: 'files', label: 'Files', hint: 'push/pull', values: { mode: 'files', fileOperation: 'list', dryRun: true, returnPath: 'result', variableName: 'android_files' } },

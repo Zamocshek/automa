@@ -51,12 +51,12 @@
     <section class="vc-grid">
       <article class="vc-panel vc-span-2 vc-cockpit">
         <div class="vc-panel-head">
-          <h2>BAS/ZENNO Production Cockpit</h2>
-          <span>one workspace + visible blocks + MCP</span>
+          <h2>Управление проектом</h2>
+          <span>блоки, ресурсы, MCP</span>
         </div>
         <div class="vc-cockpit-layout">
           <div class="vc-cockpit-primary">
-            <p class="vc-section-label">Production axis</p>
+            <p class="vc-section-label">Состояние проекта</p>
             <div class="vc-cockpit-rows">
               <div
                 v-for="row in basCockpitRows"
@@ -68,36 +68,36 @@
               </div>
             </div>
             <div class="vc-actions">
-              <ui-button variant="accent" @click="safeRun(runProductionReadinessChecklist)">Readiness pass</ui-button>
-              <ui-button @click="safeRun(composeBasZennoProductionWorkflow)">Compose BAS/ZENNO workflow</ui-button>
-              <ui-button @click="safeRun(refreshProductionDashboard)">Refresh cockpit</ui-button>
-              <ui-button @click="safeRun(planBrowserSwarm)">Plan swarm</ui-button>
+              <ui-button variant="accent" @click="safeRun(runProductionReadinessChecklist)">Проверить готовность</ui-button>
+              <ui-button @click="safeRun(composeBasZennoProductionWorkflow)">Создать сценарий BAS/ZENNO</ui-button>
+              <ui-button @click="safeRun(refreshProductionDashboard)">Обновить состояние</ui-button>
+              <ui-button @click="safeRun(planBrowserSwarm)">План браузерных запусков</ui-button>
             </div>
           </div>
           <div class="vc-cockpit-secondary">
-            <p class="vc-section-label">Camoufox manager</p>
+            <p class="vc-section-label">Менеджер Camoufox</p>
             <div class="vc-inline">
               <ui-input
                 :model-value="camoufoxManagerPath"
-                label="Manager path"
+                label="Папка менеджера"
                 @change="camoufoxManagerPath = $event"
               />
               <ui-input
                 :model-value="camoufoxTargetPrefix"
-                label="Import prefix"
+                label="Префикс импорта"
                 @change="camoufoxTargetPrefix = $event"
               />
             </div>
             <div class="vc-actions">
-              <ui-button @click="safeRun(refreshCamoufoxManager)">Manager status</ui-button>
-              <ui-button @click="safeRun(syncCamoufoxProfiles)">Import profiles</ui-button>
+              <ui-button @click="safeRun(refreshCamoufoxManager)">Статус менеджера</ui-button>
+              <ui-button @click="safeRun(syncCamoufoxProfiles)">Импортировать профили</ui-button>
               <ui-button @click="selectMcpTool('camoufox.manager.sync')">MCP sync</ui-button>
             </div>
-            <p class="vc-section-label">Network policy / recorder</p>
+            <p class="vc-section-label">Правила сети и запись запросов</p>
             <div class="vc-form-grid vc-form-grid-wide">
               <ui-input
                 :model-value="networkPolicyName"
-                label="Policy name"
+                label="Имя набора правил"
                 @change="networkPolicyName = $event"
               />
               <label>
@@ -111,9 +111,9 @@
               </label>
             </div>
             <div class="vc-actions">
-              <ui-button @click="safeRun(buildNetworkPolicy)">Build policy</ui-button>
-              <ui-button @click="safeRun(runNetworkPolicyScan)">Scan with policy</ui-button>
-              <ui-button @click="safeRun(listNetworkPolicies)">List policies</ui-button>
+              <ui-button @click="safeRun(buildNetworkPolicy)">Сохранить правила</ui-button>
+              <ui-button @click="safeRun(runNetworkPolicyScan)">Сканировать с правилами</ui-button>
+              <ui-button @click="safeRun(listNetworkPolicies)">Список правил</ui-button>
               <ui-button @click="selectMcpTool('network.policy.build')">MCP policy</ui-button>
             </div>
           </div>
@@ -161,7 +161,7 @@
           <ui-button @click="selectAction('file_write')">Запись файла</ui-button>
           <ui-button @click="selectAction('wait_file')">Ждать файл</ui-button>
           <ui-button @click="selectAction('retry_action')">Повтор</ui-button>
-          <ui-button @click="selectAction('build_app')">Payload сборки app</ui-button>
+          <ui-button @click="selectAction('build_app')">Параметры сборки приложения</ui-button>
           <ui-button @click="selectAction('python_script_exec')">Python-библиотека</ui-button>
           <ui-button @click="selectAction('node_script_exec')">Node-библиотека</ui-button>
           <ui-button @click="selectAction('telegram_bot_build')">Telegram-бот</ui-button>
@@ -170,8 +170,8 @@
           <ui-button @click="selectAction('parallel_plan_build')">Параллельный план</ui-button>
           <ui-button @click="selectAction('design_app_build')">Дизайн-приложение</ui-button>
           <ui-button @click="selectAction('private_vpn_project_build')">Private VPN</ui-button>
-          <ui-button @click="selectAction('network_policy_build')">Network policy</ui-button>
-          <ui-button @click="selectAction('camoufox_manager_sync')">Camoufox sync</ui-button>
+          <ui-button @click="selectAction('network_policy_build')">Правила сети</ui-button>
+          <ui-button @click="selectAction('camoufox_manager_sync')">Синхронизация Camoufox</ui-button>
         </div>
       </article>
 
@@ -216,13 +216,13 @@
           <div class="vc-stack">
             <ui-input
               :model-value="androidDeviceId"
-              label="Device serial"
+              label="Идентификатор устройства"
               placeholder="emulator-5554 или пусто для auto"
               @change="androidDeviceId = $event"
             />
             <ui-input
               :model-value="androidPackageName"
-              label="Package"
+              label="Пакет приложения"
               placeholder="com.example.app"
               @change="androidPackageName = $event"
             />
@@ -273,10 +273,10 @@
           <ui-button @click="safeRun(runAndroidUiTree)">UI tree</ui-button>
           <ui-button @click="safeRun(runAndroidAnalyze)">Анализ UI</ui-button>
           <ui-button @click="safeRun(runAndroidFindElement)">Найти элемент</ui-button>
-          <ui-button @click="safeRun(runAndroidTap)">Tap</ui-button>
-          <ui-button @click="safeRun(runAndroidInputText)">Input text</ui-button>
-          <ui-button @click="safeRun(runAndroidScreenshot)">Screenshot</ui-button>
-          <ui-button @click="safeRun(runAndroidShell)">Shell</ui-button>
+          <ui-button @click="safeRun(runAndroidTap)">Нажать</ui-button>
+          <ui-button @click="safeRun(runAndroidInputText)">Ввести текст</ui-button>
+          <ui-button @click="safeRun(runAndroidScreenshot)">Снимок экрана</ui-button>
+          <ui-button @click="safeRun(runAndroidShell)">Команда оболочки</ui-button>
           <ui-button @click="selectMcpTool('android.devices')">MCP devices</ui-button>
           <ui-button @click="selectMcpTool('android.tap')">MCP tap</ui-button>
           <ui-button @click="selectMcpTool('android.parallel.run')">MCP multi-device</ui-button>
@@ -326,7 +326,7 @@
           </ui-select>
           <ui-input
             :model-value="batchWorkers"
-            label="Воркеры"
+            label="Параллельные исполнители"
             type="number"
             @change="batchWorkers = Number($event)"
           />
@@ -541,8 +541,8 @@
         <div class="vc-actions">
           <ui-button variant="accent" @click="safeRun(runLibraryCode)">Запустить код библиотеки</ui-button>
           <ui-button variant="accent" @click="safeRun(composeTelegramBotWorkflow)">Открыть workflow Telegram-бота</ui-button>
-          <ui-button variant="accent" @click="safeRun(composeProductionTelegramServiceWorkflow)">Production bot-service workflow</ui-button>
-          <ui-button @click="safeRun(buildTelegramBot)">Bridge scaffold Telegram-бота</ui-button>
+          <ui-button variant="accent" @click="safeRun(composeProductionTelegramServiceWorkflow)">Сценарий сервиса бота</ui-button>
+          <ui-button @click="safeRun(buildTelegramBot)">Создать файлы Telegram-бота</ui-button>
           <ui-button @click="safeRun(dryRunTelegramMessage)">Тест Telegram-сообщения</ui-button>
         </div>
         <div class="vc-inline">
@@ -579,68 +579,68 @@
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Production Control Center</h2>
+          <h2>Контроль выполнения</h2>
           <span>release + queues + audit</span>
         </div>
         <section class="vc-metric-grid">
           <div class="vc-mini-card">
-            <p>Release</p>
+            <p>Выпуск</p>
             <strong>{{ productionReadyLabel }}</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Sessions</p>
-            <strong>{{ dashboardSummary.sessions.total }} total / {{ dashboardSummary.sessions.failed }} failed</strong>
+            <p>Сессии</p>
+            <strong>{{ dashboardSummary.sessions.total }} всего / {{ dashboardSummary.sessions.failed }} ошибок</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Browser jobs</p>
-            <strong>{{ dashboardSummary.browserJobs.queued }} queued</strong>
+            <p>Задания браузера</p>
+            <strong>{{ dashboardSummary.browserJobs.queued }} в очереди</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Browser swarms</p>
-            <strong>{{ dashboardSummary.browserSwarms.plans }} plans / {{ dashboardSummary.browserSwarms.plannedRuns }} runs</strong>
+            <p>Параллельные браузеры</p>
+            <strong>{{ dashboardSummary.browserSwarms.plans }} планов / {{ dashboardSummary.browserSwarms.plannedRuns }} запусков</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Manual gates</p>
-            <strong>{{ dashboardSummary.manualInterventions.open }} open</strong>
+            <p>Ожидание оператора</p>
+            <strong>{{ dashboardSummary.manualInterventions.open }} ожидают ответа</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Teletype audit</p>
+            <p>Сверка с ТЗ</p>
             <strong>{{ teletypeAuditLabel }}</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Known gaps</p>
+            <p>Известные ограничения</p>
             <strong>{{ teletypeGapLabel }}</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Camoufox manager</p>
+            <p>Менеджер Camoufox</p>
             <strong>{{ camoufoxManagerLabel }}</strong>
           </div>
           <div class="vc-mini-card">
-            <p>Network policies</p>
+            <p>Правила сети</p>
             <strong>{{ networkPolicyLabel }}</strong>
           </div>
         </section>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(refreshProductionDashboard)">Refresh dashboard</ui-button>
-          <ui-button @click="safeRun(runProductionReadinessChecklist)">Readiness pass</ui-button>
-          <ui-button @click="safeRun(refreshCamoufoxManager)">Camoufox status</ui-button>
-          <ui-button @click="safeRun(buildNetworkPolicy)">Network policy</ui-button>
-          <ui-button @click="safeRun(runTeletypeAudit)">Teletype audit</ui-button>
-          <ui-button @click="safeRun(runReleasePreflight)">Release preflight</ui-button>
-          <ui-button @click="safeRun(writeReleaseManifest)">Release manifest</ui-button>
-          <ui-button @click="safeRun(copyMcpJson)">Copy MCP JSON</ui-button>
-          <ui-button @click="safeRun(runProductionSession)">Run sample session</ui-button>
-          <ui-button @click="safeRun(enqueueBrowserJob)">Queue browser job</ui-button>
-          <ui-button @click="safeRun(runNextBrowserJob)">Run next browser job</ui-button>
-          <ui-button @click="safeRun(createManualCheckpoint)">Create manual gate</ui-button>
-          <ui-button @click="safeRun(resolveLatestManualCheckpoint)">Resolve latest gate</ui-button>
-          <ui-button @click="safeRun(planRecipePermissions)">Plan permissions</ui-button>
+          <ui-button variant="accent" @click="safeRun(refreshProductionDashboard)">Обновить состояние</ui-button>
+          <ui-button @click="safeRun(runProductionReadinessChecklist)">Проверить готовность</ui-button>
+          <ui-button @click="safeRun(refreshCamoufoxManager)">Статус Camoufox</ui-button>
+          <ui-button @click="safeRun(buildNetworkPolicy)">Правила сети</ui-button>
+          <ui-button @click="safeRun(runTeletypeAudit)">Сверка с ТЗ</ui-button>
+          <ui-button @click="safeRun(runReleasePreflight)">Проверить выпуск</ui-button>
+          <ui-button @click="safeRun(writeReleaseManifest)">Манифест выпуска</ui-button>
+          <ui-button @click="safeRun(copyMcpJson)">Копировать настройки MCP</ui-button>
+          <ui-button @click="safeRun(runProductionSession)">Запустить тестовую сессию</ui-button>
+          <ui-button @click="safeRun(enqueueBrowserJob)">Добавить задание в очередь</ui-button>
+          <ui-button @click="safeRun(runNextBrowserJob)">Запустить следующее задание</ui-button>
+          <ui-button @click="safeRun(createManualCheckpoint)">Запросить действие оператора</ui-button>
+          <ui-button @click="safeRun(resolveLatestManualCheckpoint)">Подтвердить последнее действие</ui-button>
+          <ui-button @click="safeRun(planRecipePermissions)">Проверить разрешения</ui-button>
         </div>
       </article>
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>Project Recipes</h2>
+          <h2>Шаблоны проектов</h2>
           <span>one-click startup workflows</span>
         </div>
         <div class="vc-recipe-grid">
@@ -713,8 +713,8 @@
           <ui-button @click="selectMcpTool('files.tool')">Файлы</ui-button>
           <ui-button @click="selectMcpTool('wait.tool')">Ожидание</ui-button>
           <ui-button @click="selectMcpTool('network.recorder_import')">Recorder</ui-button>
-          <ui-button @click="selectMcpTool('network.policy.build')">Network policy</ui-button>
-          <ui-button @click="selectMcpTool('camoufox.manager.sync')">Camoufox sync</ui-button>
+          <ui-button @click="selectMcpTool('network.policy.build')">Правила сети</ui-button>
+          <ui-button @click="selectMcpTool('camoufox.manager.sync')">Синхронизация Camoufox</ui-button>
           <ui-button @click="selectMcpTool('resources.schema.build')">Поля</ui-button>
           <ui-button @click="selectMcpTool('parallel.plan.build')">План</ui-button>
           <ui-button @click="selectMcpTool('design.app.build')">Дизайн-приложение</ui-button>
@@ -776,7 +776,7 @@
           </div>
           <div class="vc-stack">
             <label>
-              Prompt workflow
+              Описание сценария
               <ui-textarea
                 :model-value="utilityPrompt"
                 spellcheck="false"
@@ -855,7 +855,7 @@
             />
           </div>
           <label>
-            Inline HTML
+            Исходный HTML
             <ui-textarea
               :model-value="browserHtml"
               spellcheck="false"
@@ -866,20 +866,20 @@
         </div>
         <div class="vc-browser-lab" data-testid="browser-lab">
           <div class="vc-panel-head vc-tight-head">
-            <h3>Live Browser Lab</h3>
+            <h3>Лаборатория браузера</h3>
             <span>{{ browserLabStatus }}</span>
           </div>
           <div class="vc-cockpit-rows">
             <div class="vc-cockpit-row">
-              <span>HTTP sniff</span>
+              <span>Запись HTTP</span>
               <strong data-testid="browser-lab-http-status">{{ httpSniffStatus }}</strong>
             </div>
             <div class="vc-cockpit-row">
-              <span>Captured requests</span>
+              <span>Перехвачено запросов</span>
               <strong data-testid="browser-lab-http-count">{{ httpSniffRequests.length }}</strong>
             </div>
             <div v-if="httpSniffImportStatus" class="vc-cockpit-row">
-              <span>Last HTTP import</span>
+              <span>Последний импорт HTTP</span>
               <strong data-testid="browser-lab-http-import">{{ httpSniffImportStatus }}</strong>
             </div>
           </div>
@@ -889,31 +889,31 @@
               :disabled="httpSniffBusy || browserLabBusy"
               @click="safeRun(() => openBrowserLab({ navigate: true }))"
             >
-              Open browser
+              Открыть браузер
             </ui-button>
             <ui-button :disabled="browserLabBusy || httpSniffBusy" @click="safeRun(startBrowserActionRecording)">
-              Start recording
+              Записать действия
             </ui-button>
             <ui-button @click="safeRun(openRecordingPage)">
-              Recording page
+              Открыть запись
             </ui-button>
             <ui-button :disabled="(browserLabBusy && !browserSelectorPicking) || httpSniffBusy" @click="safeRun(pickBrowserSelector)">
-              {{ browserSelectorPicking ? 'Cancel CSS selection' : 'Pick CSS selector' }}
+              {{ browserSelectorPicking ? 'Отменить выбор элемента' : 'Выбрать CSS-селектор' }}
             </ui-button>
             <ui-button
               :disabled="httpSniffActive || httpSniffBusy || browserLabBusy"
               @click="safeRun(startHttpSniffRecord)"
             >
-              Start HTTP sniff
+              Начать запись HTTP
             </ui-button>
             <ui-button
               :disabled="!httpSniffActive && !httpSniffBusy"
               @click="safeRun(stopHttpSniffRecord)"
             >
-              Stop sniff
+              Остановить запись HTTP
             </ui-button>
             <ui-button :disabled="httpSniffBusy || browserLabBusy || !httpSniffRequests.length" @click="safeRun(buildWorkflowFromHttpSniff)">
-              Sniff to workflow
+              Создать сценарий из HTTP
             </ui-button>
           </div>
         </div>
@@ -932,42 +932,42 @@
 
       <article class="vc-panel vc-span-2">
         <div class="vc-panel-head">
-          <h2>BAS / ZennoPoster Browser Swarm</h2>
-          <span>browser count + threads + repeats</span>
+          <h2>Параллельные браузерные задания</h2>
+          <span>браузеры, потоки, повторы</span>
         </div>
         <div class="vc-form-grid">
           <div class="vc-stack">
             <ui-input
               :model-value="browserSwarmName"
-              label="Plan name"
+              label="Имя плана"
               @change="browserSwarmName = $event"
             />
             <ui-select
               :model-value="browserSwarmTool"
-              label="Browser tool"
+              label="Действие браузера"
               block
               @change="browserSwarmTool = $event"
             >
-              <option value="browser.query_selector">query selector</option>
-              <option value="browser.scan_page">scan page</option>
-              <option value="browser.suggest_selectors">suggest selectors</option>
-              <option value="network.capture">network capture</option>
+              <option value="browser.query_selector">Найти элементы</option>
+              <option value="browser.scan_page">Исследовать страницу</option>
+              <option value="browser.suggest_selectors">Предложить селекторы</option>
+              <option value="network.capture">Записать запросы</option>
             </ui-select>
             <ui-select
               :model-value="browserSwarmProfileStrategy"
-              label="Profile strategy"
+              label="Распределение профилей"
               block
               @change="browserSwarmProfileStrategy = $event"
             >
-              <option value="perBrowser">per browser</option>
-              <option value="perWorker">per worker</option>
-              <option value="perRun">per run</option>
-              <option value="reuse">reuse one</option>
-              <option value="none">none</option>
+              <option value="perBrowser">На каждый браузер</option>
+              <option value="perWorker">На каждый поток</option>
+              <option value="perRun">На каждый запуск</option>
+              <option value="reuse">Один общий профиль</option>
+              <option value="none">Без профиля</option>
             </ui-select>
             <ui-input
               :model-value="browserSwarmProfilePrefix"
-              label="Profile prefix"
+              label="Префикс профиля"
               @change="browserSwarmProfilePrefix = $event"
             />
           </div>
@@ -975,13 +975,15 @@
             <div class="vc-inline">
               <ui-input
                 :model-value="browserSwarmCount"
-                label="Browsers"
+                label="Всего браузеров"
+                help="Всего заданий за повтор. Одновременность ограничена числом потоков."
                 type="number"
                 @change="browserSwarmCount = Number($event)"
               />
               <ui-input
                 :model-value="browserSwarmConcurrency"
-                label="Threads"
+                label="Одновременные потоки"
+                help="Сколько заданий могут выполняться одновременно."
                 type="number"
                 @change="browserSwarmConcurrency = Number($event)"
               />
@@ -989,13 +991,13 @@
             <div class="vc-inline">
               <ui-input
                 :model-value="browserSwarmRepeats"
-                label="Repeats"
+                label="Повторы"
                 type="number"
                 @change="browserSwarmRepeats = Number($event)"
               />
               <ui-input
                 :model-value="browserSwarmRetryAttempts"
-                label="Retries"
+                label="Попытки на задание"
                 type="number"
                 @change="browserSwarmRetryAttempts = Number($event)"
               />
@@ -1003,13 +1005,13 @@
             <div class="vc-inline">
               <ui-input
                 :model-value="browserSwarmSuccessLimit"
-                label="Stop success"
+                label="Лимит успешных запусков"
                 type="number"
                 @change="browserSwarmSuccessLimit = Number($event)"
               />
               <ui-input
                 :model-value="browserSwarmFailureLimit"
-                label="Stop errors"
+                label="Лимит ошибок"
                 type="number"
                 @change="browserSwarmFailureLimit = Number($event)"
               />
@@ -1017,19 +1019,19 @@
             <div class="vc-inline">
               <ui-input
                 :model-value="browserSwarmSleepMin"
-                label="Sleep min"
+                label="Пауза от, сек"
                 type="number"
                 @change="browserSwarmSleepMin = Number($event)"
               />
               <ui-input
                 :model-value="browserSwarmSleepMax"
-                label="Sleep max"
+                label="Пауза до, сек"
                 type="number"
                 @change="browserSwarmSleepMax = Number($event)"
               />
             </div>
             <label>
-              Proxy list
+              Список прокси
               <ui-textarea
                 :model-value="browserSwarmProxies"
                 spellcheck="false"
@@ -1040,12 +1042,12 @@
           </div>
         </div>
         <div class="vc-actions">
-          <ui-button variant="accent" @click="safeRun(planBrowserSwarm)">Plan browser swarm</ui-button>
-          <ui-button @click="safeRun(dryRunBrowserSwarm)">Dry run browser swarm</ui-button>
-          <ui-button @click="safeRun(runBrowserSwarmSample)">Run 1-browser sample</ui-button>
-          <ui-button @click="safeRun(listBrowserSwarms)">List swarms</ui-button>
-          <ui-button @click="selectMcpTool('browser.swarm.plan')">MCP plan</ui-button>
-          <ui-button @click="selectMcpTool('browser.swarm.run')">MCP run</ui-button>
+          <ui-button variant="accent" @click="safeRun(planBrowserSwarm)">Сохранить план запусков</ui-button>
+          <ui-button @click="safeRun(dryRunBrowserSwarm)">Проверить без запуска</ui-button>
+          <ui-button @click="safeRun(runBrowserSwarmSample)">Пробный запуск одного браузера</ui-button>
+          <ui-button @click="safeRun(listBrowserSwarms)">Список планов</ui-button>
+          <ui-button @click="selectMcpTool('browser.swarm.plan')">План через MCP</ui-button>
+          <ui-button @click="selectMcpTool('browser.swarm.run')">Запуск через MCP</ui-button>
         </div>
       </article>
     </section>
@@ -1967,51 +1969,51 @@ const dashboardSummary = computed(() => productionDashboard.value?.summary || {
 });
 const productionReadyLabel = computed(() => {
   const ready = productionDashboard.value?.preflight?.ready;
-  if (ready === true) return `ready v${productionDashboard.value.version}`;
-  if (ready === false) return 'needs attention';
-  return 'not checked';
+  if (ready === true) return `проверки пройдены, v${productionDashboard.value.version}`;
+  if (ready === false) return 'требует внимания';
+  return 'не проверено';
 });
 const teletypeAudit = computed(() => productionDashboard.value?.teletypeAudit || null);
 const teletypeAuditLabel = computed(() => {
-  if (!teletypeAudit.value) return 'not checked';
+  if (!teletypeAudit.value) return 'не проверено';
   const counts = teletypeAudit.value.counts || {};
-  return `${counts.done || 0}/${counts.total || 0} done`;
+  return `${counts.done || 0}/${counts.total || 0} в каталоге`;
 });
 const teletypeGapLabel = computed(() => {
-  if (!teletypeAudit.value) return 'not checked';
+  if (!teletypeAudit.value) return 'не проверено';
   const counts = teletypeAudit.value.counts || {};
-  return `${counts.partial || 0} partial / ${counts.missing || 0} missing`;
+  return `${counts.partial || 0} частично / ${counts.missing || 0} отсутствуют`;
 });
 const productionScoreLabel = computed(() => {
   const counts = teletypeAudit.value?.counts || {};
-  if (!counts.total) return 'audit pending';
-  return `${counts.done || 0}/${counts.total} article blocks`;
+  if (!counts.total) return 'сверка не выполнена';
+  return `${counts.done || 0}/${counts.total} заявлено в каталоге`;
 });
 const browserSwarmCapacityLabel = computed(() => {
   const summary = dashboardSummary.value.browserSwarms || {};
   const configured = Number(browserSwarmCount.value || 0);
   const threads = Number(browserSwarmConcurrency.value || 0);
-  return `${summary.parallelBrowsers || configured} browsers / ${threads} threads`;
+  return `${summary.parallelBrowsers || configured} браузеров / ${threads} потоков`;
 });
 const camoufoxManagerLabel = computed(() => {
   const manager = productionDashboard.value?.camoufoxManager || {};
   const summary = dashboardSummary.value.camoufoxManager || {};
-  if (manager.found || summary.found) return `${summary.profiles || manager.profilesCount || 0} profiles`;
-  return 'not linked';
+  if (manager.found || summary.found) return `профилей: ${summary.profiles || manager.profilesCount || 0}`;
+  return 'не подключён';
 });
 const networkPolicyLabel = computed(() => {
   const summary = dashboardSummary.value.networkPolicies || {};
-  return `${summary.total || 0} policies`;
+  return `наборов правил: ${summary.total || 0}`;
 });
 const basCockpitRows = computed(() => [
-  { label: 'Release', value: productionReadyLabel.value },
-  { label: 'Teletype parity', value: productionScoreLabel.value },
-  { label: 'MCP tools', value: mcpLabel.value },
-  { label: 'Browser swarm', value: browserSwarmCapacityLabel.value },
-  { label: 'Camoufox profiles', value: camoufoxManagerLabel.value },
-  { label: 'Network policies', value: networkPolicyLabel.value },
-  { label: 'Project recipes', value: `${dashboardSummary.value.recipes || projectRecipes.value.length} ready` },
-  { label: 'Manual gates', value: `${dashboardSummary.value.manualInterventions?.open || 0} open` },
+  { label: 'Проверка выпуска', value: productionReadyLabel.value },
+  { label: 'Каталог возможностей ТЗ', value: productionScoreLabel.value },
+  { label: 'Инструменты MCP', value: mcpLabel.value },
+  { label: 'Параллельные браузеры', value: browserSwarmCapacityLabel.value },
+  { label: 'Профили Camoufox', value: camoufoxManagerLabel.value },
+  { label: 'Правила сети', value: networkPolicyLabel.value },
+  { label: 'Шаблоны проектов', value: `доступно: ${dashboardSummary.value.recipes || projectRecipes.value.length}` },
+  { label: 'Ожидание оператора', value: `запросов: ${dashboardSummary.value.manualInterventions?.open || 0}` },
 ]);
 const selectedProjectRecipe = computed(
   () => projectRecipes.value.find((recipe) => recipe.id === selectedRecipeId.value) || projectRecipes.value[0] || null,
@@ -2806,7 +2808,7 @@ async function startBrowserActionRecording() {
       name: utilityName.value || 'silverback-browser-recording',
       description: `Recorded from Browser Lab: ${tab.url}`,
     }, tab.id);
-    browserLabStatus.value = `recording tab ${tab.id}`;
+    browserLabStatus.value = `запись вкладки ${tab.id}`;
     await router.push('/recording');
   } finally {
     browserLabBusy.value = false;
@@ -2880,7 +2882,7 @@ async function buildWorkflowFromHttpSniff() {
       openEditor: true,
     });
     const { importedCount, skippedCount, truncated } = data.result;
-    httpSniffImportStatus.value = `${importedCount} imported, ${skippedCount} skipped${truncated ? ', truncated at 200' : ''}`;
+    httpSniffImportStatus.value = `импортировано: ${importedCount}, пропущено: ${skippedCount}${truncated ? ', лимит 200 блоков' : ''}`;
   } finally {
     browserLabBusy.value = false;
   }

@@ -30,6 +30,7 @@
         :id="componentId"
         v-autofocus="autofocus"
         v-imask="mask"
+        :aria-describedby="help ? componentId + '-help' : undefined"
         :class="[
           statusColors[status],
           inputClass,
@@ -49,6 +50,14 @@
       />
       <slot name="append" />
     </div>
+    <p
+      v-if="help"
+      :id="componentId + '-help'"
+      class="mt-1 text-xs leading-snug text-gray-600 dark:text-gray-300"
+      style="overflow-wrap: anywhere"
+    >
+      {{ help }}
+    </p>
   </div>
 </template>
 <script setup>
@@ -57,6 +66,7 @@ import { IMaskDirective as vImask } from 'vue-imask';
 import { useComponentId } from '@/composable/componentId';
 
 const props = defineProps({
+  help: { type: String, default: '' },
   modelModifiers: {
     default: () => ({}),
   },

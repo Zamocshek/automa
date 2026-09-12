@@ -565,7 +565,7 @@ test('count and byte limits stop capture explicitly without dropping retained re
     await tick();
     assert.equal(lab.state.httpSniffRequests.length, 2);
     assert.equal(lab.state.httpSniffActive, false);
-    assert.match(lab.state.httpSniffStatus, /capture limit reached/);
+    assert.match(lab.state.httpSniffStatus, /достигнут лимит записи/);
     assert.equal(f.chrome.debugger.onEvent.size, 0);
   }
 });
@@ -709,7 +709,7 @@ test('HTTP import sends the full bounded capture, caps blocks at 200 and retains
   assert.equal(remount.httpSniffRequests.value.length, 201);
   assert.equal(
     remount.httpSniffImportStatus.value,
-    '200 imported, 0 skipped, truncated at 200'
+    'импортировано: 200, пропущено: 0, лимит 200 блоков'
   );
 });
 

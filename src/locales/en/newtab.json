@@ -1,4 +1,33 @@
 {
+  "authoring": {
+    "chooseVariable": "Project variable",
+    "insertVariable": "Insert reference",
+    "references": "Runtime references",
+    "errors": {
+      "json": "Invalid JSON. String: \"text\", list: [\"a\", \"b\"]. Object keys also require double quotes.",
+      "object": "Expected a JSON object with key/value pairs.",
+      "array": "Expected a JSON array in square brackets."
+    },
+    "help": {
+      "value": "Field value. References are resolved when the block runs.",
+      "variableName": "Output name without brackets: answer. Reference it in later blocks as [[answer]].",
+      "resourceName": "Stable resource name, not the token itself: telegram_bot_token. Set its value separately.",
+      "scope": "Bridge storage scope. Use a unique project name; identical scopes share storage.",
+      "returnPath": "Bridge response path: result, result.value or result.status. Leave empty for the full response.",
+      "json": "JSON: double-quoted strings, unquoted numbers, lists in []. Quote references used inside strings.",
+      "headers": "Header object: key Accept, value application/json. Reference resources for secrets.",
+      "url": "Full address https://example.com/api or [[api_url]].",
+      "selector": "CSS: button[type=submit]; XPath: //button. Use Browser Lab to pick an element.",
+      "secret": "References or placeholders only. Enter real tokens locally in resources/run forms, not exported workflows.",
+      "tasks": "JSON list of bridge actions with action and payload fields. Each action runs the requested number of repeats.",
+      "workers": "Maximum concurrent workers, not the total browser count.",
+      "browserCount": "Browser jobs per repeat. Active jobs cannot exceed worker count.",
+      "sleep": "Delay before each browser job in seconds. Maximum must not be below minimum.",
+      "limits": "0 means unlimited. At the threshold, stop submitting new jobs; in-flight jobs finish.",
+      "description": "Short description shown to the operator in the run form.",
+      "bridge": "Local executor address, usually http://127.0.0.1:8765/run. Not the target website."
+    }
+  },
   "home": {
     "viewAll": "View all",
     "communities": "Communities"

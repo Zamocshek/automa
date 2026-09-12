@@ -14,6 +14,8 @@
         type="button"
         class="bas-action-button"
         :class="{ active: isActive(action) }"
+        :aria-pressed="isActive(action)"
+        :title="action.description || action.label"
         @click="$emit('select', action)"
       >
         <span class="bas-action-label">{{ action.label }}</span>
@@ -25,6 +27,7 @@
 
 <script setup>
 const props = defineProps({
+  current: { type: Object, default: null },
   title: {
     type: String,
     default: 'BAS-действия',
@@ -50,6 +53,12 @@ const props = defineProps({
 defineEmits(['select']);
 
 function isActive(action) {
+  if (props.current) {
+    const entries = Object.entries(action.values || {});
+    return entries.length > 0 && entries.every(([key, value]) =>
+      JSON.stringify(props.current[key]) === JSON.stringify(value)
+    );
+  }
   if (!props.active) return false;
 
   const values = action?.values || {};
@@ -138,6 +147,7 @@ function isActive(action) {
   font-size: 12px;
   font-weight: 650;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .bas-action-hint {

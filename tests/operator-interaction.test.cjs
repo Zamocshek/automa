@@ -80,6 +80,53 @@ test('offscreen requestInput returns actual text, not default', async () => {
   assert.equal(h.sent.length, 1);
 });
 
+test('browser parallel mode forwards independent counts, repeats, delays and stop limits', async () => {
+  const h = harness({ bridgeResult: (body) => body.action === 'browser_swarm_plan'
+    ? { ok: true, result: { path: 'runtime/plan.json', plan: { tasks: ['preview-only'] } } }
+    : { ok: true, result: { summary: { executed: 6 } } } });
+  const result = await h.run('parallelRunner', {
+    executionTarget: 'browser', workers: 2, browserCount: 3, repeats: 2,
+    pageUrl: 'https://example.test', sleepMinSeconds: 1, sleepMaxSeconds: 3,
+    successLimit: 4, failureLimit: 1, tasksJson: '{ignored in browser mode',
+    returnPath: 'result.summary', assignVariable: true, variableName: 'runs',
+  });
+  assert.equal(h.requests[0].action, 'browser_swarm_plan');
+  const plan = h.requests[0].payload;
+  assert.equal(plan.browserCount, 3);
+  assert.equal(plan.concurrency, 2);
+  assert.equal(plan.repeats, 2);
+  assert.equal(plan.sleepMaxSeconds, 3);
+  assert.equal(plan.failureLimit, 1);
+  assert.equal(plan.headless, true);
+  assert.equal(h.requests[1].payload.path, 'runtime/plan.json');
+  assert.equal(h.requests[1].payload.dryRun, false);
+  assert.equal(h.requests[1].payload.plan, undefined);
+  assert.equal(result.data.executed, 6);
+  assert.equal(h.writes[0].value.executed, 6);
+  assert.equal(h.timers.size, 0);
+});
+
+test('browser parallel dry-run and invalid configurations do not run browsers', async () => {
+  const h = harness({ bridgeResult: { ok: true, result: { path: 'plan.json' } } });
+  await h.run('parallelRunner', { executionTarget: 'browser', pageUrl: 'https://example.test', dryRun: true });
+  assert.equal(h.requests[1].payload.dryRun, true);
+  for (const change of [{ workers: 0 }, { browserCount: -1 }, { repeats: 1.5 }, { sleepMinSeconds: 3, sleepMaxSeconds: 1 }, { pageUrl: 'file:///private' }]) {
+    const invalid = harness();
+    const result = await invalid.run('parallelRunner', { executionTarget: 'browser', pageUrl: 'https://example.test', ...change });
+    assert.equal(result.status, 'error');
+    assert.equal(invalid.requests.length, 0);
+  }
+});
+
+test('legacy parallel blocks remain batch actions despite old decorative browser fields', async () => {
+  const h = harness();
+  await h.run('parallelRunner', { workers: 2, repeats: 3, browserCount: 10, pageUrl: 'https://example.test', tasksJson: '[]' });
+  assert.equal(h.requests.length, 1);
+  assert.equal(h.requests[0].action, 'batch');
+  assert.equal(h.requests[0].payload.workers, 2);
+  assert.equal(h.requests[0].payload.repeats, 3);
+});
+
 test('cancelled input takes fallback and does not overwrite variable', async () => {
   const h = harness({ localResult: { value: null, cancelled: true } });
   const result = await h.run('userInteraction', {

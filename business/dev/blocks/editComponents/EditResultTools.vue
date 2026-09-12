@@ -6,7 +6,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -21,7 +22,7 @@
     >
       <option value="log">log</option>
       <option value="message">message</option>
-      <option value="messageBox">messageBox</option>
+      <option value="messageBox">Сообщение</option>
       <option value="random">случайное число</option>
     </ui-select>
     <ui-select
@@ -75,7 +76,8 @@
         Целое число
       </ui-checkbox>
     </template>
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -87,8 +89,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -98,6 +101,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 const props = defineProps({
   data: {
     type: Object,

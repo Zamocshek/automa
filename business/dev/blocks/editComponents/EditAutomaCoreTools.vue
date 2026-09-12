@@ -40,8 +40,12 @@
       @change="updateData({ corePath: $event })"
     />
     <template v-if="usesValue">
-      <label class="input-label">JSON значения</label>
-      <ui-textarea
+      <BlockValueField
+      label="JSON значения"
+      help="json"
+      json="any"
+      multiline
+      templates
         :model-value="data.valueJson"
         class="w-full font-mono"
         rows="6"
@@ -67,7 +71,8 @@
         @change="updateData({ defaultJson: $event })"
       />
     </template>
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -79,8 +84,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной Automa"
       class="w-full"
@@ -103,6 +109,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import { computed } from 'vue';
 
 const props = defineProps({

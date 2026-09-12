@@ -100,6 +100,26 @@ test('cached workflow states remain scoped to the originating workflow', () => {
   assert.deepEqual(states.value, ['origin']);
 });
 
+test('block edits are synchronous so rapid fields and Save cannot lose values', () => {
+  const nodes = { first: { data: { url: 'old', headersJson: '{}' } }, second: { data: { url: 'untouched' } } };
+  const context = harness({
+    haveEditAccess: { value: true },
+    editor: { value: { getNode: { value: (id) => nodes[id] } } },
+    editState: { blockData: { blockId: 'first', data: nodes.first.data } },
+    autocompleteState: { blocks: {} }, state: { dataChanged: false },
+  });
+  const update = evaluate(initializer('updateBlockData'), context);
+  update({ ...context.editState.blockData.data, url: 'new' });
+  update({ ...context.editState.blockData.data, headersJson: '{"Accept":"text/html"}' });
+  assert.equal(nodes.first.data.url, 'new');
+  assert.equal(nodes.first.data.headersJson, '{"Accept":"text/html"}');
+  context.editState.blockData = { blockId: 'second', data: nodes.second.data };
+  assert.equal(nodes.second.data.url, 'untouched');
+  assert.equal(context.state.dataChanged, true);
+  context.editState.blockData = {};
+  assert.doesNotThrow(() => update({ url: 'late' }));
+});
+
 for (const kind of ['hosted', 'backup']) {
   for (const originEligible of [true, false]) {
     test(`${kind} callback uses origin eligibility, URL and metadata (eligible=${originEligible})`, async () => {

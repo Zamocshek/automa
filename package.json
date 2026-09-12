@@ -17,7 +17,7 @@
     "dev:firefox": "cross-env BROWSER=firefox npm run dev",
     "prettier": "prettier --write '**/*.{js,jsx,css,html}'",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "test:regression": "node --experimental-vm-modules --test tests/browser-lab.test.cjs tests/operator-interaction.test.cjs tests/recorder-order.test.cjs tests/editor-identity.test.cjs"
+    "test:regression": "node --experimental-vm-modules --test tests/browser-lab.test.cjs tests/operator-interaction.test.cjs tests/recorder-order.test.cjs tests/editor-identity.test.cjs tests/field-assistance.test.cjs"
   },
   "engines": {
     "node": ">=14.18.1"

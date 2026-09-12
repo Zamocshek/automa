@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-2">
     <BasActionGrid
+      :current="data"
       title="Логика скрипта"
       description="If/boolean/choose в формате простых действий для визуального workflow."
       :actions="logicPresets"
@@ -13,7 +14,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -83,8 +85,12 @@
       <ui-input :model-value="data.labelName" label="Label" class="w-full" @change="updateData({ labelName: $event })" />
       <ui-input :model-value="data.flowName" label="Name / variable / function" class="w-full" @change="updateData({ flowName: $event })" />
       <ui-input :model-value="data.threads" label="Threads" type="number" class="w-full" @change="updateData({ threads: Number($event) })" />
-      <label class="input-label">JSON value</label>
-      <ui-textarea
+      <BlockValueField
+      label="JSON value"
+      help="json"
+      json="any"
+      multiline
+      templates
         :model-value="data.valueJson"
         class="w-full font-mono"
         rows="4"
@@ -139,7 +145,8 @@
         @change="updateData({ whenFalseJson: $event })"
       />
     </template>
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -151,8 +158,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -162,6 +170,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 import BasActionGrid from './BasActionGrid.vue';
 
 const props = defineProps({

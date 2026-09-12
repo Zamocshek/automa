@@ -6,7 +6,8 @@
       class="w-full"
       @change="updateData({ description: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="bridge"
       :model-value="data.bridgeUrl"
       label="URL моста"
       class="w-full"
@@ -104,8 +105,10 @@
       <option value="url">URL</option>
       <option value="html">inline HTML</option>
     </ui-select>
-    <ui-input
+    <BlockValueField
       v-if="data.source === 'url'"
+      help="url"
+      templates
       :model-value="data.url"
       label="URL"
       class="w-full"
@@ -121,8 +124,10 @@
         @change="updateData({ html: $event })"
       />
     </template>
-    <ui-input
+    <BlockValueField
       v-if="data.mode === 'query'"
+      help="selector"
+      templates
       :model-value="data.selector"
       label="CSS / XPath селектор"
       class="w-full"
@@ -226,7 +231,8 @@
       spellcheck="false"
       @change="updateData({ networkPolicyRulesJson: $event })"
     />
-    <ui-input
+    <BlockValueField
+      help="returnPath"
       :model-value="data.returnPath"
       label="Путь результата"
       class="w-full"
@@ -238,8 +244,9 @@
     >
       Записать результат в переменную
     </ui-checkbox>
-    <ui-input
+    <BlockValueField
       v-if="data.assignVariable"
+      help="variableName"
       :model-value="data.variableName"
       label="Имя переменной"
       class="w-full"
@@ -249,6 +256,7 @@
 </template>
 
 <script setup>
+import BlockValueField from './BlockValueField.vue';
 const props = defineProps({
   data: {
     type: Object,
