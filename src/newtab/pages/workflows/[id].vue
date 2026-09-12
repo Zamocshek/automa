@@ -346,7 +346,7 @@ import DroppedNode from '@/utils/editor/DroppedNode';
 import extractAutocopmleteData from '@/utils/editor/editorAutocomplete';
 import EditorCommands from '@/utils/editor/EditorCommands';
 import { getBlocks } from '@/utils/getSharedData';
-import { debounce, getActiveTab, parseJSON, throttle } from '@/utils/helper';
+import { getActiveTab, parseJSON } from '@/utils/helper';
 import { excludeGroupBlocks } from '@/utils/shared';
 import { getWorkflowPermissions } from '@/utils/workflowData';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
@@ -634,9 +634,15 @@ const updateBlockData = (data) => {
   editState.blockData.data = data;
   state.dataChanged = true;
 };
-const updateHostedWorkflow = throttle(async () => {
+let hostedWorkflowTimeout = null;
+const updateHostedWorkflow = async () => {
   if (isTeamWorkflow) return;
-  if (!userStore.user || workflowPayload.isUpdating) return;
+  if (
+    !userStore.user ||
+    workflowPayload.isUpdating ||
+    hostedWorkflowTimeout !== null
+  )
+    return;
 
   const isHosted = userStore.hostedWorkflows[workflowId];
   const isBackup = userStore.backupIds?.includes(workflowId);
@@ -650,6 +656,8 @@ const updateHostedWorkflow = throttle(async () => {
     return;
 
   workflowPayload.isUpdating = true;
+  const pendingData = workflowPayload.data;
+  workflowPayload.data = {};
 
   const delKeys = [
     'id',
@@ -661,14 +669,14 @@ const updateHostedWorkflow = throttle(async () => {
     'isProtected',
   ];
   delKeys.forEach((key) => {
-    delete workflowPayload.data[key];
+    delete pendingData[key];
   });
 
   try {
-    if (typeof workflowPayload.data.drawflow === 'string') {
-      workflowPayload.data.drawflow = parseJSON(
-        workflowPayload.data.drawflow,
-        workflowPayload.data.drawflow
+    if (typeof pendingData.drawflow === 'string') {
+      pendingData.drawflow = parseJSON(
+        pendingData.drawflow,
+        pendingData.drawflow
       );
     }
 
@@ -677,7 +685,7 @@ const updateHostedWorkflow = throttle(async () => {
       method: 'PUT',
       keepalive: true,
       body: JSON.stringify({
-        workflow: workflowPayload.data,
+        workflow: pendingData,
       }),
     });
 
@@ -690,19 +698,23 @@ const updateHostedWorkflow = throttle(async () => {
       }
     }
 
-    workflowPayload.data = {};
     workflowPayload.isUpdating = false;
+    hostedWorkflowTimeout = setTimeout(() => {
+      hostedWorkflowTimeout = null;
+      updateHostedWorkflow();
+    }, 5000);
   } catch (error) {
     console.error(error);
+    workflowPayload.data = { ...pendingData, ...workflowPayload.data };
     workflowPayload.isUpdating = false;
   }
-}, 5000);
-const onEdgesChange = debounce((changes) => {
+};
+const onEdgesChange = (changes) => {
   changes.forEach(({ type, item }) => {
     if (
       type === 'add' &&
-      item.sourceHandle.includes('output') &&
-      item.targetHandle.includes('output')
+      item.sourceHandle?.includes('output') &&
+      item.targetHandle?.includes('output')
     ) {
       editor.value.removeEdges([item.id]);
 
@@ -712,7 +724,7 @@ const onEdgesChange = debounce((changes) => {
     if (state.dataChanged) return;
     state.dataChanged = type !== 'select';
   });
-}, 250);
+};
 
 function onTabChange(tabVal) {
   if (tabVal === 'logs') {
@@ -1175,7 +1187,19 @@ async function updateWorkflow(data) {
   }
 }
 function onActionUpdated({ data, changedIndicator }) {
-  state.dataChanged = changedIndicator;
+  const savedGraph = isPackage ? data.data : data.drawflow;
+  if (changedIndicator) {
+    state.dataChanged = true;
+  } else if (savedGraph && editor.value) {
+    // A completed save only clears edits included in that snapshot.
+    const graphContent = ({ nodes, edges }) =>
+      JSON.stringify({
+        nodes,
+        edges: edges.map((edge) => ({ ...edge, class: undefined })),
+      });
+    state.dataChanged =
+      graphContent(editor.value.toObject()) !== graphContent(savedGraph);
+  }
 
   workflowPayload.data = { ...workflowPayload.data, ...data };
   if (!isPackage) updateHostedWorkflow();
@@ -1187,6 +1211,12 @@ function onEditorInit(instance) {
 
   instance.onEdgesChange(onEdgesChange);
   instance.onNodesChange(onNodesChange);
+  instance.onEdgeUpdate(({ connection }) => {
+    const isBothOutput =
+      connection.sourceHandle?.includes('output') &&
+      connection.targetHandle?.includes('output');
+    if (!isBothOutput) state.dataChanged = true;
+  });
   instance.onEdgeDoubleClick(({ edge }) => {
     instance.removeEdges([edge]);
   });

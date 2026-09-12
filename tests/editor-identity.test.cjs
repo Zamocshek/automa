@@ -6,6 +6,7 @@ const { execFileSync } = require('node:child_process');
 const { test } = require('node:test');
 const babel = require('@babel/core');
 const { parse } = require('@vue/compiler-sfc');
+const { useVueFlow } = require('@vue-flow/core');
 
 const root = path.resolve(__dirname, '..');
 const filename = 'src/newtab/pages/workflows/[id].vue';
@@ -34,14 +35,273 @@ function evaluate(node, context) {
   return vm.runInContext(`(${script.slice(node.start, node.end)})`, context, { filename });
 }
 function harness(overrides = {}) {
-  const route = { params: { id: 'origin' } };
+  const route = { params: { id: 'origin' }, query: {} };
   return vm.createContext({
     route, workflowId: route.params.id, isPackage: false, isTeamWorkflow: false,
     workflowPayload: { data: {}, isUpdating: false },
+    hostedWorkflowTimeout: null, setTimeout: () => 1,
     console: { error(error) { throw error; } },
     ...overrides,
   });
 }
+function functionNode(name) {
+  const node = ast.program.body.find(
+    (item) => item.type === 'FunctionDeclaration' && item.id.name === name
+  );
+  assert.ok(node, `Missing function: ${name}`);
+  return node;
+}
+function editorHarness(t) {
+  const timers = new Map();
+  let timerId = 0;
+  const flow = useVueFlow(`regression-${t.name}`);
+  flow.setNodes(['first', 'second', 'third'].map((id, index) => ({
+    id, label: index === 0 ? 'trigger' : 'http-client',
+    position: { x: index * 250, y: 0 }, data: { url: 'old' },
+  })));
+  t.after(() => flow.$destroy());
+  const context = harness({
+    editor: { value: flow },
+    editState: { blockData: { blockId: 'second', data: flow.findNode('second').data } },
+    autocompleteState: { blocks: {} }, state: { dataChanged: false },
+    haveEditAccess: { value: true }, workflow: { value: {} },
+    updateHostedWorkflow() {}, onNodesChange() {},
+    setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, delay }); return id; },
+    clearTimeout(id) { timers.delete(id); },
+  });
+  const helper = fs.readFileSync(path.join(root, 'src/utils/helper.js'), 'utf8');
+  const helperAst = babel.parseSync(helper, { sourceType: 'module', babelrc: false, configFile: false });
+  const debounce = helperAst.program.body.find((node) => node.declaration?.id?.name === 'debounce').declaration;
+  context.debounce = vm.runInContext(`(${helper.slice(debounce.start, debounce.end)})`, context);
+  context.onEdgesChange = evaluate(initializer('onEdgesChange'), context);
+  evaluate(functionNode('onEditorInit'), context)(flow);
+  return {
+    flow, context,
+    flushEdgeChanges() {
+      for (const [id, timer] of timers) {
+        if (timer.delay > 250) continue;
+        timers.delete(id);
+        timer.callback();
+      }
+    },
+  };
+}
+function edgeData(target = 'second') {
+  return { id: 'connection', source: 'first', target,
+    sourceHandle: 'first-output-1', targetHandle: `${target}-input-1` };
+}
+
+for (const action of ['add', 'remove']) {
+  test(`edge ${action} followed by selection retains the unsaved change`, (t) => {
+    const { flow, context, flushEdgeChanges } = editorHarness(t);
+    if (action === 'remove') flow.setEdges([edgeData()]);
+    if (action === 'add') flow.addEdges([edgeData()]);
+    else flow.removeEdges(['connection']);
+    context.onEdgesChange([{ id: 'connection', type: 'select', selected: false }]);
+    flushEdgeChanges();
+    assert.equal(context.state.dataChanged, true);
+    assert.equal(flow.toObject().edges.length, action === 'add' ? 1 : 0);
+  });
+}
+
+test('connecting then immediately leaving still asks to retain unsaved edits', (t) => {
+  const { flow, context } = editorHarness(t);
+  let confirmations = 0;
+  context.window = { confirm() { confirmations += 1; return false; } };
+  context.t = (key) => key;
+  flow.addEdges([edgeData()]);
+  assert.equal(evaluate(functionNode('onBeforeLeave'), context)(), false);
+  assert.equal(confirmations, 1);
+});
+
+test('invalid output-to-output connections cannot enter an immediate save', (t) => {
+  const { flow, context, flushEdgeChanges } = editorHarness(t);
+  flow.addEdges([{ ...edgeData(), targetHandle: 'second-output-1' }]);
+  assert.equal(flow.toObject().edges.length, 0);
+  context.onEdgesChange([{ id: 'connection', type: 'select', selected: false }]);
+  flushEdgeChanges();
+  assert.equal(flow.toObject().edges.length, 0);
+});
+
+test('selection alone never dirties a clean editor', (t) => {
+  const { flow, context, flushEdgeChanges } = editorHarness(t);
+  flow.setEdges([edgeData()]);
+  flow.addSelectedEdges([flow.findEdge('connection')]);
+  flushEdgeChanges();
+  assert.equal(context.state.dataChanged, false);
+});
+
+test('reconnecting an existing edge marks the changed graph unsaved', async (t) => {
+  const { flow, context } = editorHarness(t);
+  flow.setEdges([edgeData()]);
+  // WorkflowEditor mutates an edge on edgeUpdate without emitting edgesChange.
+  const component = parse(fs.readFileSync(path.join(root, 'src/components/newtab/workflow/WorkflowEditor.vue'), 'utf8'));
+  const content = component.descriptor.scriptSetup.content;
+  const componentAst = babel.parseSync(content, { sourceType: 'module', babelrc: false, configFile: false });
+  const callback = componentAst.program.body.find((node) =>
+    node.type === 'ExpressionStatement' && node.expression.callee?.property?.name === 'onEdgeUpdate'
+  ).expression.arguments[0];
+  flow.onEdgeUpdate(vm.runInContext(`(${content.slice(callback.start, callback.end)})`, context));
+  await flow.hooks.value.edgeUpdate.trigger({ edge: flow.findEdge('connection'), connection: edgeData('third') });
+  assert.equal(flow.toObject().edges[0].target, 'third');
+  assert.equal(context.state.dataChanged, true);
+});
+
+for (const isPackage of [false, true]) {
+  test(`completing a ${isPackage ? 'package' : 'workflow'} save cannot clear newer field edits`, async (t) => {
+    const { flow, context } = editorHarness(t);
+    context.isPackage = isPackage;
+    const update = evaluate(initializer('updateBlockData'), context);
+    const completeSave = evaluate(functionNode('onActionUpdated'), context);
+    update({ url: 'saved' });
+    const savedGraph = flow.toObject();
+    let finish;
+    const pending = new Promise((resolve) => { finish = resolve; }).then(() => {
+      completeSave({ data: { [isPackage ? 'data' : 'drawflow']: savedGraph }, changedIndicator: false });
+    });
+    update({ url: 'newer unsaved value' });
+    finish();
+    await pending;
+    assert.equal(flow.findNode('second').data.url, 'newer unsaved value');
+    assert.equal(context.state.dataChanged, true);
+    completeSave({ data: { [isPackage ? 'data' : 'drawflow']: flow.toObject() }, changedIndicator: false });
+    assert.equal(context.state.dataChanged, false);
+  });
+}
+
+test('saving workflow metadata cannot mark the unsaved graph clean', (t) => {
+  const { context } = editorHarness(t);
+  evaluate(initializer('updateBlockData'), context)({ url: 'unsaved' });
+  evaluate(functionNode('onActionUpdated'), context)({ data: { name: 'Renamed' }, changedIndicator: false });
+  assert.equal(context.state.dataChanged, true);
+});
+
+test('selection highlighting and panning during a save do not count as graph edits', (t) => {
+  const { flow, context } = editorHarness(t);
+  flow.addEdges([edgeData()]);
+  const snapshot = flow.toObject();
+  flow.findEdge('connection').class = 'connected-edges';
+  flow.addSelectedEdges([flow.findEdge('connection')]);
+  flow.viewport.value = { x: 100, y: 200, zoom: 0.8 };
+  evaluate(functionNode('onActionUpdated'), context)({ data: { drawflow: snapshot }, changedIndicator: false });
+  assert.equal(context.state.dataChanged, false);
+});
+
+test('a save does not swallow new edge data or node positions', (t) => {
+  const { flow, context } = editorHarness(t);
+  const completeSave = evaluate(functionNode('onActionUpdated'), context);
+  const snapshot = flow.toObject();
+  flow.addEdges([edgeData()]);
+  completeSave({ data: { drawflow: snapshot }, changedIndicator: false });
+  assert.equal(context.state.dataChanged, true);
+  const connected = flow.toObject();
+  flow.findNode('second').position.x += 25;
+  completeSave({ data: { drawflow: connected }, changedIndicator: false });
+  assert.equal(context.state.dataChanged, true);
+});
+
+test('edges with implicit handles do not throw away the change notification', (t) => {
+  const { flow, context, flushEdgeChanges } = editorHarness(t);
+  flow.addEdges([{ id: 'implicit', source: 'first', target: 'second' }]);
+  flushEdgeChanges();
+  assert.equal(context.state.dataChanged, true);
+});
+
+function hostedHarness() {
+  const timers = new Map();
+  const requests = [];
+  const errors = [];
+  let timerId = 0;
+  let now = 0;
+  const context = harness({
+    workflowPayload: { data: { name: 'first', description: 'original' }, isUpdating: false },
+    userStore: { user: { id: 'user' }, hostedWorkflows: { origin: true }, backupIds: [] },
+    workflowStore: { getById: (id) => ({ id }) },
+    console: { error: (error) => errors.push(error) },
+    setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, at: now + delay }); return id; },
+    fetchApi(url, options) {
+      return new Promise((resolve, reject) => {
+        requests.push({ url, body: JSON.parse(options.body), resolve, reject });
+      });
+    },
+  });
+  const helper = fs.readFileSync(path.join(root, 'src/utils/helper.js'), 'utf8');
+  const helperAst = babel.parseSync(helper, { sourceType: 'module', babelrc: false, configFile: false });
+  const throttle = helperAst.program.body.find((node) => node.declaration?.id?.name === 'throttle').declaration;
+  context.throttle = vm.runInContext(`(${helper.slice(throttle.start, throttle.end)})`, context);
+  context.updateHostedWorkflow = evaluate(initializer('updateHostedWorkflow'), context);
+  const settle = () => new Promise((resolve) => setImmediate(resolve));
+  return {
+    context, requests, errors, settle,
+    async advance(ms) {
+      now += ms;
+      for (const [id, timer] of timers) {
+        if (timer.at > now) continue;
+        timers.delete(id);
+        timer.callback();
+      }
+      await settle();
+    },
+    queue(data) {
+      context.workflowPayload.data = { ...context.workflowPayload.data, ...data };
+      context.updateHostedWorkflow();
+    },
+  };
+}
+
+test('hosted upload preserves and drains saves queued during an in-flight request', async () => {
+  const { context, requests, queue, advance, settle } = hostedHarness();
+  context.updateHostedWorkflow();
+  assert.equal(requests.length, 1);
+  queue({ name: 'latest', drawflow: { nodes: [{ id: 'latest-node' }], edges: [] } });
+  assert.equal(requests.length, 1);
+  requests[0].resolve({ ok: true });
+  await settle();
+  assert.equal(context.workflowPayload.data.name, 'latest');
+  await advance(5000);
+  assert.equal(requests.length, 2);
+  assert.equal(requests[1].body.workflow.name, 'latest');
+  assert.equal(requests[1].body.workflow.drawflow.nodes[0].id, 'latest-node');
+  requests[1].resolve({ ok: true });
+  await settle();
+  await advance(5000);
+  assert.equal(requests.length, 2, 'an empty queue must not upload again');
+});
+
+test('a save during the hosted cooldown is eventually sent without a third edit', async () => {
+  const { context, requests, queue, advance, settle } = hostedHarness();
+  context.updateHostedWorkflow();
+  requests[0].resolve({ ok: true });
+  await settle();
+  await advance(1000);
+  queue({ name: 'last save' });
+  assert.equal(requests.length, 1, 'preserve the upload rate limit');
+  await advance(4000);
+  assert.equal(requests.length, 2);
+  assert.equal(requests[1].body.workflow.name, 'last save');
+  requests[1].resolve({ ok: true });
+  await settle();
+});
+
+test('failed hosted uploads preserve queued newer values and allow a retry', async () => {
+  const { context, requests, errors, queue, advance, settle } = hostedHarness();
+  context.updateHostedWorkflow();
+  queue({ name: 'newer', category: 'updated' });
+  requests[0].reject(new Error('offline'));
+  await settle();
+  assert.equal(errors.length, 1);
+  assert.equal(context.workflowPayload.isUpdating, false);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.workflowPayload.data)), {
+    name: 'newer', description: 'original', category: 'updated',
+  });
+  await advance(5000);
+  assert.equal(requests.length, 1, 'do not create an unbounded automatic retry loop');
+  context.updateHostedWorkflow();
+  assert.equal(requests.length, 2);
+  assert.deepEqual(requests[1].body.workflow, { name: 'newer', description: 'original', category: 'updated' });
+  requests[1].resolve({ ok: true });
+  await settle();
+});
 
 test('saved updateWorkflow callback cannot overwrite the newly selected graph', async () => {
   const graphs = {
@@ -143,7 +403,8 @@ for (const kind of ['hosted', 'backup']) {
         browser: { storage: { local: { async set(value) { backups.push(structuredClone(value)); } } } },
       });
       // Run the actual throttled callback after navigation, without real timers.
-      const callback = initializer('updateHostedWorkflow').arguments[0];
+      const init = initializer('updateHostedWorkflow');
+      const callback = init.arguments?.[0] || init;
       assert.ok(callback.async);
       const savedCallback = evaluate(callback, context);
       context.route.params.id = 'destination';
